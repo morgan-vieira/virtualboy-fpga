@@ -15,7 +15,7 @@ import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 import { fromYaml } from "./lib/schemaYaml.ts";
 import { referenceRepos, type ReferenceRepo } from "./lib/reference-repos.ts";
 
-export type ReferenceRepoSyncAction = "add" | "pull";
+export type ReferenceRepoSyncAction = "clone" | "update";
 
 export interface ReferenceRepoSyncOptions {
   readonly rootDir?: string | undefined;
@@ -28,7 +28,8 @@ export interface ReferenceRepoSyncPlan {
   readonly repo: ReferenceRepo;
   readonly action: ReferenceRepoSyncAction;
   readonly ref: string;
-  readonly args: ReadonlyArray<string>;
+  readonly directory: string;
+  readonly steps: ReadonlyArray<ReadonlyArray<string>>;
 }
 
 export class ReferenceRepoSelectionError extends Schema.TaggedErrorClass<ReferenceRepoSelectionError>()(
@@ -70,16 +71,16 @@ export class ReferenceRepoVersionResolutionError extends Schema.TaggedErrorClass
   }
 }
 
-export class ReferenceRepoGitSubtreeError extends Schema.TaggedErrorClass<ReferenceRepoGitSubtreeError>()(
-  "ReferenceRepoGitSubtreeError",
+export class ReferenceRepoGitError extends Schema.TaggedErrorClass<ReferenceRepoGitError>()(
+  "ReferenceRepoGitError",
   {
     operation: Schema.Literals(["spawn", "communicate", "exit"]),
     repoId: Schema.String,
-    action: Schema.Literals(["add", "pull"]),
+    action: Schema.Literals(["clone", "update"]),
     repository: Schema.String,
     ref: Schema.String,
-    rootDir: Schema.String,
-    argumentCount: Schema.Number,
+    directory: Schema.String,
+    step: Schema.Array(Schema.String),
     exitCode: Schema.optional(Schema.Number),
     stdout: Schema.optional(Schema.String),
     stderr: Schema.optional(Schema.String),
@@ -87,7 +88,7 @@ export class ReferenceRepoGitSubtreeError extends Schema.TaggedErrorClass<Refere
   },
 ) {
   override get message(): string {
-    const headline = `Git subtree ${this.action} for reference repo "${this.repoId}" failed during "${this.operation}".`;
+    const headline = `Reference repo "${this.repoId}" failed to ${this.action} during "${this.operation}": git ${this.step.join(" ")}`;
     const output = [this.stderr, this.stdout]
       .map((text) => text?.trim())
       .filter((text) => text !== undefined && text.length > 0)
@@ -100,7 +101,7 @@ export const ReferenceRepoSyncError = Schema.Union([
   ReferenceRepoSelectionError,
   ReferenceRepoVersionSourceError,
   ReferenceRepoVersionResolutionError,
-  ReferenceRepoGitSubtreeError,
+  ReferenceRepoGitError,
 ]);
 export type ReferenceRepoSyncError = typeof ReferenceRepoSyncError.Type;
 export const isReferenceRepoSyncError = Schema.is(ReferenceRepoSyncError);
@@ -212,39 +213,55 @@ export const planReferenceRepoSync = Effect.fn("planReferenceRepoSync")(function
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const action: ReferenceRepoSyncAction = (yield* fs.exists(path.join(rootDir, repo.prefix)))
-    ? "pull"
-    : "add";
+  const directory = path.join(rootDir, repo.prefix);
+  const action: ReferenceRepoSyncAction = (yield* fs.exists(path.join(directory, ".git")))
+    ? "update"
+    : "clone";
   const ref = yield* resolveReferenceRepoRef(repo, rootDir, latest);
 
   return {
     repo,
     action,
     ref,
-    args: ["subtree", action, `--prefix=${repo.prefix}`, repo.repository, ref, "--squash"],
+    directory,
+    // A shallow detached checkout, not a clone or a subtree. .repos/ is
+    // ignored, so nothing here enters our history; we only ever read these
+    // sources. Depth 1 keeps mednafen-git from dragging in years of history
+    // we will never look at, and fetching the ref directly means a pinned
+    // commit costs the same as a branch.
+    steps: [
+      ["init", "--quiet"],
+      ["fetch", "--depth=1", "--force", repo.repository, ref],
+      ["checkout", "--quiet", "--force", "--detach", "FETCH_HEAD"],
+    ],
   } satisfies ReferenceRepoSyncPlan;
 });
 
-const runGit = Effect.fn("runGit")(function* (rootDir: string, plan: ReferenceRepoSyncPlan) {
+const runGitStep = Effect.fn("runGitStep")(function* (
+  plan: ReferenceRepoSyncPlan,
+  step: ReadonlyArray<string>,
+) {
   const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
   const errorContext = {
     repoId: plan.repo.id,
     action: plan.action,
     repository: plan.repo.repository,
     ref: plan.ref,
-    rootDir,
-    argumentCount: plan.args.length,
+    directory: plan.directory,
+    step,
   } as const;
-  const child = yield* spawner.spawn(ChildProcess.make("git", plan.args, { cwd: rootDir })).pipe(
-    Effect.mapError(
-      (cause) =>
-        new ReferenceRepoGitSubtreeError({
-          ...errorContext,
-          operation: "spawn",
-          cause,
-        }),
-    ),
-  );
+  const child = yield* spawner
+    .spawn(ChildProcess.make("git", [...step], { cwd: plan.directory }))
+    .pipe(
+      Effect.mapError(
+        (cause) =>
+          new ReferenceRepoGitError({
+            ...errorContext,
+            operation: "spawn",
+            cause,
+          }),
+      ),
+    );
   const [stdout, stderr, exitCode] = yield* Effect.all(
     [
       collectStreamAsString(child.stdout),
@@ -255,7 +272,7 @@ const runGit = Effect.fn("runGit")(function* (rootDir: string, plan: ReferenceRe
   ).pipe(
     Effect.mapError(
       (cause) =>
-        new ReferenceRepoGitSubtreeError({
+        new ReferenceRepoGitError({
           ...errorContext,
           operation: "communicate",
           cause,
@@ -264,7 +281,7 @@ const runGit = Effect.fn("runGit")(function* (rootDir: string, plan: ReferenceRe
   );
 
   if (exitCode !== 0) {
-    return yield* new ReferenceRepoGitSubtreeError({
+    return yield* new ReferenceRepoGitError({
       ...errorContext,
       operation: "exit",
       exitCode,
@@ -281,17 +298,38 @@ const runGit = Effect.fn("runGit")(function* (rootDir: string, plan: ReferenceRe
 export const syncReferenceRepos = Effect.fn("syncReferenceRepos")(function* (
   options: ReferenceRepoSyncOptions = {},
 ) {
+  const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const rootDir = path.resolve(options.rootDir ?? process.cwd());
   const repos = yield* getSelectedRepos(options.repoId);
+  const dryRun = options.dryRun ?? false;
   const plans: Array<ReferenceRepoSyncPlan> = [];
 
   for (const repo of repos) {
     const plan = yield* planReferenceRepoSync(repo, rootDir, options.latest ?? false);
     plans.push(plan);
-    yield* Console.log(`Syncing ${repo.id} from ${plan.ref} with git subtree ${plan.action}.`);
-    if (!(options.dryRun ?? false)) {
-      yield* runGit(rootDir, plan).pipe(Effect.scoped);
+    yield* Console.log(`${plan.action === "clone" ? "Cloning" : "Updating"} ${repo.id} at ${plan.ref}.`);
+    if (dryRun) {
+      continue;
+    }
+
+    yield* fs.makeDirectory(plan.directory, { recursive: true }).pipe(
+      Effect.mapError(
+        (cause) =>
+          new ReferenceRepoGitError({
+            repoId: repo.id,
+            action: plan.action,
+            repository: repo.repository,
+            ref: plan.ref,
+            directory: plan.directory,
+            step: ["init", "--quiet"],
+            operation: "spawn",
+            cause,
+          }),
+      ),
+    );
+    for (const step of plan.steps) {
+      yield* runGitStep(plan, step).pipe(Effect.scoped);
     }
   }
 
@@ -312,11 +350,11 @@ export const syncReferenceReposCommand = Command.make(
       Flag.withDefault(false),
     ),
     root: Flag.string("root").pipe(
-      Flag.withDescription("Workspace root used to resolve versions and subtree prefixes."),
+      Flag.withDescription("Workspace root used to resolve versions and checkout directories."),
       Flag.optional,
     ),
     dryRun: Flag.boolean("dry-run").pipe(
-      Flag.withDescription("Print planned subtree operations without running git."),
+      Flag.withDescription("Print what each repo would be synced to without running git."),
       Flag.withDefault(false),
     ),
   },
@@ -327,7 +365,11 @@ export const syncReferenceReposCommand = Command.make(
       latest,
       dryRun,
     }),
-).pipe(Command.withDescription("Sync vendored reference repositories under .repos/."));
+).pipe(
+  Command.withDescription(
+    "Check out the reference emulator sources under .repos/, which is git-ignored.",
+  ),
+);
 
 if (import.meta.main) {
   Command.run(syncReferenceReposCommand, { version: "0.0.0" }).pipe(
