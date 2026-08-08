@@ -1,3 +1,3 @@
-Example Core - Core Template
+Virtual Boy
 
-This is a template for a core containing all of the core definition JSON files and FPGA starter code.
+Nintendo Virtual Boy core for the Analogue Pocket.
