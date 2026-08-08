@@ -3,6 +3,12 @@ node_modules/
 .ignore/
 .local/
 
+# Vendored reference emulators (re-fetch with pnpm run sync:repos).
+# Must be .repos/* rather than .repos/ - git will not descend into an ignored
+# directory, so the versions.json exception below would never be seen.
+.repos/*
+!.repos/versions.json
+
 # Claude local files
 .claude/
 
