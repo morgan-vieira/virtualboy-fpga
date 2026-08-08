@@ -1,0 +1,23 @@
+{
+    "editor.formatOnSave": true,
+    "files.watcherExclude": {
+        ".repos/**": true
+    },
+    "search.exclude": {
+        ".repos/**": true
+    },
+    "[markdown]": {
+        "editor.defaultFormatter": "yzhang.markdown-all-in-one"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "oxc.oxc-vscode"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "oxc.oxc-vscode"
+    },
+    "editor.codeActionsOnSave": {
+        "source.fixAll.oxc": "always"
+    },
+    "oxc.unusedDisableDirectives": "warn",
+    "editor.formatOnSaveMode": "file"
+}

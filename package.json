@@ -1,0 +1,29 @@
+{
+  "name": "virtualboy-fpga",
+  "type": "module",
+  "private": true,
+  "imports": {
+    "#scripts/*": "./scripts/*.ts",
+    "#roms/*": "./src/roms/*.ts"
+  },
+  "scripts": {
+    "build:roms": "node scripts/build-roms.ts",
+    "format:md": "node scripts/format-with-vscode.ts --language markdown",
+    "format:ts": "node scripts/format-with-vscode.ts --language typescript",
+    "sync:repos": "node scripts/sync-reference-repos.ts",
+    "test:roms": "node --test scripts/lib/v810.test.ts"
+  },
+  "devDependencies": {
+    "@effect/platform-node": "4.0.0-beta.102",
+    "@types/node": "24.12.4",
+    "@vscode/test-electron": "^3.1.0",
+    "effect": "4.0.0-beta.102",
+    "oxfmt": "^0.61.0",
+    "typescript": "~6.0.3",
+    "yaml": "^2.9.0"
+  },
+  "engines": {
+    "node": "^24.17.0"
+  },
+  "packageManager": "pnpm@11.10.0"
+}
