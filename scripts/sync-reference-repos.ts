@@ -308,7 +308,9 @@ export const syncReferenceRepos = Effect.fn("syncReferenceRepos")(function* (
   for (const repo of repos) {
     const plan = yield* planReferenceRepoSync(repo, rootDir, options.latest ?? false);
     plans.push(plan);
-    yield* Console.log(`${plan.action === "clone" ? "Cloning" : "Updating"} ${repo.id} at ${plan.ref}.`);
+    yield* Console.log(
+      `${plan.action === "clone" ? "Cloning" : "Updating"} ${repo.id} at ${plan.ref}.`,
+    );
     if (dryRun) {
       continue;
     }
