@@ -56,7 +56,7 @@
 - Byte Enable Controls in Memory Blocks..... 2-14
 
 | Data Byte Output.....                                             | 2-15 |
-|-------------------------------------------------------------------|------|
+| ----------------------------------------------------------------- | ---- |
 | RAM Blocks Operations.....                                        | 2-15 |
 | Memory Blocks Packed Mode Support.....                            | 2-16 |
 | Memory Blocks Address Clock Enable Support.....                   | 2-16 |
@@ -65,7 +65,7 @@
 **Variable Precision DSP Blocks in Cyclone V Devices..... 3-1**
 
 | Features.....                                                            | 3-1  |
-|--------------------------------------------------------------------------|------|
+| ------------------------------------------------------------------------ | ---- |
 | Supported Operational Modes in Cyclone V Devices.....                    | 3-2  |
 | Resources.....                                                           | 3-2  |
 | Design Considerations.....                                               | 3-3  |
@@ -102,14 +102,14 @@
 **Clock Networks and PLLs in Cyclone V Devices..... 4-1**
 
 | Clock Networks.....                       | 4-1 |
-|-------------------------------------------|-----|
+| ----------------------------------------- | --- |
 | Clock Resources in Cyclone V Devices..... | 4-2 |
 | Types of Clock Networks.....              | 4-4 |
 | Global Clock Networks.....                | 4-4 |
 | Regional Clock Networks.....              | 4-6 |
 
 | Periphery Clock Networks.....                                      | 4-8  |
-|--------------------------------------------------------------------|------|
+| ------------------------------------------------------------------ | ---- |
 | Clock Sources Per Quadrant.....                                    | 4-10 |
 | Types of Clock Regions.....                                        | 4-11 |
 | Entire Device Clock Region.....                                    | 4-11 |
@@ -210,7 +210,7 @@
   - Bus-Hold Circuitry..... 5-38
 
 | Pull-up Resistor.....                                            | 5-38 |
-|------------------------------------------------------------------|------|
+| ---------------------------------------------------------------- | ---- |
 | On-Chip I/O Termination in Cyclone V Devices.....                | 5-38 |
 | R <sub>S</sub> OCT without Calibration in Cyclone V Devices..... | 5-39 |
 | R <sub>S</sub> OCT with Calibration in Cyclone V Devices.....    | 5-41 |
@@ -256,13 +256,13 @@
 ## External Memory Interfaces in Cyclone V Devices.....6-1
 
 | External Memory Performance.....                       | 6-1 |
-|--------------------------------------------------------|-----|
+| ------------------------------------------------------ | --- |
 | HPS External Memory Performance.....                   | 6-2 |
 | Memory Interface Pin Support in Cyclone V Devices..... | 6-2 |
 | Guideline: Using DQ/DQS Pins.....                      | 6-3 |
 
 | DQ/DQS Bus Mode Pins for Cyclone V Devices.....                       | 6-3  |
-|-----------------------------------------------------------------------|------|
+| --------------------------------------------------------------------- | ---- |
 | DQ/DQS Groups in Cyclone V E.....                                     | 6-4  |
 | DQ/DQS Groups in Cyclone V GX.....                                    | 6-6  |
 | DQ/DQS Groups in Cyclone V GT.....                                    | 6-8  |
@@ -304,7 +304,7 @@
 **Configuration, Design Security, and Remote System Upgrades in Cyclone V Devices..... 7-1**
 
 | Enhanced Configuration and Configuration via Protocol..... | 7-1 |
-|------------------------------------------------------------|-----|
+| ---------------------------------------------------------- | --- |
 | MSEL Pin Settings.....                                     | 7-2 |
 | Configuration Sequence.....                                | 7-3 |
 | Power Up.....                                              | 7-5 |
@@ -313,7 +313,7 @@
 | Configuration Error Handling.....                          | 7-6 |
 
 | Initialization.....                                                            | 7-6  |
-|--------------------------------------------------------------------------------|------|
+| ------------------------------------------------------------------------------ | ---- |
 | User Mode.....                                                                 | 7-6  |
 | Configuration Timing Waveforms.....                                            | 7-8  |
 | FPP Configuration Timing.....                                                  | 7-8  |
@@ -620,7 +620,7 @@ The Intel Quartus Prime Compiler creates shared arithmetic chains longer than 20
 #### **Logic Array Blocks and Adaptive Logic Modules in Cyclone V Devices Revision History**
 
 | Date         | Version    | Changes                                                               |
-|--------------|------------|-----------------------------------------------------------------------|
+| ------------ | ---------- | --------------------------------------------------------------------- |
 | August 2016  | 2016.08.24 | Added description on clock source in the LAB Control Signals section. |
 |              | 2015.12.21 | Changed instances of Quartus II to Quartus Prime                      |
 | January 2014 | 2014.01.10 | Added multiplexers for the bypass paths and register outputs in the   |
@@ -661,7 +661,7 @@ The Cyclone V devices contain two types of memory blocks:
 **Table 2-1: Embedded Memory Capacity and Distribution in Cyclone V Devices**
 
 | Member Variant Code | Block | M10K RAM Bit (Kb) | Block | MLAB RAM Bit (Kb) | Total RAM Bit (Kb) |
-|---------------------|-------|-------------------|-------|-------------------|--------------------|
+| ------------------- | ----- | ----------------- | ----- | ----------------- | ------------------ |
 | A2                  | 176   | 1,760             | 314   | 196               | 1,956              |
 | A4                  | 308   | 3,080             | 485   | 303               | 3,383              |
 | A5 Cyclone V E      | 446   | 4,460             | 679   | 424               | 4,884              |
@@ -677,7 +677,7 @@ Intel Corporation. All rights reserved. Intel, the Intel logo, Altera, Arria, Cy
 <span id="page-22-0"></span>
 
 | Member Variant Code | Block | M10K RAM Bit (Kb) | Block | MLAB RAM Bit (Kb) | Total RAM Bit (Kb) |
-|---------------------|-------|-------------------|-------|-------------------|--------------------|
+| ------------------- | ----- | ----------------- | ----- | ----------------- | ------------------ |
 | C3                  | 135   | 1,350             | 291   | 182               | 1,532              |
 | C4                  | 250   | 2,500             | 678   | 424               | 2,924              |
 | C5 Cyclone V GX     | 446   | 4,460             | 678   | 424               | 4,884              |
@@ -734,7 +734,7 @@ The same-port read-during-write mode applies to a single-port RAM or the same po
 This table lists the available output modes if you select the embedded memory blocks in the same-port read-during-write mode.
 
 | Output Mode  | Memory Type | Description                                         |
-|--------------|-------------|-----------------------------------------------------|
+| ------------ | ----------- | --------------------------------------------------- |
 |              | M10K        | The new data is available on the rising edge of the |
 | "don't care" | M10K, MLAB  | The RAM outputs "don't care" values for a read     |
 
@@ -751,12 +751,12 @@ The mixed-port read-during-write mode applies to simple and true dual-port RAM m
 **Table 2-3: Output Modes for RAM in Mixed-Port Read-During-Write Mode**
 
 | Output Mode | Memory Type | Description                                                 |
-|-------------|-------------|-------------------------------------------------------------|
+| ----------- | ----------- | ----------------------------------------------------------- |
 | "new data"  | MLAB        | A read-during-write operation to different ports causes the |
 | "old data"  | M10K, MLAB  | A read-during-write operation to different ports causes the |
 
 | Output Mode  | Memory Type | Description                                                |
-|--------------|-------------|------------------------------------------------------------|
+| ------------ | ----------- | ---------------------------------------------------------- |
 | "don't care" | M10K, MLAB  | The RAM outputs “don’t care” or “unknown” value.           |
 |              | MLAB        | The RAM outputs “don’t care” or “unknown” value. The Intel |
 
@@ -793,7 +793,7 @@ Consider the power up state of the different types of memory blocks if you are d
 **Table 2-4: Initial Power-Up Values of Embedded Memory Blocks**
 
 | Memory Type Output Registers | Power Up Value       |
-|------------------------------|----------------------|
+| ---------------------------- | -------------------- |
 | Used                         | Zero (cleared)       |
 | Bypassed                     | Read memory contents |
 | Used                         | Zero (cleared)       |
@@ -821,13 +821,13 @@ Reduce AC power consumption in your design by controlling the clocking of each m
 
 This table summarizes the features supported by the embedded memory blocks.
 
-|  | Features                                   | M10K    | MLAB    |
-|--|--------------------------------------------|---------|---------|
-|  | Maximum operating frequency                | 315 MHz | 420 MHz |
-|  | Capacity per block (including parity bits) | 10,240  | 640     |
+|     | Features                                   | M10K    | MLAB    |
+| --- | ------------------------------------------ | ------- | ------- |
+|     | Maximum operating frequency                | 315 MHz | 420 MHz |
+|     | Capacity per block (including parity bits) | 10,240  | 640     |
 
 | Features                          | M10K                  | MLAB                       |
-|-----------------------------------|-----------------------|----------------------------|
+| --------------------------------- | --------------------- | -------------------------- |
 | Parity bits                       | Supported             | Supported                  |
 | Byte enable                       | Supported             | Supported                  |
 | Packed mode                       | Supported             | —                          |
@@ -855,7 +855,7 @@ Embedded Memory (RAM: 1-PORT, RAM: 2-PORT, ROM: 1-PORT, and ROM: 2-PORT) User Gu
 This table lists the maximum configurations supported for the embedded memory blocks. The information is applicable only to the single-port RAM and ROM modes.
 
 | Memory Block Depth (bits) | Programmable Width |
-|---------------------------|--------------------|
+| ------------------------- | ------------------ |
 | MLAB 32                   | x16, x18, or x20   |
 | 256                       | x40 or x32         |
 | 512                       | x20 or x16         |
@@ -879,7 +879,7 @@ Embedded Memory (RAM: 1-PORT, RAM:2-PORT, ROM: 1-PORT, and ROM: 2-PORT) User Gui
 **Table 2-7: M10K Block Mixed-Width Configurations in Simple Dual-Port RAM Mode**
 
 | Read Port |        |        |        |        |        | Write Port |         |         |         |          |
-|-----------|--------|--------|--------|--------|--------|------------|---------|---------|---------|----------|
+| --------- | ------ | ------ | ------ | ------ | ------ | ---------- | ------- | ------- | ------- | -------- |
 |           | 8K x 1 | 4K x 2 | 2K x 4 | 2K x 5 | 1K x 8 | 1k x 10    | 512 x 1 | 512 x 2 | 256 x 3 | 256 x 40 |
 | 8K x 1    | Yes    | Yes    | Yes    | —      | Yes    | —          | Yes     | —       | Yes     | —        |
 | 4K x 2    | Yes    | Yes    | Yes    | —      | Yes    | —          | Yes     | —       | Yes     | —        |
@@ -893,7 +893,7 @@ Embedded Memory (RAM: 1-PORT, RAM:2-PORT, ROM: 1-PORT, and ROM: 2-PORT) User Gui
 <span id="page-30-0"></span>
 
 | Read Port |        |        |        |        |        | Write Port |         |         |         |          |
-|-----------|--------|--------|--------|--------|--------|------------|---------|---------|---------|----------|
+| --------- | ------ | ------ | ------ | ------ | ------ | ---------- | ------- | ------- | ------- | -------- |
 |           | 8K x 1 | 4K x 2 | 2K x 4 | 2K x 5 | 1K x 8 | 1k x 10    | 512 x 1 | 512 x 2 | 256 x 3 | 256 x 40 |
 | 256 x 32  | Yes    | Yes    | Yes    | —      | Yes    | —          | Yes     | —       | Yes     | —        |
 | 256 x 40  | —      | —      | —      | Yes    | —      | Yes        | —       | Yes     | —       | Yes      |
@@ -901,7 +901,7 @@ Embedded Memory (RAM: 1-PORT, RAM:2-PORT, ROM: 1-PORT, and ROM: 2-PORT) User Gui
 **Table 2-8: M10K Block Mixed-Width Configurations in True Dual-Port Mode**
 
 | Port B   |        |        |        |        | Port A |         |          |          |
-|----------|--------|--------|--------|--------|--------|---------|----------|----------|
+| -------- | ------ | ------ | ------ | ------ | ------ | ------- | -------- | -------- |
 |          | 8K x 1 | 4K x 2 | 2K x 4 | 2K x 5 | 1K x 8 | 1K x 10 | 512 x 16 | 512 x 20 |
 | 8K x 1   | Yes    | Yes    | Yes    | —      | Yes    | —       | Yes      | —        |
 | 4K x 2   | Yes    | Yes    | Yes    | —      | Yes    | —       | Yes      | —        |
@@ -921,7 +921,7 @@ Caution: To avoid corrupting the memory contents, do not violate the setup or ho
 This table lists and describes the memory modes that are supported in the Cyclone V embedded memory blocks.
 
 |                      | M10K    | MLAB    |                                                                                                                                                             |
-|----------------------|---------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| -------------------- | ------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Memory Mode          | Support | Support | Description                                                                                                                                                 |
 | Single-port RAM      | Yes     | Yes     | You can perform only one read or one write operation at a time. deasserted. operation.                                                                      |
 | Simple dual-port RAM | Yes     | Yes     | You can simultaneously perform one read and one write                                                                                                       |
@@ -932,7 +932,7 @@ This table lists and describes the memory modes that are supported in the Cyclon
 <span id="page-32-0"></span>
 
 |      | M10K Support | MLAB Support | Description                                                                                                                                                                                                                                                                                                                         |
-|------|--------------|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ---- | ------------ | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | FIFO | Yes          | Yes          | <p>You can use the memory blocks as FIFO buffers. Use the SCFIFO and DCFIFO IP cores to implement single- and dual-clock asynchronous FIFO buffers in your design.</p> <p>For designs with many small and shallow FIFO buffers, the MLABs are ideal for the FIFO mode. However, the MLABs do not support mixed-width FIFO mode.</p> |
 
 - Embedded Memory (RAM: 1-PORT, RAM:2-PORT, ROM: 1-PORT, and ROM: 2-PORT) User Guide Provides more information memory modes.
@@ -950,7 +950,7 @@ Caution: To avoid corrupting the memory contents, do not violate the setup or ho
 **Table 2-10: Memory Blocks Clocking Modes Supported for Each Memory Mode**
 
 | Clocking Mode           |             |              | Memory Mode     |     |      |
-|-------------------------|-------------|--------------|-----------------|-----|------|
+| ----------------------- | ----------- | ------------ | --------------- | --- | ---- |
 |                         | Single-Port | Simple Dual |                 |     |      |
 |                         |             | Port         | True Dual Port | ROM | FIFO |
 | Single clock mode       | Yes         | Yes          | Yes             | Yes | Yes  |
@@ -1008,7 +1008,7 @@ To save power, you can control the shut down of a particular register using the 
 This table describes the parity bit support for the memory blocks.
 
 |                                                                                                                                                                                                                                                                                                                               | M10K                                                                                                                                                                                                                   | MLAB |
-|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------|
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
 | <ul><li>The parity bit is the fifth bit associated with each 4 data bits in data widths of 5, 10, 20, and 40 (bits 4, 9, 14, 19, 24, 29, 34, and 39).</li> <li>In non-parity data widths, the parity bits are skipped during read or write operations.</li> <li>Parity function is not performed on the parity bit.</li></ul> | <ul><li>The parity bit is the ninth bit associated with each byte.</li> <li>The ninth bit can store a parity bit or serve as an additional bit.</li> <li>Parity function is not performed on the parity bit.</li></ul> |      |
 
 # **Byte Enable in Embedded Memory Blocks**
@@ -1027,7 +1027,7 @@ The embedded memory blocks support byte enable controls:
 **Table 2-12: byteena Controls in x20 Data Width**
 
 | byteena[1:0] | Data Bits Written |       |
-|--------------|-------------------|-------|
+| ------------ | ----------------- | ----- |
 | 11 (default) | [19:10]           | [9:0] |
 | 10           | [19:10]           | —     |
 | 01           | —                 | [9:0] |
@@ -1035,14 +1035,14 @@ The embedded memory blocks support byte enable controls:
 **Table 2-13: byteena Controls in x40 Data Width**
 
 | byteena[3:0]   |         |         | Data Bits Written |       |
-|----------------|---------|---------|-------------------|-------|
+| -------------- | ------- | ------- | ----------------- | ----- |
 | 1111 (default) | [39:30] | [29:20] | [19:10]           | [9:0] |
 | 1000           | [39:30] | —       | —                 | —     |
 
 <span id="page-35-0"></span>
 
 | byteena[3:0] | Data Bits Written |         |       |
-|--------------|-------------------|---------|-------|
+| ------------ | ----------------- | ------- | ----- |
 | 0100         | — [29:20]         | —       | —     |
 | 0010         | — —               | [19:10] | —     |
 | 0001         | — —               | —       | [9:0] |
@@ -1092,20 +1092,20 @@ This figure shows the address clock enable waveform during the write cycle.
 ## <span id="page-38-0"></span>**Embedded Memory Blocks in Cyclone V Devices Revision History**
 
 | Date      | Version    | Changes                                                   |
-|-----------|------------|-----------------------------------------------------------|
+| --------- | ---------- | --------------------------------------------------------- |
 |           | 2017.12.15 | Updated M10K block count in Embedded Memory Capacity and  |
 |           | 2015.12.21 | Changed instances of Quartus II to Quartus Prime          |
 | June 2015 | 2015.06.12 | Updated MLAB RAM bit (Kb) in Embedded Memory Capacity and |
 
 | Date          | Version    | Changes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-|---------------|------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | January 2015  | 2015.01.23 | <ul> <li>• Updated Embedded Memory Capacity and Distribution in Cyclone V Devices table for Cyclone V GX C3 devices.</li> <li>• M10K block: Updated from 119 to 135</li> <li>• M10K RAM bit (Kb): Updated from 1,190 to 1,350</li> <li>• MLAB block: Updated from 255 to 291</li> <li>• MLAB RAM bit (Kb): Updated from 159 to 181</li> <li>• Total RAM bit (Kb): Updated from 1,349 to 1,531</li> <li>• Reword Total RAM bits in Memory Features in Cyclone V Devices table to Capacity per Block.</li> </ul>                                                                                                                                                                                                                                                                                                                                                                                                              |
 | June 2013     | 2014.06.30 | Clarified that the address lines of the ROM are registered on M10K blocks but can be unregistered on MLABs. However, the unregistered address line on MLABs is supported for simple dual-port RAM mode only.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | May 2013      | 2013.05.06 | <ul> <li>• Moved all links to the Related Information section of respective topics for easy reference.</li> <li>• Added link to the known document issues in the Knowledge Base.</li> <li>• Updated the maximum operating frequency of the MLAB.</li> <li>• Corrected the description about the "don't care" output mode for RAM in mixed-port read-during-write.</li> <li>• Reorganized the structure of the supported memory configurations topics (single-port and mixed-width dual-port) to improve clarity about maximum data widths supported for each configuration.</li> <li>• Added a description to the table listing the maximum embedded memory configurations to clarify that the information applies only to the single port or ROM mode.</li> <li>• Removed the topic about mixed-width configurations for MLABs and added a note to clarify that MLABs do not support mixed-width configuration.</li> </ul> |
 | December 2012 | 2012.12.28 | <ul> <li>• Reorganized content and updated template.</li> <li>• Added memory capacity information from the <i>Cyclone V Device Overview</i> for easy reference.</li> <li>• Moved information about supported memory block configurations into its own table.</li> <li>• Added short descriptions of each clocking mode.</li> <li>• Added topic about the packed mode support.</li> <li>• Added topic about the address clock enable support.</li> </ul>                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
 | Date         | Version | Changes                                                       |
-|--------------|---------|---------------------------------------------------------------|
+| ------------ | ------- | ------------------------------------------------------------- |
 | June 2012    | 2.0     | Restructured the chapter.                                     |
 |              |         | Moved the memory capacity information to the Cyclone V Device |
 | October 2011 | 1.0     | Initial release.                                              |
@@ -1161,7 +1161,7 @@ Intel Corporation. All rights reserved. Intel, the Intel logo, Altera, Arria, Cy
 **Table 3-1: Variable Precision DSP Blocks Operational Modes for Cyclone V Devices**
 
 | Variable-Precision Operation Supported DSP Block Resource Mode Instance | Pre-Adder Support | Coefficient Support | Input Cascade | Chainout Support |
-|-------------------------------------------------------------------------|-------------------|---------------------|---------------|------------------|
+| ----------------------------------------------------------------------- | ----------------- | ------------------- | ------------- | ---------------- |
 |                                                                         |                   |                     | Support (1)   |                  |
 | 3                                                                       | No                | No                  | No            | No               |
 | 2                                                                       | Yes               | Yes                 | Yes           | No               |
@@ -1184,7 +1184,7 @@ The table lists the variable-precision DSP resources by bit precision for each C
 <span id="page-43-0"></span>
 
 | Variant Member Code | Variable precision DSP Block | 9 x 9 Multiplier | Independent Input and Output Multiplications Operator 18 x 18 Multiplier | 27 x 27 Multiplier | 18 x 18 Multiplier Adder Mode | 18 x 18 Multiplier Adder Summed with 36 bit Input |
-|---------------------|-------------------------------|------------------|--------------------------------------------------------------------------|--------------------|-------------------------------|---------------------------------------------------|
+| ------------------- | ----------------------------- | ---------------- | ------------------------------------------------------------------------ | ------------------ | ----------------------------- | ------------------------------------------------- |
 | A2                  | 25                            | 75               | 50                                                                       | 25                 | 25                            | 25                                                |
 | A4                  | 66                            | 198              | 132                                                                      | 66                 | 66                            | 66                                                |
 | A5 Cyclone V E      | 150                           | 450              | 300                                                                      | 150                | 150                           | 150                                               |
@@ -1375,13 +1375,13 @@ The accumulator and chainout adder features are not supported in two independent
 This table lists the dynamic signals settings and description for each function. In this table, X denotes a "don't care" value.
 
 |         | Function | Description               | NEGATE | LOADCONST | ACCUMULATE |
-|---------|----------|---------------------------|--------|-----------|------------|
+| ------- | -------- | ------------------------- | ------ | --------- | ---------- |
 | Zeroing |          | Disables the accumulator. | 0      | 0         | 0          |
 
 <span id="page-49-0"></span>
 
 | Function Description NEGATE Loads an initial value to the accumulator. Only one bit of the 64-bit preload value | LOADCONST | ACCUMULATE |
-|-----------------------------------------------------------------------------------------------------------------|-----------|------------|
+| --------------------------------------------------------------------------------------------------------------- | --------- | ---------- |
 | 0                                                                                                               | 1         | 0          |
 | 0                                                                                                               | X         | 1          |
 | 1                                                                                                               | X         | 1          |
@@ -1431,7 +1431,7 @@ In independent input and output multiplier mode, the variable precision DSP bloc
 **Table 3-4: Variable Precision DSP Block Independent Multiplier Mode Configurations**
 
 | Configuration | Multipliers per block |
-|---------------|-----------------------|
+| ------------- | --------------------- |
 | 9 x 9         | 3                     |
 | 18 x 25       | 1                     |
 | 20 x 24       | 1                     |
@@ -1563,7 +1563,7 @@ The 27-bit systolic FIR mode allows the implementation of one stage systolic fil
 # **Variable Precision DSP Blocks in Cyclone V Devices Revision History**
 
 | Date         | Version    | Changes                                                                      |
-|--------------|------------|------------------------------------------------------------------------------|
+| ------------ | ---------- | ---------------------------------------------------------------------------- |
 |              | 2015.12.21 | Changed instances of Quartus II to Quartus Prime                             |
 | June 2015    | 2015.06.12 | Updated Systolic FIR Filter Equivalent Circuit figure.                       |
 | January 2015 | 2015.01.23 | Updated Number of Multipliers in Cyclone V Devices table for                 |
@@ -1571,7 +1571,7 @@ The 27-bit systolic FIR mode allows the implementation of one stage systolic fil
 | June 2014    | 2014.06.30 | Updated the supported megafunctions from ALTMULT_ADD and                     |
 
 | Date         | Version    | Changes                                                             |
-|--------------|------------|---------------------------------------------------------------------|
+| ------------ | ---------- | ------------------------------------------------------------------- |
 | January 2014 | 2014.01.10 | Corrected variable-precision DSP block, 27 x 27 multiplier, 18 x 18 |
 | May 2013     | 2013.05.06 | Added link to the known document issues in the Knowledge Base.      |
 |              | 2012.12.28 | Added resources for Cyclone V devices.                              |
@@ -1617,7 +1617,7 @@ Intel Corporation. All rights reserved. Intel, the Intel logo, Altera, Arria, Cy
 **Table 4-1: Clock Resources in Cyclone V Devices**
 
 | Clock Resource Device Number of Resources |                          |                 |
-|-------------------------------------------|--------------------------|-----------------|
+| ----------------------------------------- | ------------------------ | --------------- |
 | Available                                 | Source of Clock Resource |                 |
 | differential                              | CLK[0..11][p,n]          | pins            |
 |                                           | CLK[0..3][p,n]           | , CLK[6][p,n] , |
@@ -1627,7 +1627,7 @@ Intel Corporation. All rights reserved. Intel, the Intel logo, Altera, Arria, Cy
 |                                           | [p,n] pins               |                 |
 
 | Clock Resource Device Number of Resources |                 |
-|-------------------------------------------|-----------------|
+| ----------------------------------------- | --------------- |
 | Available Source of Clock Resource        |                 |
 | CLK[0..11][p,n]                           | pins, PLL       |
 | CLK[0..3][p,n]                            | , CLK[6][p,n] , |
@@ -1639,7 +1639,7 @@ Intel Corporation. All rights reserved. Intel, the Intel logo, Altera, Arria, Cy
 <span id="page-63-0"></span>
 
 | Clock Resource | Device                | Number of Resources |                          |
-|----------------|-----------------------|---------------------|--------------------------|
+| -------------- | --------------------- | ------------------- | ------------------------ |
 |                |                       | Available           | Source of Clock Resource |
 |                | Cyclone V E A2 and A4 |                     | —                        |
 |                | Cyclone V GX C3       | 6                   |                          |
@@ -1762,7 +1762,7 @@ The Cyclone V PLL clock outputs can drive both GCLK and RCLK networks.
 **Table 4-2: Dedicated Clock Input Pin Connectivity to the GCLK Networks for Cyclone V E, GX, and GT Devices**
 
 | Clock Resources           | CLK (p/n Pins)   |
-|---------------------------|------------------|
+| ------------------------- | ---------------- |
 | GCLK[0,1,2,3,4,5,6,7]     | CLK[0,1,2,3]     |
 | GCLK[8,9,10,11]           | CLK[4,5,6,7] (2) |
 | GCLK[0,1,2,3,12,13,14,15] | CLK[8,9,10,11]   |
@@ -1770,7 +1770,7 @@ The Cyclone V PLL clock outputs can drive both GCLK and RCLK networks.
 **Table 4-3: Dedicated Clock Input Pin Connectivity to the GCLK Networks for Cyclone V SE, SX, and ST Devices**
 
 | Clock Resources           | CLK (p/n Pins) |
-|---------------------------|----------------|
+| ------------------------- | -------------- |
 | GCLK[0,1,2,3,4,5,6,7]     | CLK[0,1,2,3]   |
 | GCLK[8,9,10,11]           | CLK[4,5] (3)   |
 | GCLK[0,1,2,3,12,13,14,15] | CLK[6,7]       |
@@ -1780,7 +1780,7 @@ The Cyclone V PLL clock outputs can drive both GCLK and RCLK networks.
 A given clock input pin can drive two adjacent RCLK networks to create a dual-regional clock network.
 
 | Clock Resources                                                        | CLK (p/n Pins) |
-|------------------------------------------------------------------------|----------------|
+| ---------------------------------------------------------------------- | -------------- |
 | RCLK [20, 24, 28, 30, 34, 38, 58, 59, 60, 61, 62, 63, 6 4, 68, 82, 86] | CLK [0]        |
 | RCLK [21, 25, 29, 31, 35, 39, 58, 59, 60, 61, 62, 63, 6 5, 69, 83, 87] | CLK [1]        |
 
@@ -1835,7 +1835,7 @@ CLK[11]
 A given clock input pin can drive two adjacent RCLK networks to create a dual-regional clock network.
 
 | Clock Resources                           | CLK (p/n pins) |
-|-------------------------------------------|----------------|
+| ----------------------------------------- | -------------- |
 | RCLK[52,53,54,55,56,57,78]                | CLK[4] (3)     |
 | RCLK[52,53,54,55,56,57,79]                | CLK[5] (3)     |
 | RCLK[0,4,8,40,41,42,43,44,45,64,68,82,86] | CLK[6]         |
@@ -1864,7 +1864,7 @@ Every GCLK, RCLK, and PCLK network has its own clock control block. The control 
 **Table 4-6: Mapping Between the Input Clock Pins, PLL Counter Outputs, and Clock Control Block Inputs**
 
 | Clock                              | Fed by                                                                                                                                                                                                                                                                                                                   |
-|------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | <code>inclk[0] and inclk[1]</code> | Any of the four dedicated clock pins on the same side of the Cyclone V device.                                                                                                                                                                                                                                           |
 | <code>inclk[2]</code>              | <ul> <li>PLL counters <code>c0</code> and <code>c2</code> from PLLs on the same side of the clock control block (for top, bottom, and right side of the Cyclone V device)</li> <li>PLL counter <code>c4</code> from PLLs on the same side of the clock control block (for left side of the Cyclone V device).</li> </ul> |
 | <code>inclk[3]</code>              | PLL counters <code>c1</code> and <code>c3</code> from PLLs on the same side of the clock control block (for top, bottom, and right side of the Cyclone V device). This input clock port is not connected for the clock control block on left side of the Cyclone V device.                                               |
@@ -1962,14 +1962,14 @@ The Cyclone V devices offer up to 8 fractional PLLs in the larger densities.
 **Table 4-7: PLL Features in Cyclone V Devices**
 
 | Feature        | Support |
-|----------------|---------|
+| -------------- | ------- |
 | Integer PLL    | Yes     |
 | Fractional PLL | Yes     |
 
 <span id="page-79-0"></span>
 
 | Feature                              | Support                           |
-|--------------------------------------|-----------------------------------|
+| ------------------------------------ | --------------------------------- |
 | C output counters                    | 9                                 |
 | M , N , C counter sizes              | 1 to 512                          |
 | Dedicated external clock outputs     | 2 single-ended and 1 differential |
@@ -2052,7 +2052,7 @@ If you plan to migrate your design between Cyclone V SX C2, C4, C5, and C6 devic
 <span id="page-87-0"></span>**Table 4-8: Location of PLLs for PLL Migration**
 
 | Variant      | Member Code | PLL Location (Left Side) |
-|--------------|-------------|--------------------------|
+| ------------ | ----------- | ------------------------ |
 | Cyclone V SX | C2          | FRACTIONALPLL_X0_Y14     |
 |              | C4          |                          |
 |              | C5          |                          |
@@ -2454,28 +2454,28 @@ AN 661: Implementing Fractional PLL Reconfiguration with Altera PLL and Altera P
 ## **Clock Networks and PLLs in Cyclone V Devices Revision History**
 
 | Document Version | Changes                                                                                                                                                                                                                                                                                                                                                      |
-|------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 2019.05.15       | Corrected the PLL locations for Cyclone V GX C3 Device.                                                                                                                                                                                                                                                                                                      |
 | 2019.04.26       | <ul> <li>Corrected the signal name from <code>clkswitch</code> to <code>extswitch</code>.</li> <li>Updated the description for the automatic switchover with manual override mode in the <i>Clock Switchover</i> section.</li> <li>Updated the description about the <code>extswitch</code> signal in the <i>Manual Clock Switchover</i> section.</li> </ul> |
 
 | Date | Version    | Changes                                                                 |
-|------|------------|-------------------------------------------------------------------------|
+| ---- | ---------- | ----------------------------------------------------------------------- |
 |      | 2017.12.15 | Updated the PLL Locations for Cyclone V GX C3 Device diagram.           |
 |      | 2016.12.09 | Added a note to dedicated refclk pin in Fractional PLL High-Level Block |
 |      | 2015.12.21 | Changed instances of Quartus II to Quartus Prime                        |
 
 | Date         | Version    | Changes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-|--------------|------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ------------ | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | June 2015    | 2015.06.12 | <ul> <li>• Updated RCLK Networks in Cyclone V SE, SX, and ST Devices diagram. Mentioned that RCLK network is not available in quadrant 2 for Cyclone V SE A5 and A6 device, Cyclone V ST D5 and D6 devices, and Cyclone V SX C5 and C6 devices.</li> <li>• Added CLK pins connection to FRACTIONALPLL_X0_Y32 in PLL Locations for Cyclone V E A7 Device, Cyclone V GX C7 Device, and Cyclone V GT D7 Device diagram.</li> </ul>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | January 2014 | 2014.01.10 | <ul> <li>• Removed Preliminary tags for clock resources, clock input pin connections to GCLK and RCLK networks, and PLL features tables.</li> <li>• Updated clock resources table.</li> <li>• Updated GCLK, RCLK, and PCLK networks diagrams for Cyclone V E, GX, and GT devices.</li> <li>• Added GCLK, RCLK, and PCLK networks diagrams for Cyclone V SE, SX, and ST devices.</li> <li>• Added notes to dedicated clock input pin connectivity to GCLK and RCLK tables for Cyclone V SE, ST, and SX devices.</li> <li>• Updated the following PLL locations diagrams: <ul> <li>• Cyclone V GX C3 device</li> <li>• Cyclone V E A7 device, Cyclone V GX C7 device, and Cyclone V GT D7 device</li> </ul> </li> <li>• Added the following PLL locations diagrams: <ul> <li>• Cyclone V SE A2 and A4 devices, and Cyclone V SX C2 and C4 devices</li> <li>• Cyclone V SE A5 and A6 devices, Cyclone V SX C5 and C6 devices, and Cyclone V ST D5 and D6 devices</li> </ul> </li> <li>• Added information on PLL migration guidelines.</li> <li>• Updated VCO post-scale counter, K, to VCO post divider.</li> <li>• Added information on PLL cascading.</li> <li>• Updated information on external clock output support.</li> <li>• Added information on programmable phase shift.</li> <li>• Updated automatic clock switchover mode requirement.</li> </ul> |
 
 | Date          | Version    | Changes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-|---------------|------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | May 2013      | 2013.05.06 | <ul> <li>• Added link to the known document issues in the Knowledge Base.</li> <li>• Updated PCLK clock sources in hierarchical clock networks in each spine clock per quadrant diagram.</li> <li>• Added PCLK networks in clock network sources section.</li> <li>• Updated dedicated clock input pins in clock network sources section.</li> <li>• Added descriptions for PLLs located in a strip.</li> <li>• Added information on PLL physical counters.</li> <li>• Updated the fractional PLL architecture diagram to add dedicated <code>refclk</code> input port and connections.</li> <li>• Updated PLL support for EFB mode.</li> <li>• Updated the scaling factors for PLL output ports.</li> <li>• Updated the fractional value for PLL in fractional mode.</li> <li>• Moved all links to the Related Information section of respective topics for easy reference.</li> <li>• Reorganized content.</li> </ul>                                                                                                                                                                                                                                                                          |
 | December 2012 | 2012.12.28 | <ul> <li>• Added note to indicate that the figures shown are the top view of the silicon die.</li> <li>• Removed DPA support.</li> <li>• Updated clock resources table.</li> <li>• Updated diagrams for GCLK, RCLK, and PCLK networks.</li> <li>• Updated diagram for clock sources per quadrant.</li> <li>• Updated dual-regional clock region for Cyclone V SoC devices support.</li> <li>• Restructured and updated tables for clock input pin connectivity to the GCLK and RCLK networks.</li> <li>• Added tables for clock input pin connectivity to the GCLK and RCLK networks for Cyclone V SoC devices.</li> <li>• Updated PCLK control block diagram.</li> <li>• Updated information on clock power down.</li> <li>• Added diagram for PLL physical counter orientation.</li> <li>• Updated PLL locations diagrams.</li> <li>• Updated fractional PLL high-level block diagram.</li> <li>• Removed information on <code>pfdena</code> PLL control signal.</li> <li>• Removed information on PLL Compensation assignment in the Quartus II software.</li> <li>• Updated the fractional value for PLL in fractional mode.</li> <li>• Reorganized content and updated template.</li> </ul> |
 
 | Date          | Version | Changes               |
-|---------------|---------|-----------------------|
+| ------------- | ------- | --------------------- |
 | June 2012     | 2.0     | Restructured chapter. |
 | February 2012 | 1.1     | Updated Table 4–2.    |
 | October 2011  | 1.0     | Initial release.      |
@@ -2531,7 +2531,7 @@ Intel Corporation. All rights reserved. Intel, the Intel logo, Altera, Arria, Cy
 **Table 5-1: Package Plan for Cyclone V E Devices**
 
 | Member Code | M383 GPIO | M484 GPIO | U324 GPIO | F256 GPIO | U484 GPIO | F484 GPIO | F672 GPIO | F896 GPIO |
-|-------------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|
+| ----------- | --------- | --------- | --------- | --------- | --------- | --------- | --------- | --------- |
 | A2          | 223       | —         | 176       | 128       | 224       | 224       | —         | —         |
 | A4          | 223       | —         | 176       | 128       | 224       | 224       | —         | —         |
 | A5          | 175       | —         | —         | —         | 224       | 240       | —         | —         |
@@ -2541,14 +2541,14 @@ Intel Corporation. All rights reserved. Intel, the Intel logo, Altera, Arria, Cy
 **Table 5-2: Package Plan for Cyclone V GX Devices**
 
 | Member Code C3 | GPIO — | M301 XCVR — | GPIO — | M383 XCVR — | GPIO — | M484 XCVR — | GPIO 144 U324 XCVR 3 | GPIO 208 | U484 XCVR 3 |
-|----------------|--------|-------------|--------|-------------|--------|-------------|----------------------|----------|-------------|
+| -------------- | ------ | ----------- | ------ | ----------- | ------ | ----------- | -------------------- | -------- | ----------- |
 | C4             | 129    | 4           | 175    | 6           | —      | —           | — —                  | 224      | 6           |
 | C5             | 129    | 4           | 175    | 6           | —      | —           | — —                  | 224      | 6           |
 | C7             | —      | —           | —      | —           | 240    | 3           | — —                  | 240      | 6           |
 | C9             | —      | —           | —      | —           | —      | —           | — —                  | 240      | 5           |
 
 | Member Code | F484 | F672 | F896 | F1152 |      |      |
-|-------------|------|------|------|-------|------|------|
+| ----------- | ---- | ---- | ---- | ----- | ---- | ---- |
 |             | GPIO | XCVR | GPIO | XCVR  | GPIO | XCVR |
 | C3          | 208  | 3    | —    | —     | —    | —    |
 | C4          | 240  | 6    | 336  | 6     | —    | —    |
@@ -2561,13 +2561,13 @@ Intel Corporation. All rights reserved. Intel, the Intel logo, Altera, Arria, Cy
 Transceiver counts shown are for transceiver ≤5 Gbps . 6 Gbps transceiver channel count support depends on the package and channel usage. For more information about the 6 Gbps transceiver channel count, refer to the Cyclone V Device Handbook Volume 2: Transceivers.
 
 | Member Code | GPIO | M301 XCVR | GPIO | M383 XCVR | GPIO | M484 XCVR | GPIO | U484 XCVR |
-|-------------|------|-----------|------|-----------|------|-----------|------|-----------|
+| ----------- | ---- | --------- | ---- | --------- | ---- | --------- | ---- | --------- |
 | D5          | 129  | 4         | 175  | 6         | —    | —         | 224  | 6         |
 | D7          | —    | —         | —    | —         | 240  | 3         | 240  | 6         |
 | D9          | —    | —         | —    | —         | —    | —         | 240  | 5         |
 
 | Member Code | F484 | F672 | F896 | F1152 |      |
-|-------------|------|------|------|-------|------|
+| ----------- | ---- | ---- | ---- | ----- | ---- |
 |             | GPIO | XCVR | GPIO | XCVR  | XCVR |
 | D5          | 240  | 6    | 336  | 6     | —    |
 | D7          | 240  | 6    | 336  | 9     | —    |
@@ -2578,7 +2578,7 @@ Transceiver counts shown are for transceiver ≤5 Gbps . 6 Gbps transceiver chan
 The HPS I/O counts are the number of I/Os in the HPS and does not correlate with the number of HPSspecific I/O pins in the FPGA. Each HPS-specific pin in the FPGA may be mapped to several HPS I/Os.
 
 | Member Code | FPGA GPIO | U484 HPS I/O | FPGA GPIO | U672 HPS I/O | FPGA GPIO | F896 HPS I/O |
-|-------------|-----------|--------------|-----------|--------------|-----------|--------------|
+| ----------- | --------- | ------------ | --------- | ------------ | --------- | ------------ |
 | A2          | 66        | 151          | 145       | 181          | —         | —            |
 | A4          | 66        | 151          | 145       | 181          | —         | —            |
 | A5          | 66        | 151          | 145       | 181          | 288       | 181          |
@@ -2589,7 +2589,7 @@ The HPS I/O counts are the number of I/Os in the HPS and does not correlate with
 The HPS I/O counts are the number of I/Os in the HPS and does not correlate with the number of HPSspecific I/O pins in the FPGA. Each HPS-specific pin in the FPGA may be mapped to several HPS I/Os.
 
 | Member Code | U672 | HPS I/O | XCVR | FPGA GPIO | HPS I/O | XCVR |
-|-------------|------|---------|------|-----------|---------|------|
+| ----------- | ---- | ------- | ---- | --------- | ------- | ---- |
 | C2          | 145  | 181     | 6    | —         | —       | —    |
 | C4          | 145  | 181     | 6    | —         | —       | —    |
 | C5          | 145  | 181     | 6    | 288       | 181     | 9    |
@@ -2601,11 +2601,11 @@ The HPS I/O counts are the number of I/Os in the HPS and does not correlate with
 - Transceiver counts shown are for transceiver ≤5 Gbps . 6 Gbps transceiver channel count support depends on the package and channel usage. For more information about the 6 Gbps transceiver channel count, refer to the Cyclone V Device Handbook Volume 2: Transceivers.
 
 | Member Code | FPGA GPIO | HPS I/O | XCVR |
-|-------------|-----------|---------|------|
+| ----------- | --------- | ------- | ---- |
 | D5          | 288       | 181     | 9    |
 
 | Member Code | FPGA GPIO | HPS I/O | XCVR |
-|-------------|-----------|---------|------|
+| ----------- | --------- | ------- | ---- |
 | D6          | 288       | 181     | 9    |
 
 For more information about each device variant, refer to the device overview.
@@ -2622,7 +2622,7 @@ For more information about each device variant, refer to the device overview.
 The arrows indicate the vertical migration paths. The devices included in each vertical migration path are shaded. You can also migrate your design across device densities in the same package option if the devices have the same dedicated pins, configuration pins, and power pins.
 
 | Variant      | Member Code | Package |      |      |      |      |      |      |      |      |      |       |
-|--------------|-------------|---------|------|------|------|------|------|------|------|------|------|-------|
+| ------------ | ----------- | ------- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ----- |
 |              |             | M301    | M383 | M484 | F256 | U324 | U484 | F484 | U672 | F672 | F896 | F1152 |
 | Cyclone V E  | A2          |         | ↑    | ↑    |      | ↑    | ↑    | ↑    |      |      |      |       |
 |              | A4          |         | ↓    | ↓    |      | ↓    | ↓    |      |      |      |      |       |
@@ -2690,7 +2690,7 @@ This section lists the I/O standards supported in the FPGA I/Os and HPS I/Os of 
 **Table 5-7: Supported I/O Standards in FPGA I/O for Cyclone V Devices**
 
 | I/O Standard                     | Standard Support |
-|----------------------------------|------------------|
+| -------------------------------- | ---------------- |
 | 3.3 V LVTTL/3.3 V LVCMOS         | JESD8-B          |
 | 3.0 V LVTTL/3.0 V LVCMOS         | JESD8-B          |
 | 3.0 V PCI (7)                    | PCI Rev. 2.2     |
@@ -2727,7 +2727,7 @@ This section lists the I/O standards supported in the FPGA I/Os and HPS I/Os of 
 <span id="page-114-0"></span>
 
 | I/O Standard                     | Standard Support |
-|----------------------------------|------------------|
+| -------------------------------- | ---------------- |
 | Differential 1.5 V HSTL Class I  | JESD8-6          |
 | Differential 1.5 V HSTL Class II | JESD8-6          |
 | Differential 1.2 V HSTL Class I  | JESD8-16A        |
@@ -2753,7 +2753,7 @@ This section lists the I/O standards supported in the FPGA I/Os and HPS I/Os of 
 **Table 5-8: Supported I/O Standards in HPS I/O for Cyclone V SE, SX, and ST Devices**
 
 | I/O Standard             | Standard Support | HPS Column I/O | HPS Row I/O |
-|--------------------------|------------------|----------------|-------------|
+| ------------------------ | ---------------- | -------------- | ----------- |
 | 3.3 V LVTTL/3.3 V LVCMOS | JESD8-B          | Yes            | —           |
 | 3.0 V LVTTL/3.0 V LVCMOS | JESD8-B          | Yes            | —           |
 | 2.5 V LVCMOS             | JESD8-5          | Yes            | —           |
@@ -2768,7 +2768,7 @@ This section lists the I/O standards supported in the FPGA I/Os and HPS I/Os of 
 <span id="page-115-0"></span>
 
 | I/O Standard        | Standard Support | HPS Column I/O | HPS Row I/O |
-|---------------------|------------------|----------------|-------------|
+| ------------------- | ---------------- | -------------- | ----------- |
 | SSTL-18 Class II    | JESD8-15         | —              | Yes         |
 | SSTL-15 Class I     | —                | —              | Yes         |
 | SSTL-15 Class II    | —                | —              | Yes         |
@@ -2783,49 +2783,49 @@ This section lists the I/O standards supported in the FPGA I/Os and HPS I/Os of 
 
 This table lists the typical power supplies for each supported I/O standards in Cyclone V devices.
 
-| I/O Standard 3.3 V LVTTL/3.3 V LVCMOS 3.0 V LVTTL/3.0 V LVCMOS 3.0 V PCI 3.0 V PCI-X 2.5 V LVCMOS 1.8 V LVCMOS 1.5 V LVCMOS 1.2 V LVCMOS |   | V Input (11) 3.3/3.0/2.5 3.3/3.0/2.5 3.0 3.0 3.3/3.0/2.5 1.8/1.5 1.8/1.5 1.2 | CCIO (V) Output 3.3 3.0 3.0 3.0 2.5 1.8 1.5 1.2 | V CCPD (V) (Pre-Driver Voltage) 3.3 3.0 3.0 3.0 2.5 2.5 2.5 2.5 | V REF (V) (Input Ref Voltage) — — — — — — — — | V TT (V) (Board Termination Voltage) — — — — — — — — |
-|------------------------------------------------------------------------------------------------------------------------------------------|---|------------------------------------------------------------------------------|-------------------------------------------------|-----------------------------------------------------------------|-----------------------------------------------|------------------------------------------------------|
-| SSTL-2 Class I                                                                                                                           | V | CCPD                                                                         | 2.5                                             | 2.5                                                             | 1.25                                          | 1.25                                                 |
-| SSTL-2 Class II                                                                                                                          | V | CCPD                                                                         | 2.5                                             | 2.5                                                             | 1.25                                          | 1.25                                                 |
-| SSTL-18 Class I                                                                                                                          | V | CCPD                                                                         | 1.8                                             | 2.5                                                             | 0.9                                           | 0.9                                                  |
-| SSTL-18 Class II                                                                                                                         | V | CCPD                                                                         | 1.8                                             | 2.5                                                             | 0.9                                           | 0.9                                                  |
-| SSTL-15 Class I                                                                                                                          | V | CCPD                                                                         | 1.5                                             | 2.5                                                             | 0.75                                          | 0.75                                                 |
-| SSTL-15 Class II                                                                                                                         | V | CCPD                                                                         | 1.5                                             | 2.5                                                             | 0.75                                          | 0.75                                                 |
-| 1.8 V HSTL Class I                                                                                                                       | V | CCPD                                                                         | 1.8                                             | 2.5                                                             | 0.9                                           | 0.9                                                  |
-| 1.8 V HSTL Class II                                                                                                                      | V | CCPD                                                                         | 1.8                                             | 2.5                                                             | 0.9                                           | 0.9                                                  |
+| I/O Standard 3.3 V LVTTL/3.3 V LVCMOS 3.0 V LVTTL/3.0 V LVCMOS 3.0 V PCI 3.0 V PCI-X 2.5 V LVCMOS 1.8 V LVCMOS 1.5 V LVCMOS 1.2 V LVCMOS |     | V Input (11) 3.3/3.0/2.5 3.3/3.0/2.5 3.0 3.0 3.3/3.0/2.5 1.8/1.5 1.8/1.5 1.2 | CCIO (V) Output 3.3 3.0 3.0 3.0 2.5 1.8 1.5 1.2 | V CCPD (V) (Pre-Driver Voltage) 3.3 3.0 3.0 3.0 2.5 2.5 2.5 2.5 | V REF (V) (Input Ref Voltage) — — — — — — — — | V TT (V) (Board Termination Voltage) — — — — — — — — |
+| ---------------------------------------------------------------------------------------------------------------------------------------- | --- | ---------------------------------------------------------------------------- | ----------------------------------------------- | --------------------------------------------------------------- | --------------------------------------------- | ---------------------------------------------------- |
+| SSTL-2 Class I                                                                                                                           | V   | CCPD                                                                         | 2.5                                             | 2.5                                                             | 1.25                                          | 1.25                                                 |
+| SSTL-2 Class II                                                                                                                          | V   | CCPD                                                                         | 2.5                                             | 2.5                                                             | 1.25                                          | 1.25                                                 |
+| SSTL-18 Class I                                                                                                                          | V   | CCPD                                                                         | 1.8                                             | 2.5                                                             | 0.9                                           | 0.9                                                  |
+| SSTL-18 Class II                                                                                                                         | V   | CCPD                                                                         | 1.8                                             | 2.5                                                             | 0.9                                           | 0.9                                                  |
+| SSTL-15 Class I                                                                                                                          | V   | CCPD                                                                         | 1.5                                             | 2.5                                                             | 0.75                                          | 0.75                                                 |
+| SSTL-15 Class II                                                                                                                         | V   | CCPD                                                                         | 1.5                                             | 2.5                                                             | 0.75                                          | 0.75                                                 |
+| 1.8 V HSTL Class I                                                                                                                       | V   | CCPD                                                                         | 1.8                                             | 2.5                                                             | 0.9                                           | 0.9                                                  |
+| 1.8 V HSTL Class II                                                                                                                      | V   | CCPD                                                                         | 1.8                                             | 2.5                                                             | 0.9                                           | 0.9                                                  |
 
 - (11) Input buffers for the SSTL, HSTL, Differential SSTL, Differential HSTL, LVDS, RSDS, Mini-LVDS, LVPECL, HSUL, and Differential HSUL are powered by VCCPD
 
-| I/O Standard                                  |   | V Input (11) | CCIO (V) Output | V CCPD (V) (Pre-Driver Voltage) | V REF (V) (Input Ref Voltage) | V TT (V) (Board Termination Voltage) |
-|-----------------------------------------------|---|--------------|-----------------|---------------------------------|-------------------------------|--------------------------------------|
-| 1.5 V HSTL Class I                            | V | CCPD         | 1.5             | 2.5                             | 0.75                          | 0.75                                 |
-| 1.5 V HSTL Class II                           | V | CCPD         | 1.5             | 2.5                             | 0.75                          | 0.75                                 |
-| 1.2 V HSTL Class I                            | V | CCPD         | 1.2             | 2.5                             | 0.6                           | 0.6                                  |
-| 1.2 V HSTL Class II Differential SSTL-2 Class | V | CCPD         | 1.2             | 2.5                             | 0.6                           | 0.6                                  |
-| I Differential SSTL-2 Class                   | V | CCPD         | 2.5             | 2.5                             | —                             | 1.25                                 |
-| II Differential SSTL-18                       | V | CCPD         | 2.5             | 2.5                             | —                             | 1.25                                 |
-| Class I Differential SSTL-18                  | V | CCPD         | 1.8             | 2.5                             | —                             | 0.9                                  |
-| Class II Differential SSTL-15                 | V | CCPD         | 1.8             | 2.5                             | —                             | 0.9                                  |
-| Class I Differential SSTL-15                  | V | CCPD         | 1.5             | 2.5                             | —                             | 0.75                                 |
-| Class II Differential 1.8 V HSTL              | V | CCPD         | 1.5             | 2.5                             | —                             | 0.75                                 |
-| Class I Differential 1.8 V HSTL               | V | CCPD         | 1.8             | 2.5                             | —                             | 0.9                                  |
-| Class II Differential 1.5 V HSTL              | V | CCPD         | 1.8             | 2.5                             | —                             | 0.9                                  |
-| Class I Differential 1.5 V HSTL               | V | CCPD         | 1.5             | 2.5                             | —                             | 0.75                                 |
-| Class II Differential 1.2 V HSTL              | V | CCPD         | 1.5             | 2.5                             | —                             | 0.75                                 |
-| Class I Differential 1.2 V HSTL               | V | CCPD         | 1.2             | 2.5                             | —                             | 0.6                                  |
-| Class II                                      | V | CCPD         | 1.2             | 2.5                             | —                             | 0.6                                  |
-| LVDS                                          | V | CCPD         | 2.5             | 2.5                             | —                             | —                                    |
-| RSDS                                          | V | CCPD         | 2.5             | 2.5                             | —                             | —                                    |
-| Mini-LVDS LVPECL (Differential                | V | CCPD         | 2.5             | 2.5                             | —                             | —                                    |
-| clock input only)                             | V | CCPD         | —               | 2.5                             | —                             | —                                    |
-| SLVS (Input only)                             | V | CCPD         | —               | 2.5                             | —                             | —                                    |
+| I/O Standard                                  |     | V Input (11) | CCIO (V) Output | V CCPD (V) (Pre-Driver Voltage) | V REF (V) (Input Ref Voltage) | V TT (V) (Board Termination Voltage) |
+| --------------------------------------------- | --- | ------------ | --------------- | ------------------------------- | ----------------------------- | ------------------------------------ |
+| 1.5 V HSTL Class I                            | V   | CCPD         | 1.5             | 2.5                             | 0.75                          | 0.75                                 |
+| 1.5 V HSTL Class II                           | V   | CCPD         | 1.5             | 2.5                             | 0.75                          | 0.75                                 |
+| 1.2 V HSTL Class I                            | V   | CCPD         | 1.2             | 2.5                             | 0.6                           | 0.6                                  |
+| 1.2 V HSTL Class II Differential SSTL-2 Class | V   | CCPD         | 1.2             | 2.5                             | 0.6                           | 0.6                                  |
+| I Differential SSTL-2 Class                   | V   | CCPD         | 2.5             | 2.5                             | —                             | 1.25                                 |
+| II Differential SSTL-18                       | V   | CCPD         | 2.5             | 2.5                             | —                             | 1.25                                 |
+| Class I Differential SSTL-18                  | V   | CCPD         | 1.8             | 2.5                             | —                             | 0.9                                  |
+| Class II Differential SSTL-15                 | V   | CCPD         | 1.8             | 2.5                             | —                             | 0.9                                  |
+| Class I Differential SSTL-15                  | V   | CCPD         | 1.5             | 2.5                             | —                             | 0.75                                 |
+| Class II Differential 1.8 V HSTL              | V   | CCPD         | 1.5             | 2.5                             | —                             | 0.75                                 |
+| Class I Differential 1.8 V HSTL               | V   | CCPD         | 1.8             | 2.5                             | —                             | 0.9                                  |
+| Class II Differential 1.5 V HSTL              | V   | CCPD         | 1.8             | 2.5                             | —                             | 0.9                                  |
+| Class I Differential 1.5 V HSTL               | V   | CCPD         | 1.5             | 2.5                             | —                             | 0.75                                 |
+| Class II Differential 1.2 V HSTL              | V   | CCPD         | 1.5             | 2.5                             | —                             | 0.75                                 |
+| Class I Differential 1.2 V HSTL               | V   | CCPD         | 1.2             | 2.5                             | —                             | 0.6                                  |
+| Class II                                      | V   | CCPD         | 1.2             | 2.5                             | —                             | 0.6                                  |
+| LVDS                                          | V   | CCPD         | 2.5             | 2.5                             | —                             | —                                    |
+| RSDS                                          | V   | CCPD         | 2.5             | 2.5                             | —                             | —                                    |
+| Mini-LVDS LVPECL (Differential                | V   | CCPD         | 2.5             | 2.5                             | —                             | —                                    |
+| clock input only)                             | V   | CCPD         | —               | 2.5                             | —                             | —                                    |
+| SLVS (Input only)                             | V   | CCPD         | —               | 2.5                             | —                             | —                                    |
 
 (11) Input buffers for the SSTL, HSTL, Differential SSTL, Differential HSTL, LVDS, RSDS, Mini-LVDS, LVPECL, HSUL, and Differential HSUL are powered by VCCPD
 
 <span id="page-117-0"></span>
 
 |                       |       | V CCIO | (V)    | V CCPD (V) |           |
-|-----------------------|-------|--------|--------|------------|-----------|
+| --------------------- | ----- | ------ | ------ | ---------- | --------- |
 |                       |       |        |        |            | V REF (V) |
 |                       |       |        |        |            | V TT (V)  |
 |                       | Input | (11)   | Output |            | Voltage)  |
@@ -2850,7 +2850,7 @@ The MultiVolt I/O interface feature allows Cyclone V devices in all packages to 
 **Table 5-10: MultiVolt I/O Support in Cyclone V Devices**
 
 | V CCIO (V) | V CCPD (V) (11) | Input Signal (V) | Output Signal (V) |
-|------------|-----------------|------------------|-------------------|
+| ---------- | --------------- | ---------------- | ----------------- |
 | 1.2        | 2.5             | 1.2              | 1.2               |
 | 1.25       | 2.5             | 1.25             | 1.25              |
 | 1.35       | 2.5             | 1.35             | 1.35              |
@@ -2939,23 +2939,23 @@ You must use the dedicated reference clock pin of the same I/O bank used by the 
 
 <span id="page-120-0"></span>**Table 5-11: Reference Clock Pin for I/O Bank Without Dedicated Reference Clock Pin**
 
-| Device Variant | Member Code | Data Channel I/O |    |
-|----------------|-------------|------------------|----|
-|                |             | 3A               | 3B |
-|                |             | 5A               | 5B |
-|                |             | 3A               | 3B |
-|                |             | 5A               | 5B |
-|                |             | 3A               | 3B |
-|                |             | 5A               | 5B |
-|                |             | 7A               | 8A |
-|                |             | 3A               | 3B |
-|                |             | 5A               | 5B |
-|                | D7          | 3A               | 3B |
-|                | A2, A4      | 3A               | 3B |
-|                | A5, A6      | 5A               | 5B |
-|                | C2, C4      | 3A               | 3B |
-|                | C5, C6      | 5A               | 5B |
-| Cyclone V ST   | D5, D6      | 5A               | 5B |
+| Device Variant | Member Code | Data Channel I/O |     |
+| -------------- | ----------- | ---------------- | --- |
+|                |             | 3A               | 3B  |
+|                |             | 5A               | 5B  |
+|                |             | 3A               | 3B  |
+|                |             | 5A               | 5B  |
+|                |             | 3A               | 3B  |
+|                |             | 5A               | 5B  |
+|                |             | 7A               | 8A  |
+|                |             | 3A               | 3B  |
+|                |             | 5A               | 5B  |
+|                | D7          | 3A               | 3B  |
+|                | A2, A4      | 3A               | 3B  |
+|                | A5, A6      | 5A               | 5B  |
+|                | C2, C4      | 3A               | 3B  |
+|                | C5, C6      | 5A               | 5B  |
+| Cyclone V ST   | D5, D6      | 5A               | 5B  |
 
 #### **Guideline: Using LVDS Differential Channels**
 
@@ -3001,7 +3001,7 @@ This table lists the signal interface between the output ports of the Altera\_PL
 <span id="page-123-0"></span>
 
 | From the Altera_PLL IP Core                                                                                                                                             | To the ALTLVDS Transmitter                                               | To the ALTLVDS Receiver                                                                                                                                                                                                                           |
-|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Serial clock output (outclk0)                                                                                                                                           | tx_inclock (serial clock input to the transmitter)                       | rx_inclock (serial clock input)                                                                                                                                                                                                                   |
 | The serial clock output (outclk0) can only drive tx_inclock on the ALTLVDS transmitter, and rx_inclock on the ALTLVDS receiver. This clock cannot drive the core logic. |                                                                          |                                                                                                                                                                                                                                                   |
 | Load enable output (outclk1)                                                                                                                                            | tx_enable (load enable to the transmitter)                               | rx_enable (load enable for the deserializer)                                                                                                                                                                                                      |
@@ -3027,7 +3027,7 @@ Note: For other clock and data phase relationships, Altera recommends that you f
 This table lists the parameter values that you can set in the Altera\_PLL parameter editor to generate three output clocks using an Altera\_PLL IP core if you are not using DPA and soft-CDR mode.
 
 | Parameter   | outclk0                                                                               | outclk1                                                                             | outclk2                                                                                    |
-|-------------|---------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+| ----------- | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 |             | (Connects to the tx_inclock port of ALTLVDS_TX and the rx_inclock port of ALTLVDS_RX) | (Connects to the tx_enable port of ALTLVDS_TX and the rx_enable port of ALTLVDS_RX) | (Used as the core clock for the parallel data registers for both transmitter and receiver) |
 | Frequency   | data rate                                                                             | data rate/serialization factor                                                      | data rate/serialization factor                                                             |
 | Phase shift | -180°                                                                                 | [(deserialization factor - 2)/deserialization factor] x 360°                        | -180/serialization factor<br>(outclk0 phase shift divided by the serialization factor)     |
@@ -3155,20 +3155,20 @@ Note: The availability of I/O banks in device packages varies. For more details,
 
 **Figure 5-6: I/0 Banks for Cyclone V E Devices**
 
-|  |  | <b>Bank 8A</b> |                | <b>Bank 7A</b> |                |
-|--|--|----------------|----------------|----------------|----------------|
-|  |  |                |                |                | <b>Bank 1A</b> |
-|  |  |                |                |                | <b>Bank 6A</b> |
-|  |  |                |                |                |                |
-|  |  |                |                |                | <b>Bank 5B</b> |
-|  |  |                |                |                | <b>Bank 5A</b> |
-|  |  |                |                |                |                |
-|  |  | <b>Bank 3A</b> | <b>Bank 3B</b> | <b>Bank 4A</b> |                |
+|     |     | <b>Bank 8A</b> |                | <b>Bank 7A</b> |                |
+| --- | --- | -------------- | -------------- | -------------- | -------------- |
+|     |     |                |                |                | <b>Bank 1A</b> |
+|     |     |                |                |                | <b>Bank 6A</b> |
+|     |     |                |                |                |                |
+|     |     |                |                |                | <b>Bank 5B</b> |
+|     |     |                |                |                | <b>Bank 5A</b> |
+|     |     |                |                |                |                |
+|     |     | <b>Bank 3A</b> | <b>Bank 3B</b> | <b>Bank 4A</b> |                |
 
 **Figure 5-7: I/0 Banks for Cyclone V GX and GT Devices**
 
 |                          | <b>Bank 8A</b> | <b>Bank 7A</b> |                |                |
-|--------------------------|----------------|----------------|----------------|----------------|
+| ------------------------ | -------------- | -------------- | -------------- | -------------- |
 | <b>Transceiver Block</b> |                |                |                | <b>Bank 6A</b> |
 |                          |                |                |                | <b>Bank 5B</b> |
 |                          |                |                |                | <b>Bank 5A</b> |
@@ -3176,17 +3176,17 @@ Note: The availability of I/O banks in device packages varies. For more details,
 
 **Figure 5-8: I/0 Banks for Cyclone V SE Devices**
 
-| <b>Bank 8A</b> |                | <b>HPS Column I/O</b> |  |                    |
-|----------------|----------------|-----------------------|--|--------------------|
-|                |                | <b>HPS Core</b>       |  | <b>HPS Row I/O</b> |
-|                |                |                       |  | <b>Bank 5B</b>     |
-|                |                |                       |  | <b>Bank 5A</b>     |
-| <b>Bank 3A</b> | <b>Bank 3B</b> | <b>Bank 4A</b>        |  |                    |
+| <b>Bank 8A</b> |                | <b>HPS Column I/O</b> |     |                    |
+| -------------- | -------------- | --------------------- | --- | ------------------ |
+|                |                | <b>HPS Core</b>       |     | <b>HPS Row I/O</b> |
+|                |                |                       |     | <b>Bank 5B</b>     |
+|                |                |                       |     | <b>Bank 5A</b>     |
+| <b>Bank 3A</b> | <b>Bank 3B</b> | <b>Bank 4A</b>        |     |                    |
 
 **Figure 5-9: I/0 Banks for Cyclone V SX and ST Devices**
 
 | <b>Transceiver Block</b> | <b>Bank 8A</b> |                | <b>HPS Column I/O</b> |                    |                    |
-|--------------------------|----------------|----------------|-----------------------|--------------------|--------------------|
+| ------------------------ | -------------- | -------------- | --------------------- | ------------------ | ------------------ |
 |                          |                |                | <b>HPS Core</b>       | <b>HPS Row I/O</b> |                    |
 |                          |                |                |                       | <b>Bank 5B</b>     | <b>HPS Row I/O</b> |
 |                          |                |                |                       | <b>Bank 5A</b>     | <b>Bank 5B</b>     |
@@ -3212,7 +3212,7 @@ The I/O pins in Cyclone V devices are arranged in groups called modular I/O bank
 **Table 5-14: Modular I/O Banks for Cyclone V E A2 and A4 Devices**
 
 | Member Code Package 1A | M383 16 | U324 — | A2 F256 — | U484 — | F484 — | M383 16 | U324 — | A4 F256 — | U484 — | F484 — |
-|------------------------|---------|--------|-----------|--------|--------|---------|--------|-----------|--------|--------|
+| ---------------------- | ------- | ------ | --------- | ------ | ------ | ------- | ------ | --------- | ------ | ------ |
 | 2A                     | 32      | 32     | 16        | 16     | 16     | 32      | 32     | 16        | 16     | 16     |
 | 3A                     | 16      | 16     | 16        | 16     | 16     | 16      | 16     | 16        | 16     | 16     |
 | 3B I/O                 | 21      | 16     | 16        | 32     | 32     | 21      | 16     | 16        | 32     | 32     |
@@ -3226,7 +3226,7 @@ The I/O pins in Cyclone V devices are arranged in groups called modular I/O bank
 **Table 5-15: Modular I/O Banks for Cyclone V E A5, A7, and A9 Devices**
 
 | Member Code Package | M383 | A5 U484 | F484 | M484 | U484 | A7 F484 | F672 | F896 | U484 | F484 | A9 F672 | F896 |
-|---------------------|------|---------|------|------|------|---------|------|------|------|------|---------|------|
+| ------------------- | ---- | ------- | ---- | ---- | ---- | ------- | ---- | ---- | ---- | ---- | ------- | ---- |
 | 3A                  | 16   | 16      | 16   | 16   | 16   | 16      | 16   | 32   | 16   | 16   | 16      | 32   |
 | 3B                  | 21   | 32      | 32   | 32   | 32   | 32      | 32   | 48   | 32   | 32   | 32      | 48   |
 | 4A                  | 38   | 48      | 48   | 48   | 48   | 48      | 80   | 80   | 48   | 48   | 80      | 80   |
@@ -3245,7 +3245,7 @@ The I/O pins in Cyclone V devices are arranged in groups called modular I/O bank
 **Table 5-16: Modular I/O Banks for Cyclone V GX C3, C4, and C5 Devices**
 
 | Member Code Package | U324 | C3 U484 | F484 | M301 | M383 | C4 U484 | F484 | F672 | M301 | M383 | C5 U484 | F484 | F672 |
-|---------------------|------|---------|------|------|------|---------|------|------|------|------|---------|------|------|
+| ------------------- | ---- | ------- | ---- | ---- | ---- | ------- | ---- | ---- | ---- | ---- | ------- | ---- | ---- |
 | 3A                  | 16   | 16      | 16   | 16   | 16   | 16      | 16   | 16   | 16   | 16   | 16      | 16   | 16   |
 | 3B                  | 16   | 32      | 32   | 18   | 21   | 32      | 32   | 32   | 18   | 21   | 32      | 32   | 32   |
 | 4A                  | 32   | 48      | 48   | 22   | 38   | 48      | 48   | 80   | 22   | 38   | 48      | 48   | 80   |
@@ -3258,17 +3258,17 @@ The I/O pins in Cyclone V devices are arranged in groups called modular I/O bank
 
 **Table 5-17: Modular I/O Banks for Cyclone V GX C7 and C9 Devices**
 
-| Member Code Package |    | M484 | U484 | C7 F484 | F672 | F896 | U484 | F484 | C9 F672 | F896 | F1152 |
-|---------------------|----|------|------|---------|------|------|------|------|---------|------|-------|
-|                     | 3A | 16   | 16   | 16      | 16   | 32   | 16   | 16   | 16      | 32   | 48    |
-|                     | 3B | 32   | 32   | 32      | 32   | 48   | 32   | 32   | 32      | 48   | 48    |
-|                     | 4A | 48   | 48   | 48      | 80   | 80   | 48   | 48   | 80      | 80   | 96    |
-| I/O Bank            | 5A | 16   | 16   | 16      | 16   | 32   | 16   | 16   | 16      | 32   | 48    |
-|                     | 5B | 16   | 48   | 16      | 32   | 48   | 48   | 16   | 32      | 48   | 48    |
-|                     | 6A | 32   | —    | —       | 48   | 80   | —    | —    | 48      | 80   | 80    |
-|                     | 7A | 48   | 48   | 80      | 80   | 80   | 48   | 64   | 80      | 80   | 96    |
-|                     | 8A | 32   | 32   | 32      | 32   | 80   | 32   | 32   | 32      | 80   | 96    |
-| Total               |    | 240  | 240  | 240     | 336  | 480  | 240  | 224  | 336     | 480  | 560   |
+| Member Code Package |     | M484 | U484 | C7 F484 | F672 | F896 | U484 | F484 | C9 F672 | F896 | F1152 |
+| ------------------- | --- | ---- | ---- | ------- | ---- | ---- | ---- | ---- | ------- | ---- | ----- |
+|                     | 3A  | 16   | 16   | 16      | 16   | 32   | 16   | 16   | 16      | 32   | 48    |
+|                     | 3B  | 32   | 32   | 32      | 32   | 48   | 32   | 32   | 32      | 48   | 48    |
+|                     | 4A  | 48   | 48   | 48      | 80   | 80   | 48   | 48   | 80      | 80   | 96    |
+| I/O Bank            | 5A  | 16   | 16   | 16      | 16   | 32   | 16   | 16   | 16      | 32   | 48    |
+|                     | 5B  | 16   | 48   | 16      | 32   | 48   | 48   | 16   | 32      | 48   | 48    |
+|                     | 6A  | 32   | —    | —       | 48   | 80   | —    | —    | 48      | 80   | 80    |
+|                     | 7A  | 48   | 48   | 80      | 80   | 80   | 48   | 64   | 80      | 80   | 96    |
+|                     | 8A  | 32   | 32   | 32      | 32   | 80   | 32   | 32   | 32      | 80   | 96    |
+| Total               |     | 240  | 240  | 240     | 336  | 480  | 240  | 224  | 336     | 480  | 560   |
 
 #### Related Information
 
@@ -3280,31 +3280,31 @@ The I/O pins in Cyclone V devices are arranged in groups called modular I/O bank
 
 **Table 5-18: Modular I/O Banks for Cyclone V GT D5 and D7 Devices**
 
-| Member Code Package |    | M301 | M383 | D5 U484 | F484 | F672 | M484 | U484 | D7 F484 | F672 | F896 |
-|---------------------|----|------|------|---------|------|------|------|------|---------|------|------|
-|                     | 3A | 16   | 16   | 16      | 16   | 16   | 16   | 16   | 16      | 16   | 32   |
-|                     | 3B | 18   | 21   | 32      | 32   | 32   | 32   | 32   | 32      | 32   | 48   |
-|                     | 4A | 22   | 38   | 48      | 48   | 80   | 48   | 48   | 48      | 80   | 80   |
-| I/O Bank            | 5A | 16   | 16   | 16      | 16   | 16   | 16   | 16   | 16      | 16   | 32   |
-|                     | 5B | 14   | 14   | 32      | 16   | 64   | 16   | 48   | 16      | 64   | 48   |
-|                     | 6A | —    | —    | —       | —    | 16   | 32   | —    | —       | 16   | 80   |
-|                     | 7A | 23   | 39   | 48      | 80   | 80   | 48   | 48   | 80      | 80   | 80   |
-|                     | 8A | 20   | 31   | 32      | 32   | 32   | 32   | 32   | 32      | 32   | 80   |
-| Total               |    | 129  | 175  | 224     | 240  | 336  | 240  | 240  | 240     | 336  | 480  |
+| Member Code Package |     | M301 | M383 | D5 U484 | F484 | F672 | M484 | U484 | D7 F484 | F672 | F896 |
+| ------------------- | --- | ---- | ---- | ------- | ---- | ---- | ---- | ---- | ------- | ---- | ---- |
+|                     | 3A  | 16   | 16   | 16      | 16   | 16   | 16   | 16   | 16      | 16   | 32   |
+|                     | 3B  | 18   | 21   | 32      | 32   | 32   | 32   | 32   | 32      | 32   | 48   |
+|                     | 4A  | 22   | 38   | 48      | 48   | 80   | 48   | 48   | 48      | 80   | 80   |
+| I/O Bank            | 5A  | 16   | 16   | 16      | 16   | 16   | 16   | 16   | 16      | 16   | 32   |
+|                     | 5B  | 14   | 14   | 32      | 16   | 64   | 16   | 48   | 16      | 64   | 48   |
+|                     | 6A  | —    | —    | —       | —    | 16   | 32   | —    | —       | 16   | 80   |
+|                     | 7A  | 23   | 39   | 48      | 80   | 80   | 48   | 48   | 80      | 80   | 80   |
+|                     | 8A  | 20   | 31   | 32      | 32   | 32   | 32   | 32   | 32      | 32   | 80   |
+| Total               |     | 129  | 175  | 224     | 240  | 336  | 240  | 240  | 240     | 336  | 480  |
 
 **Table 5-19: Modular I/O Banks for Cyclone V GT D9 Devices**
 
-| Member Code Package |    | U484 | F484 | D9 F672 | F896 | F1152 |
-|---------------------|----|------|------|---------|------|-------|
-|                     | 3A | 16   | 16   | 16      | 32   | 48    |
-|                     | 3B | 32   | 32   | 32      | 48   | 48    |
-|                     | 4A | 48   | 48   | 80      | 80   | 96    |
-| I/O Bank            | 5A | 16   | 16   | 16      | 32   | 48    |
-|                     | 5B | 48   | 16   | 32      | 48   | 48    |
-|                     | 6A | —    | —    | 48      | 80   | 80    |
-|                     | 7A | 48   | 64   | 80      | 80   | 96    |
-|                     | 8A | 32   | 32   | 32      | 80   | 96    |
-| Total               |    | 240  | 224  | 336     | 480  | 560   |
+| Member Code Package |     | U484 | F484 | D9 F672 | F896 | F1152 |
+| ------------------- | --- | ---- | ---- | ------- | ---- | ----- |
+|                     | 3A  | 16   | 16   | 16      | 32   | 48    |
+|                     | 3B  | 32   | 32   | 32      | 48   | 48    |
+|                     | 4A  | 48   | 48   | 80      | 80   | 96    |
+| I/O Bank            | 5A  | 16   | 16   | 16      | 32   | 48    |
+|                     | 5B  | 48   | 16   | 32      | 48   | 48    |
+|                     | 6A  | —    | —    | 48      | 80   | 80    |
+|                     | 7A  | 48   | 64   | 80      | 80   | 96    |
+|                     | 8A  | 32   | 32   | 32      | 80   | 96    |
+| Total               |     | 240  | 224  | 336     | 480  | 560   |
 
 #### Related Information
 
@@ -3317,21 +3317,21 @@ The I/O pins in Cyclone V devices are arranged in groups called modular I/O bank
 
 Note: The HPS row and column I/O counts are the number of HPS-specific I/O pins on the device. Each HPS-specific pin may be mapped to several HPS I/Os.
 
-| Member Code Package |    | A2 U484 | U672 | A4 U484 | U672 | U484 | A5 U672 | F896 | U484 | A6 U672 | F896 |
-|---------------------|----|---------|------|---------|------|------|---------|------|------|---------|------|
-|                     | 3A | 16      | 16   | 16      | 16   | 16   | 16      | 32   | 16   | 16      | 32   |
-| FPGA                | 3B | 6       | 32   | 6       | 32   | 6    | 32      | 48   | 6    | 32      | 48   |
-| I/O Bank            | 4A | 22      | 68   | 22      | 68   | 22   | 68      | 80   | 22   | 68      | 80   |
-|                     | 5A | 16      | 16   | 16      | 16   | 16   | 16      | 32   | 16   | 16      | 32   |
-|                     | 5B | —       | —    | —       | —    | —    | 7       | 16   | —    | 7       | 16   |
-| HPS Row I/          | 6A | 52      | 56   | 52      | 56   | 52   | 56      | 56   | 52   | 56      | 56   |
-| O Bank              | 6B | 23      | 44   | 23      | 44   | 23   | 44      | 44   | 23   | 44      | 44   |
-| HPS                 | 7A | 19      | 19   | 19      | 19   | 19   | 19      | 19   | 19   | 19      | 19   |
-| Column I/O          | 7B | 21      | 22   | 21      | 22   | 21   | 22      | 22   | 21   | 22      | 22   |
-| Bank                | 7C | 8       | 12   | 8       | 12   | 8    | 12      | 12   | 8    | 12      | 12   |
-|                     | 7D | 14      | 14   | 14      | 14   | 14   | 14      | 14   | 14   | 14      | 14   |
-| FPGA I/O Bank       | 8A | 6       | 13   | 6       | 13   | 6    | 6       | 80   | 6    | 6       | 80   |
-| Total               |    | 203     | 312  | 203     | 312  | 203  | 312     | 455  | 203  | 312     | 455  |
+| Member Code Package |     | A2 U484 | U672 | A4 U484 | U672 | U484 | A5 U672 | F896 | U484 | A6 U672 | F896 |
+| ------------------- | --- | ------- | ---- | ------- | ---- | ---- | ------- | ---- | ---- | ------- | ---- |
+|                     | 3A  | 16      | 16   | 16      | 16   | 16   | 16      | 32   | 16   | 16      | 32   |
+| FPGA                | 3B  | 6       | 32   | 6       | 32   | 6    | 32      | 48   | 6    | 32      | 48   |
+| I/O Bank            | 4A  | 22      | 68   | 22      | 68   | 22   | 68      | 80   | 22   | 68      | 80   |
+|                     | 5A  | 16      | 16   | 16      | 16   | 16   | 16      | 32   | 16   | 16      | 32   |
+|                     | 5B  | —       | —    | —       | —    | —    | 7       | 16   | —    | 7       | 16   |
+| HPS Row I/          | 6A  | 52      | 56   | 52      | 56   | 52   | 56      | 56   | 52   | 56      | 56   |
+| O Bank              | 6B  | 23      | 44   | 23      | 44   | 23   | 44      | 44   | 23   | 44      | 44   |
+| HPS                 | 7A  | 19      | 19   | 19      | 19   | 19   | 19      | 19   | 19   | 19      | 19   |
+| Column I/O          | 7B  | 21      | 22   | 21      | 22   | 21   | 22      | 22   | 21   | 22      | 22   |
+| Bank                | 7C  | 8       | 12   | 8       | 12   | 8    | 12      | 12   | 8    | 12      | 12   |
+|                     | 7D  | 14      | 14   | 14      | 14   | 14   | 14      | 14   | 14   | 14      | 14   |
+| FPGA I/O Bank       | 8A  | 6       | 13   | 6       | 13   | 6    | 6       | 80   | 6    | 6       | 80   |
+| Total               |     | 203     | 312  | 203     | 312  | 203  | 312     | 455  | 203  | 312     | 455  |
 
 #### Related Information
 
@@ -3346,21 +3346,21 @@ Note: The HPS row and column I/O counts are the number of HPS-specific I/O pins 
 
 <span id="page-134-0"></span>
 
-| Member Code Package |    | C2 U672 | C4 U672 | C5 U672 | F896 | U672 | C6 F896 |
-|---------------------|----|---------|---------|---------|------|------|---------|
-|                     | 3A | 16      | 16      | 16      | 32   | 16   | 32      |
-| FPGA I/O            | 3B | 32      | 32      | 32      | 48   | 32   | 48      |
-| Bank                | 4A | 68      | 68      | 68      | 80   | 68   | 80      |
-|                     | 5A | 16      | 16      | 16      | 32   | 16   | 32      |
-|                     | 5B | —       | —       | —       | 16   | —    | 16      |
-| HPS Row I/ O Bank   | 6A | 56      | 56      | 56      | 56   | 56   | 56      |
-|                     | 6B | 44      | 44      | 44      | 44   | 44   | 44      |
-| HPS                 | 7A | 19      | 19      | 19      | 19   | 19   | 19      |
-| Column I/O          | 7B | 22      | 22      | 22      | 22   | 22   | 22      |
-| Bank                | 7C | 12      | 12      | 12      | 12   | 12   | 12      |
-|                     | 7D | 14      | 14      | 14      | 14   | 14   | 14      |
-| FPGA I/O Bank       | 8A | 13      | 13      | 13      | 80   | 13   | 80      |
-| Total               |    | 312     | 312     | 312     | 455  | 312  | 455     |
+| Member Code Package |     | C2 U672 | C4 U672 | C5 U672 | F896 | U672 | C6 F896 |
+| ------------------- | --- | ------- | ------- | ------- | ---- | ---- | ------- |
+|                     | 3A  | 16      | 16      | 16      | 32   | 16   | 32      |
+| FPGA I/O            | 3B  | 32      | 32      | 32      | 48   | 32   | 48      |
+| Bank                | 4A  | 68      | 68      | 68      | 80   | 68   | 80      |
+|                     | 5A  | 16      | 16      | 16      | 32   | 16   | 32      |
+|                     | 5B  | —       | —       | —       | 16   | —    | 16      |
+| HPS Row I/ O Bank   | 6A  | 56      | 56      | 56      | 56   | 56   | 56      |
+|                     | 6B  | 44      | 44      | 44      | 44   | 44   | 44      |
+| HPS                 | 7A  | 19      | 19      | 19      | 19   | 19   | 19      |
+| Column I/O          | 7B  | 22      | 22      | 22      | 22   | 22   | 22      |
+| Bank                | 7C  | 12      | 12      | 12      | 12   | 12   | 12      |
+|                     | 7D  | 14      | 14      | 14      | 14   | 14   | 14      |
+| FPGA I/O Bank       | 8A  | 13      | 13      | 13      | 80   | 13   | 80      |
+| Total               |     | 312     | 312     | 312     | 455  | 312  | 455     |
 
 - [I/O Banks Locations in Cyclone V Devices](#page-127-0) on page 5-21
 - [Guideline: Use the Same VCCPD for All I/O Banks in a Group](#page-125-0) on page 5-19 Provides guidelines about VCCPD and I/O banks groups.
@@ -3372,7 +3372,7 @@ Note: The HPS row and column I/O counts are the number of HPS-specific I/O pins 
 Note: The HPS row and column I/O counts are the number of HPS-specific I/O pins on the device. Each HPS-specific pin may be mapped to several HPS I/Os.
 
 | Member Code Package | D5 F896 | D6 F896 |
-|---------------------|---------|---------|
+| ------------------- | ------- | ------- |
 | 3A                  | 32      | 32      |
 | 3B                  | 48      | 48      |
 | 4A FPGA I/O Bank    | 80      | 80      |
@@ -3383,14 +3383,14 @@ Note: The HPS row and column I/O counts are the number of HPS-specific I/O pins 
 
 <span id="page-135-0"></span>
 
-|                     | Member Code Package |    | D5 F896 | D6 F896 |
-|---------------------|---------------------|----|---------|---------|
-|                     |                     | 7A | 19      | 19      |
-| HPS Column I/O Bank |                     | 7B | 22      | 22      |
-|                     |                     | 7C | 12      | 12      |
-|                     |                     | 7D | 14      | 14      |
-| FPGA I/O Bank       |                     | 8A | 80      | 80      |
-|                     | Total               |    | 455     | 455     |
+|                     | Member Code Package |     | D5 F896 | D6 F896 |
+| ------------------- | ------------------- | --- | ------- | ------- |
+|                     |                     | 7A  | 19      | 19      |
+| HPS Column I/O Bank |                     | 7B  | 22      | 22      |
+|                     |                     | 7C  | 12      | 12      |
+|                     |                     | 7D  | 14      | 14      |
+| FPGA I/O Bank       |                     | 8A  | 80      | 80      |
+|                     | Total               |     | 455     | 455     |
 
 - [I/O Banks Locations in Cyclone V Devices](#page-127-0) on page 5-21
 - [Guideline: Use the Same VCCPD for All I/O Banks in a Group](#page-125-0) on page 5-19 Provides guidelines about VCCPD and I/O banks groups.
@@ -3412,7 +3412,7 @@ I/O registers are composed of the input path for handling data from the pin to t
 This table summarizes the input and output path in the Cyclone V devices.
 
 | Input Path                                                                                                                                                                                   | Output Path                                                                                                                |
-|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | <p>Consists of:</p> <ul> <li>DDR input registers</li> <li>Alignment and synchronization registers</li> <li>Half data rate blocks</li> </ul>                                                  | <p>Consists of:</p> <ul> <li>Output or OE registers</li> <li>Alignment registers</li> <li>Half data rate blocks</li> </ul> |
 | <p>You can bypass each block in the input path. The input path uses the deskew delay to adjust the input register clock delay across process, voltage, and temperature (PVT) variations.</p> | <p>You can bypass each block of the output and OE paths.</p>                                                               |
 
@@ -3429,14 +3429,14 @@ This figure shows the Cyclone V FPGA IOE structure. In the figure, one dynamic o
 **Table 5-24: Summary of Supported Cyclone V Programmable IOE Features and Settings**
 
 | Feature                           | Setting                                                                           | Assignment Name     | Supported I/O Standards                                                                                                                                                                                                                                                                                                                                                                                  | Supported in HPS I/O<br>(SoC Devices Only) |
-|-----------------------------------|-----------------------------------------------------------------------------------|---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------|
+| --------------------------------- | --------------------------------------------------------------------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
 | Slew Rate Control <sup>(12)</sup> | <ul> <li>0 (Slow)</li> <li>1 (Fast). Default is 1.</li> </ul>                     | Slew Rate           | <ul> <li>3.0/3.3V LVTTL</li> <li>1.2/1.5/1.8/2.5/3.0/3.3 LVCMOS</li> <li>SSTL-2/SSTL-18/SSTL-15</li> <li>1.8/1.5/1.2V HSTL</li> <li>3.0V PCI</li> <li>3.0V PCI-X</li> <li>Differential SSTL-2/Differential SSTL-18/Differential SSTL-15</li> <li>Differential 1.2/1.5/1.8V HSTL</li> </ul>                                                                                                               | Yes                                        |
 | Programmable Output Buffer Delay  | <ul> <li>0 ps (Default)</li> <li>50 ps</li> <li>100 ps</li> <li>150 ps</li> </ul> | Output Buffer Delay | <ul> <li>3.0/3.3-V LVTTL</li> <li>1.2/1.5/1.8/2.5/3.0/3.3 LVCMOS</li> <li>SSTL-2, SSTL-18, SSTL-15, SSTL-135, SSTL-125</li> <li>1.8/1.5/1.2 V HSTL</li> <li>HSUL-12</li> <li>3.0V PCI</li> <li>3.0V PCI-X</li> <li>Differential SSTL-2/Diff-SSTL-18/Differential SSTL-15/Differential SSTL-135/Differential SSTL-125</li> <li>Differential 1.2/1.5/1.8V HSTL</li> <li>Differential 1.2-V HSUL</li> </ul> | —                                          |
 
 <sup>(12)</sup> Disabled if you use the  $R_S$  OCT feature.
 
 | Feature  | Setting Assignment Name Supported I/O Standards Supported in HPS |
-|----------|------------------------------------------------------------------|
+| -------- | ---------------------------------------------------------------- |
 | Output   | (13)                                                             |
 |          | — 3.0/3.3V LVTTL                                                 |
 | Bus-Hold | (14) On                                                          |
@@ -3451,7 +3451,7 @@ This figure shows the Cyclone V FPGA IOE structure. In the figure, one dynamic o
 <span id="page-139-0"></span>
 
 | Feature                                  | Setting                                                                           | Assignment Name                                | Supported I/O Standards                                                                          | Supported in HPS I/O<br><br>(SoC Devices Only) |
-|------------------------------------------|-----------------------------------------------------------------------------------|------------------------------------------------|--------------------------------------------------------------------------------------------------|------------------------------------------------|
+| ---------------------------------------- | --------------------------------------------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------ | ---------------------------------------------- |
 | Differential Output Voltage              | <ul> <li>0 (low)</li> <li>1 (medium).</li> <li>2 (high). Default is 1.</li> </ul> | Programmable Differential Output Voltage (VOD) | <ul> <li>LVDS</li> <li>RSDS</li> <li>Mini-LVDS</li> </ul>                                        | —                                              |
 | On-Chip Clamp Diode <sup>(16) (17)</sup> | <ul> <li>On</li> <li>Off (Default)</li> </ul>                                     | Clamping Diode                                 | <ul> <li>3.0/3.3V LVTTL</li> <li>3.0/3.3 LVCMOS</li> <li>3.0V PCI</li> <li>3.0V PCI-X</li> </ul> | Yes                                            |
 
@@ -3476,7 +3476,7 @@ You can use the programmable current strength to mitigate the effects of high si
 The output buffer for each Cyclone V device I/O pin has a programmable current strength control for the I/O standards listed in this table.
 
 | I/O Standard | I OH / I OL Current Strength Setting (mA) |                    |
-|--------------|-------------------------------------------|--------------------|
+| ------------ | ----------------------------------------- | ------------------ |
 | 3.3 V LVTTL  | 16, 8, 4                                  | Yes (except 16 mA) |
 | 3.3 V LVCMOS | 2                                         | Yes                |
 | 3.0 V LVTTL  | 16, 12, 8, 4                              | Yes                |
@@ -3489,7 +3489,7 @@ The output buffer for each Cyclone V device I/O pin has a programmable current s
 <span id="page-140-0"></span>
 
 | I/O Standard        | I OH / I OL Current Strength Setting (mA) |     |
-|---------------------|-------------------------------------------|-----|
+| ------------------- | ----------------------------------------- | --- |
 | 2.5 V LVCMOS        | 16, 12, 8, 4                              | Yes |
 | 1.8 V LVCMOS        | 12, 10, 8, 6, 4, 2                        | Yes |
 | 1.5 V LVCMOS        | 12, 10, 8, 6, 4, 2                        | Yes |
@@ -3578,7 +3578,7 @@ This figure shows the LVDS output with pre-emphasis.
 This table lists the assignment name for programmable pre-emphasis and its possible values in the Intel Quartus Prime software Assignment Editor.
 
 | Field           | Assignment                               |
-|-----------------|------------------------------------------|
+| --------------- | ---------------------------------------- |
 | To              | tx_out                                   |
 | Assignment name | Programmable Pre-emphasis                |
 | Allowed values  | 0 (disabled), 1 (enabled). Default is 1. |
@@ -3602,7 +3602,7 @@ This figure shows the VOD of the differential LVDS output.
 This table lists the assignment name for programmable VOD and its possible values in the Intel Quartus Prime software Assignment Editor.
 
 | Field           | Assignment                                       |
-|-----------------|--------------------------------------------------|
+| --------------- | ------------------------------------------------ |
 | To              | tx_out                                           |
 | Assignment name | Programmable Differential Output Voltage (V OD ) |
 | Allowed values  | 00 (low), 01 (medium), 10 (high). Default is 01. |
@@ -3653,7 +3653,7 @@ The Cyclone V devices support OCT in all FPGA I/O banks. For the HPS I/Os, the c
 **Table 5-28: OCT Schemes Supported in Cyclone V Devices**
 
 | Direction | OCT Schemes          | Supported in HPS Row I/Os |
-|-----------|----------------------|---------------------------|
+| --------- | -------------------- | ------------------------- |
 |           | R S                  |                           |
 |           | OCT with calibration | Yes                       |
 |           | R S                  |                           |
@@ -3661,7 +3661,7 @@ The Cyclone V devices support OCT in all FPGA I/O banks. For the HPS I/Os, the c
 <span id="page-145-0"></span>
 
 | Direction     | OCT Schemes              | Supported in HPS Row I/Os |
-|---------------|--------------------------|---------------------------|
+| ------------- | ------------------------ | ------------------------- |
 |               | R T OCT with calibration | Yes                       |
 |               | R D OCT (LVDS, mini      |                           |
 | Bidirectional | Dynamic R                | S                         |
@@ -3682,7 +3682,7 @@ The Cyclone V devices support R<sup>S</sup> OCT for single-ended and voltage-ref
 This table lists the output termination settings for uncalibrated OCT on different I/O standards.
 
 | I/O Standard             | Uncalibrated OCT (Output) |
-|--------------------------|---------------------------|
+| ------------------------ | ------------------------- |
 |                          | R S                       |
 | 3.0 V LVTTL/3.0 V LVCMOS | 25/50                     |
 | 2.5 V LVCMOS             | 25/50                     |
@@ -3700,7 +3700,7 @@ This table lists the output termination settings for uncalibrated OCT on differe
 | 1.5 V HSTL Class I       | 50                        |
 
 | I/O Standard                     | Uncalibrated OCT (Output) |
-|----------------------------------|---------------------------|
+| -------------------------------- | ------------------------- |
 |                                  | R S                       |
 | 1.5 V HSTL Class II              | 25                        |
 | 1.2 V HSTL Class I               | 50                        |
@@ -3749,7 +3749,7 @@ The Cyclone V devices support R<sup>S</sup> OCT with calibration in all banks.
 This table lists the output termination settings for calibrated OCT on different I/O standards.
 
 | I/O Standard 3.0 V LVTTL/3.0 V LVCMOS 2.5 V LVCMOS 1.8 V LVCMOS 1.5 V LVCMOS 1.2 V LVCMOS | R S (Ω) 25/50 25/50 25/50 25/50 25/50 | Calibrated OCT (Output) RZQ (Ω) 100 100 100 100 100 |
-|-------------------------------------------------------------------------------------------|---------------------------------------|-----------------------------------------------------|
+| ----------------------------------------------------------------------------------------- | ------------------------------------- | --------------------------------------------------- |
 | SSTL-2 Class I                                                                            | 50                                    | 100                                                 |
 | SSTL-2 Class II                                                                           | 25                                    | 100                                                 |
 | SSTL-18 Class I                                                                           | 50                                    | 100                                                 |
@@ -3760,7 +3760,7 @@ This table lists the output termination settings for calibrated OCT on different
 | 1.8 V HSTL Class II                                                                       | 25                                    | 100                                                 |
 
 | I/O Standard                     | R S (Ω)            | Calibrated OCT (Output) RZQ (Ω) |
-|----------------------------------|--------------------|---------------------------------|
+| -------------------------------- | ------------------ | ------------------------------- |
 | 1.5 V HSTL Class I               | 50                 | 100                             |
 | 1.5 V HSTL Class II              | 25                 | 100                             |
 | 1.2 V HSTL Class I               | 50                 | 100                             |
@@ -3811,7 +3811,7 @@ The Cyclone V devices support RT OCT with calibration in all banks. RT OCT with 
 This table lists the input termination settings for calibrated OCT on different I/O standards.
 
 | I/O Standard        | R T (Ω) | Calibrated OCT (Input) RZQ (Ω) |
-|---------------------|---------|--------------------------------|
+| ------------------- | ------- | ------------------------------ |
 | SSTL-2 Class I      | 50      | 100                            |
 | SSTL-2 Class II     | 50      | 100                            |
 | SSTL-18 Class I     | 50      | 100                            |
@@ -3825,7 +3825,7 @@ This table lists the input termination settings for calibrated OCT on different 
 | 1.2 V HSTL Class I  | 50      | 100                            |
 
 | I/O Standard                     | R T (Ω)             | Calibrated OCT (Input) RZQ (Ω) |
-|----------------------------------|---------------------|--------------------------------|
+| -------------------------------- | ------------------- | ------------------------------ |
 | 1.2 V HSTL Class II              | 50                  | 100                            |
 | Differential SSTL-2 Class I      | 50                  | 100                            |
 | Differential SSTL-2 Class II     | 50                  | 100                            |
@@ -3867,7 +3867,7 @@ Note: If you use the SSTL-15, SSTL-135, and SSTL-125 I/O standards with external
 Dynamic RT OCT or R<sup>S</sup> OCT is enabled or disabled based on whether the bidirectional I/O acts as a receiver or driver.
 
 | Dynamic OCT Bidirectional I/O | State    |
-|-------------------------------|----------|
+| ----------------------------- | -------- |
 | Dynamic R T OCT               |          |
 | Acts as a receiver            | Enabled  |
 | Acts as a driver              | Disabled |
@@ -3956,7 +3956,7 @@ To enable this calibration, serially shift out the R<sup>S</sup> OCT calibration
 **Table 5-33: External Termination Schemes for Different I/O Standards**
 
 | I/O Standard                  | External Termination Scheme                |
-|-------------------------------|--------------------------------------------|
+| ----------------------------- | ------------------------------------------ |
 | 3.3 V LVTTL/3.3 V V LVCMOS    |                                            |
 | 3.0 V LVVTL/3.0 V LVCMOS      |                                            |
 | 3.0 V PCI                     |                                            |
@@ -3987,7 +3987,7 @@ To enable this calibration, serially shift out the R<sup>S</sup> OCT calibration
 <span id="page-157-0"></span>
 
 |                       | I/O Standard External Termination Scheme     |
-|-----------------------|----------------------------------------------|
+| --------------------- | -------------------------------------------- |
 | LVDS                  | LVDS I/O Standard Termination                |
 | LVPECL                | Differential LVPECL I/O Standard Termination |
 | SLVS                  | SLVS I/O Standard Termination                |
@@ -4124,7 +4124,7 @@ The Cyclone V device has dedicated circuitries for differential transmitter and 
 **Table 5-34: Features and Dedicated Circuitries of the Differential Transmitter and Receiver**
 
 | Feature                  | Differential Transmitter  | Differential Receiver                  |
-|--------------------------|---------------------------|----------------------------------------|
+| ------------------------ | ------------------------- | -------------------------------------- |
 | True differential buffer | LVDS, mini-LVDS, and RSDS | LVDS, SLVS, mini-LVDS, and RSDS        |
 | SERDES                   | Up to 10 bit serializer   | Up to 10 bit deserializer              |
 | Fractional PLL           | Clocks the load and shift |                                        |
@@ -4199,247 +4199,247 @@ The following tables list the number of true LVDS buffers supported in Cyclone V
 
 **Table 5-35: LVDS Channels Supported in Cyclone V E Devices**
 
-| Member Code Package Side                  | TX | RX |
-|-------------------------------------------|----|----|
-| Top                                       | 8  | 8  |
-| Left 256-pin FineLine BGA                 | 4  | 4  |
-| Right                                     | 8  | 8  |
-| Bottom                                    | 12 | 12 |
-| Top                                       | 12 | 12 |
-| Left 324-pin Ultra FineLine BGA           | 8  | 8  |
-| Right                                     | 8  | 8  |
-| Bottom                                    | 16 | 16 |
-| Top                                       | 15 | 19 |
-| Left A2 and A4 383-pin Micro FineLine BGA | 12 | 12 |
-| Right                                     | 7  | 8  |
-| Bottom                                    | 16 | 20 |
-| Top                                       | 20 | 20 |
-| Left 484-pin Ultra FineLine BGA           | 4  | 4  |
-| Right                                     | 8  | 8  |
-| Bottom                                    | 24 | 24 |
-| Top                                       | 20 | 20 |
-| Left 484-pin FineLine BGA                 | 4  | 4  |
-| Right                                     | 8  | 8  |
-| Bottom                                    | 24 | 24 |
+| Member Code Package Side                  | TX  | RX  |
+| ----------------------------------------- | --- | --- |
+| Top                                       | 8   | 8   |
+| Left 256-pin FineLine BGA                 | 4   | 4   |
+| Right                                     | 8   | 8   |
+| Bottom                                    | 12  | 12  |
+| Top                                       | 12  | 12  |
+| Left 324-pin Ultra FineLine BGA           | 8   | 8   |
+| Right                                     | 8   | 8   |
+| Bottom                                    | 16  | 16  |
+| Top                                       | 15  | 19  |
+| Left A2 and A4 383-pin Micro FineLine BGA | 12  | 12  |
+| Right                                     | 7   | 8   |
+| Bottom                                    | 16  | 20  |
+| Top                                       | 20  | 20  |
+| Left 484-pin Ultra FineLine BGA           | 4   | 4   |
+| Right                                     | 8   | 8   |
+| Bottom                                    | 24  | 24  |
+| Top                                       | 20  | 20  |
+| Left 484-pin FineLine BGA                 | 4   | 4   |
+| Right                                     | 8   | 8   |
+| Bottom                                    | 24  | 24  |
 
-| Member Code Package Side            | TX | RX |
-|-------------------------------------|----|----|
-| Top                                 | 15 | 19 |
-| Right 383-pin Micro FineLine BGA    | 7  | 8  |
-| Bottom                              | 16 | 21 |
-| Top                                 | 20 | 20 |
-| Right A5 484-pin Ultra FineLine BGA | 12 | 12 |
-| Bottom                              | 24 | 24 |
-| Top                                 | 28 | 28 |
-| Right 484-pin FineLine BGA          | 8  | 8  |
-| Bottom                              | 24 | 24 |
-| Top                                 | 20 | 20 |
-| Right 484-pin Micro FineLine BGA    | 16 | 16 |
-| Bottom                              | 24 | 24 |
-| Top                                 | 20 | 20 |
-| Right 484-pin Ultra FineLine BGA    | 16 | 16 |
-| Bottom                              | 24 | 24 |
-| Top                                 | 28 | 28 |
-| Right A7 484-pin FineLine BGA       | 8  | 8  |
-| Bottom                              | 24 | 24 |
-| Top                                 | 28 | 28 |
-| Right 672-pin FineLine BGA          | 24 | 24 |
-| Bottom                              | 32 | 32 |
-| Top                                 | 40 | 40 |
-| Right 896-pin FineLine BGA          | 40 | 40 |
-| Bottom                              | 40 | 40 |
+| Member Code Package Side            | TX  | RX  |
+| ----------------------------------- | --- | --- |
+| Top                                 | 15  | 19  |
+| Right 383-pin Micro FineLine BGA    | 7   | 8   |
+| Bottom                              | 16  | 21  |
+| Top                                 | 20  | 20  |
+| Right A5 484-pin Ultra FineLine BGA | 12  | 12  |
+| Bottom                              | 24  | 24  |
+| Top                                 | 28  | 28  |
+| Right 484-pin FineLine BGA          | 8   | 8   |
+| Bottom                              | 24  | 24  |
+| Top                                 | 20  | 20  |
+| Right 484-pin Micro FineLine BGA    | 16  | 16  |
+| Bottom                              | 24  | 24  |
+| Top                                 | 20  | 20  |
+| Right 484-pin Ultra FineLine BGA    | 16  | 16  |
+| Bottom                              | 24  | 24  |
+| Top                                 | 28  | 28  |
+| Right A7 484-pin FineLine BGA       | 8   | 8   |
+| Bottom                              | 24  | 24  |
+| Top                                 | 28  | 28  |
+| Right 672-pin FineLine BGA          | 24  | 24  |
+| Bottom                              | 32  | 32  |
+| Top                                 | 40  | 40  |
+| Right 896-pin FineLine BGA          | 40  | 40  |
+| Bottom                              | 40  | 40  |
 
-| Member Code Package Side         | TX | RX |
-|----------------------------------|----|----|
-| Top                              | 20 | 20 |
-| Right 484-pin Ultra FineLine BGA | 16 | 16 |
-| Bottom                           | 24 | 24 |
-| Top                              | 24 | 24 |
-| Right 484-pin FineLine BGA       | 8  | 8  |
-| Bottom A9                        | 24 | 24 |
-| Top                              | 28 | 28 |
-| Right 672-pin FineLine BGA       | 24 | 24 |
-| Bottom                           | 32 | 32 |
-| Top                              | 40 | 40 |
-| Right 896-pin FineLine BGA       | 40 | 40 |
-| Bottom                           | 40 | 40 |
+| Member Code Package Side         | TX  | RX  |
+| -------------------------------- | --- | --- |
+| Top                              | 20  | 20  |
+| Right 484-pin Ultra FineLine BGA | 16  | 16  |
+| Bottom                           | 24  | 24  |
+| Top                              | 24  | 24  |
+| Right 484-pin FineLine BGA       | 8   | 8   |
+| Bottom A9                        | 24  | 24  |
+| Top                              | 28  | 28  |
+| Right 672-pin FineLine BGA       | 24  | 24  |
+| Bottom                           | 32  | 32  |
+| Top                              | 40  | 40  |
+| Right 896-pin FineLine BGA       | 40  | 40  |
+| Bottom                           | 40  | 40  |
 
 **Table 5-36: LVDS Channels Supported in Cyclone V GX Devices**
 
-| Member Code Package Side            | TX | RX |
-|-------------------------------------|----|----|
-| Top                                 | 12 | 12 |
-| Right 324-pin Ultra FineLine BGA    | 8  | 8  |
-| Bottom                              | 16 | 16 |
-| Top                                 | 20 | 20 |
-| Right C3 484-pin Ultra FineLine BGA | 8  | 8  |
-| Bottom                              | 24 | 24 |
-| Top                                 | 20 | 20 |
-| Right 484-pin FineLine BGA          | 8  | 8  |
-| Bottom                              | 24 | 24 |
+| Member Code Package Side            | TX  | RX  |
+| ----------------------------------- | --- | --- |
+| Top                                 | 12  | 12  |
+| Right 324-pin Ultra FineLine BGA    | 8   | 8   |
+| Bottom                              | 16  | 16  |
+| Top                                 | 20  | 20  |
+| Right C3 484-pin Ultra FineLine BGA | 8   | 8   |
+| Bottom                              | 24  | 24  |
+| Top                                 | 20  | 20  |
+| Right 484-pin FineLine BGA          | 8   | 8   |
+| Bottom                              | 24  | 24  |
 
-| Member Code Package Side            | TX | RX |
-|-------------------------------------|----|----|
-| Top                                 | 6  | 15 |
-| Right 301-pin Micro FineLine BGA    | 7  | 8  |
-| Bottom                              | 8  | 20 |
-| Top                                 | 15 | 19 |
-| Right 383-pin Micro FineLine BGA    | 7  | 8  |
-| Bottom                              | 16 | 21 |
-| Top                                 | 20 | 20 |
-| Right C4 484-pin Ultra FineLine BGA | 12 | 12 |
-| Bottom                              | 24 | 24 |
-| Top                                 | 28 | 28 |
-| Right 484-pin FineLine BGA          | 8  | 8  |
-| Bottom                              | 24 | 24 |
-| Top                                 | 28 | 28 |
-| Right 672-pin FineLine BGA          | 24 | 24 |
-| Bottom                              | 32 | 32 |
-| Top                                 | 6  | 15 |
-| Right 301-pin Micro FineLine BGA    | 7  | 8  |
-| Bottom                              | 8  | 20 |
-| Top                                 | 15 | 19 |
-| Right 383-pin Micro FineLine BGA    | 7  | 8  |
-| Bottom                              | 16 | 21 |
-| Top                                 | 20 | 20 |
-| Right C5 484-pin Ultra FineLine BGA | 12 | 12 |
-| Bottom                              | 24 | 24 |
-| Top                                 | 28 | 28 |
-| Right 484-pin FineLine BGA          | 8  | 8  |
-| Bottom                              | 24 | 24 |
-| Top                                 | 28 | 28 |
-| Right 672-pin FineLine BGA          | 24 | 24 |
-| Bottom                              | 32 | 32 |
+| Member Code Package Side            | TX  | RX  |
+| ----------------------------------- | --- | --- |
+| Top                                 | 6   | 15  |
+| Right 301-pin Micro FineLine BGA    | 7   | 8   |
+| Bottom                              | 8   | 20  |
+| Top                                 | 15  | 19  |
+| Right 383-pin Micro FineLine BGA    | 7   | 8   |
+| Bottom                              | 16  | 21  |
+| Top                                 | 20  | 20  |
+| Right C4 484-pin Ultra FineLine BGA | 12  | 12  |
+| Bottom                              | 24  | 24  |
+| Top                                 | 28  | 28  |
+| Right 484-pin FineLine BGA          | 8   | 8   |
+| Bottom                              | 24  | 24  |
+| Top                                 | 28  | 28  |
+| Right 672-pin FineLine BGA          | 24  | 24  |
+| Bottom                              | 32  | 32  |
+| Top                                 | 6   | 15  |
+| Right 301-pin Micro FineLine BGA    | 7   | 8   |
+| Bottom                              | 8   | 20  |
+| Top                                 | 15  | 19  |
+| Right 383-pin Micro FineLine BGA    | 7   | 8   |
+| Bottom                              | 16  | 21  |
+| Top                                 | 20  | 20  |
+| Right C5 484-pin Ultra FineLine BGA | 12  | 12  |
+| Bottom                              | 24  | 24  |
+| Top                                 | 28  | 28  |
+| Right 484-pin FineLine BGA          | 8   | 8   |
+| Bottom                              | 24  | 24  |
+| Top                                 | 28  | 28  |
+| Right 672-pin FineLine BGA          | 24  | 24  |
+| Bottom                              | 32  | 32  |
 
-| Member Code Package Side         | TX | RX |
-|----------------------------------|----|----|
-| Top                              | 20 | 20 |
-| Right 484-pin Micro FineLine BGA | 16 | 16 |
-| Bottom                           | 24 | 24 |
-| Top                              | 20 | 20 |
-| Right 484-pin Ultra FineLine BGA | 16 | 16 |
-| Bottom                           | 24 | 24 |
-| Top                              | 28 | 28 |
-| Right C7 484-pin FineLine BGA    | 8  | 8  |
-| Bottom                           | 24 | 24 |
-| Top                              | 28 | 28 |
-| Right 672-pin FineLine BGA       | 24 | 24 |
-| Bottom                           | 32 | 32 |
-| Top                              | 40 | 40 |
-| Right 896-pin FineLine BGA       | 40 | 40 |
-| Bottom                           | 40 | 40 |
-| Top                              | 20 | 20 |
-| Right 484-pin Ultra FineLine BGA | 16 | 16 |
-| Bottom                           | 24 | 24 |
-| Top                              | 24 | 24 |
-| Right 484-pin FineLine BGA       | 8  | 8  |
-| Bottom                           | 24 | 24 |
-| Top                              | 28 | 28 |
-| Right C9 672-pin FineLine BGA    | 24 | 24 |
-| Bottom                           | 32 | 32 |
-| Top                              | 40 | 40 |
-| Right 896-pin FineLine BGA       | 40 | 40 |
-| Bottom                           | 40 | 40 |
-| Top                              | 48 | 48 |
-| Right 1152-pin FineLine BGA      | 44 | 44 |
-| Bottom                           | 48 | 48 |
+| Member Code Package Side         | TX  | RX  |
+| -------------------------------- | --- | --- |
+| Top                              | 20  | 20  |
+| Right 484-pin Micro FineLine BGA | 16  | 16  |
+| Bottom                           | 24  | 24  |
+| Top                              | 20  | 20  |
+| Right 484-pin Ultra FineLine BGA | 16  | 16  |
+| Bottom                           | 24  | 24  |
+| Top                              | 28  | 28  |
+| Right C7 484-pin FineLine BGA    | 8   | 8   |
+| Bottom                           | 24  | 24  |
+| Top                              | 28  | 28  |
+| Right 672-pin FineLine BGA       | 24  | 24  |
+| Bottom                           | 32  | 32  |
+| Top                              | 40  | 40  |
+| Right 896-pin FineLine BGA       | 40  | 40  |
+| Bottom                           | 40  | 40  |
+| Top                              | 20  | 20  |
+| Right 484-pin Ultra FineLine BGA | 16  | 16  |
+| Bottom                           | 24  | 24  |
+| Top                              | 24  | 24  |
+| Right 484-pin FineLine BGA       | 8   | 8   |
+| Bottom                           | 24  | 24  |
+| Top                              | 28  | 28  |
+| Right C9 672-pin FineLine BGA    | 24  | 24  |
+| Bottom                           | 32  | 32  |
+| Top                              | 40  | 40  |
+| Right 896-pin FineLine BGA       | 40  | 40  |
+| Bottom                           | 40  | 40  |
+| Top                              | 48  | 48  |
+| Right 1152-pin FineLine BGA      | 44  | 44  |
+| Bottom                           | 48  | 48  |
 
 **Table 5-37: LVDS Channels Supported in Cyclone V GT Devices**
 
-| Member Code Package Side            | TX | RX |
-|-------------------------------------|----|----|
-| Top                                 | 6  | 15 |
-| Right 301-pin Micro FineLine BGA    | 7  | 8  |
-| Bottom                              | 8  | 20 |
-| Top                                 | 15 | 19 |
-| Right 383-pin Micro FineLine BGA    | 7  | 8  |
-| Bottom                              | 16 | 21 |
-| Top                                 | 20 | 20 |
-| Right D5 484-pin Ultra FineLine BGA | 12 | 12 |
-| Bottom                              | 24 | 24 |
-| Top                                 | 28 | 28 |
-| Right 484-pin FineLine BGA          | 8  | 8  |
-| Bottom                              | 24 | 24 |
-| Top                                 | 28 | 28 |
-| Right 672-pin FineLine BGA          | 24 | 24 |
-| Bottom                              | 32 | 32 |
-| Top                                 | 20 | 20 |
-| Right 484-pin Micro FineLine BGA    | 16 | 16 |
-| Bottom                              | 24 | 24 |
-| Top                                 | 20 | 20 |
-| Right 484-pin Ultra FineLine BGA    | 16 | 16 |
-| Bottom                              | 24 | 24 |
-| Top                                 | 28 | 28 |
-| Right D7 484-pin FineLine BGA       | 8  | 8  |
-| Bottom                              | 24 | 24 |
-| Top                                 | 28 | 28 |
-| Right 672-pin FineLine BGA          | 24 | 24 |
-| Bottom                              | 32 | 32 |
-| Top                                 | 40 | 40 |
-| Right 896-pin FineLine BGA          | 40 | 40 |
-| Bottom                              | 40 | 40 |
+| Member Code Package Side            | TX  | RX  |
+| ----------------------------------- | --- | --- |
+| Top                                 | 6   | 15  |
+| Right 301-pin Micro FineLine BGA    | 7   | 8   |
+| Bottom                              | 8   | 20  |
+| Top                                 | 15  | 19  |
+| Right 383-pin Micro FineLine BGA    | 7   | 8   |
+| Bottom                              | 16  | 21  |
+| Top                                 | 20  | 20  |
+| Right D5 484-pin Ultra FineLine BGA | 12  | 12  |
+| Bottom                              | 24  | 24  |
+| Top                                 | 28  | 28  |
+| Right 484-pin FineLine BGA          | 8   | 8   |
+| Bottom                              | 24  | 24  |
+| Top                                 | 28  | 28  |
+| Right 672-pin FineLine BGA          | 24  | 24  |
+| Bottom                              | 32  | 32  |
+| Top                                 | 20  | 20  |
+| Right 484-pin Micro FineLine BGA    | 16  | 16  |
+| Bottom                              | 24  | 24  |
+| Top                                 | 20  | 20  |
+| Right 484-pin Ultra FineLine BGA    | 16  | 16  |
+| Bottom                              | 24  | 24  |
+| Top                                 | 28  | 28  |
+| Right D7 484-pin FineLine BGA       | 8   | 8   |
+| Bottom                              | 24  | 24  |
+| Top                                 | 28  | 28  |
+| Right 672-pin FineLine BGA          | 24  | 24  |
+| Bottom                              | 32  | 32  |
+| Top                                 | 40  | 40  |
+| Right 896-pin FineLine BGA          | 40  | 40  |
+| Bottom                              | 40  | 40  |
 
-| Member Code Package Side         | TX | RX |
-|----------------------------------|----|----|
-| Top                              | 20 | 20 |
-| Right 484-pin Ultra FineLine BGA | 16 | 16 |
-| Bottom                           | 24 | 24 |
-| Top                              | 24 | 24 |
-| Right 484-pin FineLine BGA       | 8  | 8  |
-| Bottom                           | 24 | 24 |
-| Top                              | 28 | 28 |
-| Right D9 672-pin FineLine BGA    | 24 | 24 |
-| Bottom                           | 32 | 32 |
-| Top                              | 40 | 40 |
-| Right 896-pin FineLine BGA       | 40 | 40 |
-| Bottom                           | 40 | 40 |
-| Top                              | 48 | 48 |
-| Right 1152-pin FineLine BGA      | 44 | 44 |
-| Bottom                           | 48 | 48 |
+| Member Code Package Side         | TX  | RX  |
+| -------------------------------- | --- | --- |
+| Top                              | 20  | 20  |
+| Right 484-pin Ultra FineLine BGA | 16  | 16  |
+| Bottom                           | 24  | 24  |
+| Top                              | 24  | 24  |
+| Right 484-pin FineLine BGA       | 8   | 8   |
+| Bottom                           | 24  | 24  |
+| Top                              | 28  | 28  |
+| Right D9 672-pin FineLine BGA    | 24  | 24  |
+| Bottom                           | 32  | 32  |
+| Top                              | 40  | 40  |
+| Right 896-pin FineLine BGA       | 40  | 40  |
+| Bottom                           | 40  | 40  |
+| Top                              | 48  | 48  |
+| Right 1152-pin FineLine BGA      | 44  | 44  |
+| Bottom                           | 48  | 48  |
 
 **Table 5-38: LVDS Channels Supported in Cyclone V SE Devices**
 
-| Member Code Package Side                   | TX | RX |
-|--------------------------------------------|----|----|
-| Top                                        | 1  | 2  |
-| Right 484-pin Ultra FineLine BGA           | 4  | 4  |
-| Bottom A2 and A4                           | 10 | 12 |
-| Top                                        | 1  | 2  |
-| Right 672-pin Ultra FineLine BGA           | 5  | 6  |
-| Bottom                                     | 26 | 29 |
-| Top                                        | 1  | 2  |
-| Right 484-pin Ultra FineLine BGA           | 4  | 4  |
-| Bottom                                     | 10 | 12 |
-| Top                                        | 1  | 2  |
-| Right A5 and A6 672-pin Ultra FineLine BGA | 5  | 6  |
-| Bottom                                     | 26 | 29 |
-| Top                                        | 20 | 20 |
-| Right 896-pin FineLine BGA                 | 12 | 12 |
-| Bottom                                     | 40 | 40 |
+| Member Code Package Side                   | TX  | RX  |
+| ------------------------------------------ | --- | --- |
+| Top                                        | 1   | 2   |
+| Right 484-pin Ultra FineLine BGA           | 4   | 4   |
+| Bottom A2 and A4                           | 10  | 12  |
+| Top                                        | 1   | 2   |
+| Right 672-pin Ultra FineLine BGA           | 5   | 6   |
+| Bottom                                     | 26  | 29  |
+| Top                                        | 1   | 2   |
+| Right 484-pin Ultra FineLine BGA           | 4   | 4   |
+| Bottom                                     | 10  | 12  |
+| Top                                        | 1   | 2   |
+| Right A5 and A6 672-pin Ultra FineLine BGA | 5   | 6   |
+| Bottom                                     | 26  | 29  |
+| Top                                        | 20  | 20  |
+| Right 896-pin FineLine BGA                 | 12  | 12  |
+| Bottom                                     | 40  | 40  |
 
 <span id="page-177-0"></span>**Table 5-39: LVDS Channels Supported in Cyclone V SX Devices**
 
-| Member Code | Package                    | Side   | TX | RX |
-|-------------|----------------------------|--------|----|----|
-| C2 and C4   | 672-pin Ultra FineLine BGA |        |    |    |
-|             |                            | Top    | 1  | 2  |
-|             |                            | Right  | 5  | 6  |
-|             |                            | Bottom | 26 | 29 |
-|             |                            | Top    | 1  | 2  |
-|             | 672-pin Ultra FineLine BGA | Right  | 5  | 6  |
-| C5 and C6   |                            | Bottom | 26 | 29 |
-|             |                            | Top    | 20 | 20 |
-|             | 896-pin FineLine BGA       | Right  | 12 | 12 |
-|             |                            | Bottom | 40 | 40 |
+| Member Code | Package                    | Side   | TX  | RX  |
+| ----------- | -------------------------- | ------ | --- | --- |
+| C2 and C4   | 672-pin Ultra FineLine BGA |        |     |     |
+|             |                            | Top    | 1   | 2   |
+|             |                            | Right  | 5   | 6   |
+|             |                            | Bottom | 26  | 29  |
+|             |                            | Top    | 1   | 2   |
+|             | 672-pin Ultra FineLine BGA | Right  | 5   | 6   |
+| C5 and C6   |                            | Bottom | 26  | 29  |
+|             |                            | Top    | 20  | 20  |
+|             | 896-pin FineLine BGA       | Right  | 12  | 12  |
+|             |                            | Bottom | 40  | 40  |
 
 **Table 5-40: LVDS Channels Supported in Cyclone V ST Devices**
 
-| Member Code | Package              | Side   | TX | RX |
-|-------------|----------------------|--------|----|----|
-| D5 and D6   | 896-pin FineLine BGA |        |    |    |
-|             |                      | Top    | 20 | 20 |
-|             |                      | Right  | 12 | 12 |
-|             |                      | Bottom | 40 | 40 |
+| Member Code | Package              | Side   | TX  | RX  |
+| ----------- | -------------------- | ------ | --- | --- |
+| D5 and D6   | 896-pin FineLine BGA |        |     |     |
+|             |                      | Top    | 20  | 20  |
+|             |                      | Right  | 12  | 12  |
+|             |                      | Bottom | 40  | 40  |
 
 [Guideline: Use PLLs in Integer PLL Mode for LVDS](#page-119-0) on page 5-13
 
@@ -4609,7 +4609,7 @@ All I/O pins and dedicated clock input pins support on-chip differential termina
 This table lists the assignment name for on-chip differential termination in the Intel Quartus Prime software Assignment Editor.
 
 | Field           | Assignment        |
-|-----------------|-------------------|
+| --------------- | ----------------- |
 | To              | rx_in             |
 | Assignment name | Input Termination |
 | Value           | Differential      |
@@ -4663,7 +4663,7 @@ This table lists the conventions for differential bit naming for 18 differential
 <span id="page-186-0"></span>
 
 | Receiver Channel Data Number | MSB Position | Internal 8-Bit Parallel Data LSB Position |
-|------------------------------|--------------|-------------------------------------------|
+| ---------------------------- | ------------ | ----------------------------------------- |
 | 1                            | 7            | 0                                         |
 | 2                            | 15           | 8                                         |
 | 3                            | 23           | 16                                        |
@@ -4737,11 +4737,11 @@ For LVDS receivers, the Intel Quartus Prime software provides an RSKM report sho
 #### **I/O Features in Cyclone V Devices Revision History**
 
 | Document Version | Changes                                                                                                             |
-|------------------|---------------------------------------------------------------------------------------------------------------------|
+| ---------------- | ------------------------------------------------------------------------------------------------------------------- |
 | 2019.03.19       | Corrected the number of I/O pins for I/O banks 5B and 6A in the F672 package of the Cyclone V GX C5 and C7 devices. |
 
 | Date          | Version    | Changes                                                                |
-|---------------|------------|------------------------------------------------------------------------|
+| ------------- | ---------- | ---------------------------------------------------------------------- |
 | March 2018    | 2018.03.02 | Updated the note in Dynamic OCT in Cyclone V Devices topic.            |
 | December 2017 | 2017.12.15 | Updated the default value for Differential Output Voltage feature from |
 |               |            | Added a note to PLLs and Clocking topic to clarify that spread        |
@@ -4754,33 +4754,33 @@ For LVDS receivers, the Intel Quartus Prime software provides an RSKM report sho
 |               |            | (120 Ω) and R P (170 Ω) values for the emulated LVDS,                  |
 
 | Date         | Version    | Changes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-|--------------|------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ------------ | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | January 2015 | 2015.01.23 | <ul> <li>• Corrected truncated sentence in the note about the recommendation to use dynamic OCT for several I/O standards with DDR3 external memory interface.</li> <li>• Remove footnote of RS and RT OCT values pending silicon characterization for Table RS OCT with Calibration in Cyclone V Devices and RT OCT with Calibration in Cyclone V Devices.</li> <li>• Updated Guideline: Use the Same Vccpd for All I/O Banks in a Group to clarify that certain Cyclone V devices does not share the same Vccpd for bank 7A and 8A.</li> <li>• Updated images for High-Speed Differential I/O Locations in all Cyclone V devices to show only 1 fractional PLL per each corner.</li> <li>• Added mini LVDS and RSDS I/O standard in OCT Schemes Supported in Cyclone V Devices Table for <math>R_D</math> termination.</li> <li>• Clarified that dedicated configuration pins, clock pins and JTAG pins do not support programmable pull-up resistor but these pins have fixed value of internal pull-up resistors.</li> <li>• Moved the Open-Drain Output, Bus-Hold Circuitry and Pull-up Resistor sections to Programmable IOE Features in Cyclone V Devices.</li> <li>• Update Open-Drain Output section with steps to enable open-drain output in Assignment Editor.</li> <li>• Updated timing diagram for Phase Relationship for External PLL Interface Signals to reflect the correct phase shift and frequency for outclk2.</li> </ul> |
 | June 2014    | 2014.06.30 | <ul> <li>• Updated the I/O vertical migration figure to clarify the migration capability of Cyclone V SE and SX devices.</li> <li>• Added footnote to clarify that some of the voltage levels listed in the MultiVolt I/O support table are for showing that multiple single-ended I/O standards are not compatible with certain <math>V_{CClO}</math> voltages.</li> <li>• Corrected the number of I/O pins for I/O banks 5B and 6A in the F672 package of the Cyclone V C4 device.</li> <li>• Added pin placement guidelines for general purpose high-speed signals faster than 200 MHz.</li> <li>• Added information to clarify that programmable output slew rate is available for single-ended and emulated LVDS I/O standards.</li> </ul>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 
 | Date         | Version    | Changes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-|--------------|------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ------------ | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | January 2014 | 2014.01.10 | <ul> <li>• Added 3.3 V V<sub>CClO</sub> input for 3.0 V LVTTL/3.0 V LVCMOS and 2.5 V LVCMOS I/O standards.</li> <li>• Added 3.3 V input signal for 2.5 V V<sub>CClO</sub> in the table listing the MultiVolt I/O support.</li> <li>• Updated the statement about setting the phase of the clock in relation to data in the topic about transmitter clocking.</li> <li>• Updated statements in several topics to clarify that each modular I/O bank can support multiple I/O standards that use the same voltage.</li> <li>• Updated the guideline topic about using the same V<sub>CCPD</sub> for I/O banks in the same V<sub>CCPD</sub> group to improve clarity.</li> <li>• Added the optional PCI clamp diode to the figure showing the IOE structure.</li> <li>• Changed all "SoC FPGA" to "SoC".</li> <li>• Removed SSTL-125 from the list of supported I/O standards for the HPS I/O.</li> <li>• Added SSTL-15, SSTL-135, SSTL-125, HSUL-12, Differential SSTL-15, Differential SSTL-135, Differential SSTL-125, and Differential HSUL-12 to the list of output termination settings for uncalibrated R<sub>S</sub> OCT.</li> <li>• Removed I/O banks 5A and 5B from Cyclone V SE A2 and A4, and Cyclone V SX C2 and C4 in the table that lists the reference clock pin for I/O banks without dedicated reference clock pin. These devices do not have I/O bank 5B.</li> <li>• Added the M301 and M383 packages to the modular I/O banks tables for Cyclone V GX C4 device.</li> <li>• Added the number of true LVDS buffers for the M301 and M383 packages of the Cyclone V GX C4 device.</li> <li>• Added a figure that shows the phase relationship for the external PLL interface signals.</li> <li>• Clarified that you can only use R<sub>D</sub> OCT if V<sub>CCPD</sub> is 2.5 V.</li> <li>• Removed all "preliminary" marks.</li> <li>• Added link to Knowledge Base article that clarifies about vertical migration (drop-in compatibility).</li> <li>• Clarified that "internal PLL option" refers to the option in the ALTLVDS megafunction.</li> <li>• Updated the topic about emulated LVDS buffers to clarify that you can use unutilized true LVDS input channels (instead of "buffers") as emulated LVDS output buffers.</li> </ul> |
 | June 2013    | 2013.06.21 | Updated the figure about data realignment timing to correct the data pattern after a bit slip.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 
 | Date      | Version    | Changes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|-----------|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| --------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | June 2013 | 2013.06.17 | <ul> <li>Removed 3.3 V input signal for 2.5 V <math>V_{CClO}</math> in the table listing the MultiVolt I/O support.</li> <li>Added a topic about LVDS I/O restrictions and differential pad placement rule.</li> <li>Updated the preliminary I/O counts per bank for the following packages: <ul> <li>M301 packages of Cyclone V GX C5 and GT D5 devices.</li> <li>U324 package of Cyclone V GX C3 device.</li> <li>M383 packages of Cyclone V E A5, GX C5, and GT D5 devices.</li> <li>M484 packages of Cyclone V E A7, GX C7, and GT D7 devices.</li> <li>U484 packages of Cyclone V E A9, GX C9, and GT D9 devices.</li> <li>F1152 packages of Cyclone V GX C9 and GT D9 devices.</li> </ul> </li> <li>Updated the preliminary LVDS channels counts for the M301 and M383 packages of Cyclone V E, GX, and GT devices.</li> <li>Added the preliminary LVDS channels counts for Cyclone V SE, SX, and ST devices.</li> <li>Updated the topic about LVDS input <math>R_D</math> OCT to remove the requirement for setting the <math>V_{CClO}</math> to 2.5 V. <math>R_D</math> OCT now requires only that the <math>V_{CCPD}</math> is 2.5 V.</li> <li>Updated the topic about LVPECL termination to improve clarity.</li> </ul>      |
 | May 2013  | 2013.05.06 | <ul> <li>Moved all links in all topics to the Related Information section for easy reference.</li> <li>Added link to the known document issues in the Knowledge Base.</li> <li>Updated the M386 package to M383.</li> <li>Updated the M383 package plan of the Cyclone V E device.</li> <li>Updated the GPIO count for the M301 package of the Cyclone V GX devices.</li> <li>Updated the HPS I/O counts for Cyclone V SE, SX, and ST devices.</li> <li>Updated the I/O vertical migration table.</li> <li>Corrected the note in the MultiVolt I/O interface topic.</li> <li>Updated the 3.3 V LVTTL programmable current strength values to add 16 mA current strength.</li> <li>Removed statements indicating that the clock tree network cannot cross over to different I/O regions.</li> <li>Removed references to <code>rx_syncclock</code> port because the port does not apply to Cyclone V devices.</li> <li>Added Bank 1A to the I/O banks location figure for Cyclone V E devices because it is now available for the Cyclone V E A2 and A4 devices.</li> <li>Added the M383 and M484 packages to the modular I/O banks tables for Cyclone V E devices, and added the U484 package for the Cyclone V E A9 device.</li> </ul> |
 
 | Date          | Version    | Changes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-|---------------|------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 |               |            | <ul> <li>• Added the U324, M301, M383, and M484 to the modular I/O banks tables for the Cyclone V GX devices, and added the U484 package for the Cyclone V GX C9 device.</li> <li>• Added the M301, M383, and M484 to the modular I/O banks tables for the Cyclone V GT devices, and added the U484 package for the Cyclone V GT D9 device.</li> <li>• Added notes to clarify the HPS row and column I/O counts in the modular I/O banks tables for the Cyclone V SE, SX, and ST devices.</li> <li>• Changed the color of the transceiver blocks in the high-speed differential I/O location diagrams for clarity.</li> <li>• Repaired the diagram for the example of calibrating multiple I/O banks with a shared OCT calibration block for readability.</li> <li>• Added a topic about emulated LVDS buffers.</li> <li>• Edited the topic about true LVDS buffers.</li> <li>• Updated the tables listing the number of LVDS channels for the Cyclone V devices:                             <ul> <li>• Removed the F256 package from Cyclone V GX C3 device.</li> <li>• Removed the F324 package from the Cyclone V GX C4 and C5, and Cyclone V GT D5 devices.</li> <li>• Changed the F324 package of the Cyclone V GX C3 device to U324.</li> <li>• Separated the Cyclone V GX C4 and C5 devices to different rows.</li> <li>• Removed the F672 package from Cyclone V E A5.</li> <li>• Added the M301 package to the Cyclone V GX C5 and Cyclone V GT D5 devices.</li> <li>• Added the M383 package to the Cyclone V E A2, A4 and A4, Cyclone V GX C5, and Cyclone V GT D5 devices.</li> <li>• Added the M484 package to the Cyclone V E A7, Cyclone V GX C7, and Cyclone V GT D7 devices.</li> <li>• Added the U484 package to the Cyclone V E A9, Cyclone V GX C9, and Cyclone V GT D9 devices.</li> <li>• Added the F484 package to the Cyclone V GX C9 and Cyclone V GT D9 devices.</li> <li>• Updated the data realignment timing figure to improve clarity.</li> <li>• Updated the receiver data realignment rollover figure to improve clarity.</li> </ul> </li> </ul> |
 | December 2012 | 2012.12.28 | <ul> <li>• Reorganized content and updated template.</li> <li>• Added the I/O resources per package and I/O vertical migration sections for easy reference.</li> <li>• Added the steps to verify pin migration compatibility using the Quartus II software.</li> <li>• Updated the I/O standards support table with HPS I/O information.</li> </ul>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 
 | Date          | Version | Changes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-|---------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 |               |         | <ul> <li>• Added topic about the reference clock pin restriction for LVDS application.</li> <li>• Updated the pin placement guideline for using LVDS differential channels.</li> <li>• Added guideline about using the external PLL mode.</li> <li>• Rearranged the I/O banks groups tables for easier reference.</li> <li>• Removed statements that imply that <math>V_{\text{REF}}</math> pins can be used as normal I/Os.</li> <li>• Updated the 3.3 V LVTTL programmable current strength values.</li> <li>• Restructured the information in the topic about I/O buffers and registers to improve clarity and for faster reference.</li> <li>• Added HPS information to the topic on programmable IOE features.</li> <li>• Rearranged the tables about on-chip I/O termination for clarity and topic-based reference.</li> <li>• Updated the high-speed differential I/O locations diagram for Cyclone V GX, SX, and ST devices.</li> <li>• Removed statements about LVDS SERDES being available on top and bottom banks only.</li> <li>• Removed the topic about LVDS direct loopback mode.</li> <li>• Updated the true LVDS buffers count for Cyclone V E, GX, and GT devices.</li> <li>• Added the RSKM equation, description, and high-speed timing diagram.</li> </ul> |
 | June 2012     | 2.0     | <p>Updated for the Quartus II software v12.0 release:</p> <ul> <li>• Restructured chapter.</li> <li>• Added “Design Considerations”, “VCCIO Restriction”, “LVDS Channels”, “Modular I/O Banks”, and “OCT Calibration Block” sections.</li> <li>• Added Figure 5–3, Figure 5–4, Figure 5–5, Figure 5–6, and Figure 5–27.</li> <li>• Updated Table 5–1, Table 5–8, and Table 5–10.</li> <li>• Updated Figure 5–22 with emulated LVDS with external single resistor.</li> </ul>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | February 2012 | 1.2     | <ul> <li>• Updated Table 5–1, Table 5–2, Table 5–8, and Table 5–10.</li> <li>• Updated “I/O Banks” on page 5–8.</li> <li>• Minor text edits.</li> </ul>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 
 | Date          | Version | Changes            |
-|---------------|---------|--------------------|
+| ------------- | ------- | ------------------ |
 | November 2011 | 1.1     | Updated Table 5–2. |
 | October 2011  | 1.0     | Initial release.   |
 
@@ -4799,7 +4799,7 @@ The Cyclone V devices provide an efficient architecture that allows you to fit w
 **Table 6-1: Supported External Memory Standards in Cyclone V Devices**
 
 | Memory Standard | Hard Memory Controller | Soft Memory Controller |
-|-----------------|------------------------|------------------------|
+| --------------- | ---------------------- | ---------------------- |
 | DDR3 SDRAM      | Full rate              | Half rate              |
 | DDR2 SDRAM      | Full rate              | Half rate              |
 | LPDDR2 SDRAM    | Full rate              | Half rate              |
@@ -4825,7 +4825,7 @@ Intel Corporation. All rights reserved. Intel, the Intel logo, Altera, Arria, Cy
 <span id="page-197-0"></span>
 
 | Interface    | Voltage (V) | Hard Controller | Maximum Frequency (MHz) Soft Controller | Minimum Frequency (MHz) |
-|--------------|-------------|-----------------|-----------------------------------------|-------------------------|
+| ------------ | ----------- | --------------- | --------------------------------------- | ----------------------- |
 | DDR3 SDRAM   | 1.5         | 400             | 303                                     | 303                     |
 |              | 1.35        | 400             | 303                                     | 303                     |
 | DDR2 SDRAM   | 1.8         | 400             | 300                                     | 167                     |
@@ -4841,7 +4841,7 @@ Intel Corporation. All rights reserved. Intel, the Intel logo, Altera, Arria, Cy
 The hard processor system (HPS) is available in Cyclone V SoC devices only.
 
 | Interface    | Voltage (V) | HPS Hard Controller (MHz) |
-|--------------|-------------|---------------------------|
+| ------------ | ----------- | ------------------------- |
 | DDR3 SDRAM   | 1.5         | 400                       |
 |              | 1.35        | 400                       |
 | DDR2 SDRAM   | 1.8         | 400                       |
@@ -4904,7 +4904,7 @@ The following table lists the pin support per DQ/DQS bus mode, including the DQS
 <span id="page-199-0"></span>**Table 6-4: DQ/DQS Bus Mode Pins for Cyclone V Devices**
 
 |     |      |              | Data Mask  |                             |
-|-----|------|--------------|------------|-----------------------------|
+| --- | ---- | ------------ | ---------- | --------------------------- |
 |     | Mode | DQSn Support |            |                             |
 |     |      |              | (Optional) | Maximum Data Pins per Group |
 | x8  |      | Yes          | Yes        | 11                          |
@@ -4914,72 +4914,72 @@ The following table lists the pin support per DQ/DQS bus mode, including the DQS
 
 **Table 6-5: Number of DQ/DQS Groups Per Side in Cyclone V E Devices**
 
-| Member Code Package Side        | x8 | x16 |
-|---------------------------------|----|-----|
-| Top                             | 2  | 0   |
-| Left 256-pin FineLine BGA       | 1  | 0   |
-| Right                           | 2  | 0   |
-| Bottom                          | 3  | 0   |
-| Top                             | 3  | 0   |
-| Left 324-pin Ultra FineLine BGA | 2  | 0   |
-| Right                           | 2  | 0   |
-| Bottom                          | 4  | 0   |
-| Top A2                          | 4  | 0   |
-| Left 383-pin Micro FineLine BGA | 2  | 0   |
-| Right A4                        | 1  | 0   |
-| Bottom                          | 4  | 0   |
-| Top                             | 5  | 1   |
-| Left 484-pin Ultra FineLine BGA | 1  | 0   |
-| Right                           | 2  | 0   |
-| Bottom                          | 6  | 1   |
-| Top                             | 5  | 1   |
-| Left 484-pin FineLine BGA       | 1  | 0   |
-| Right                           | 2  | 0   |
-| Bottom                          | 6  | 1   |
+| Member Code Package Side        | x8  | x16 |
+| ------------------------------- | --- | --- |
+| Top                             | 2   | 0   |
+| Left 256-pin FineLine BGA       | 1   | 0   |
+| Right                           | 2   | 0   |
+| Bottom                          | 3   | 0   |
+| Top                             | 3   | 0   |
+| Left 324-pin Ultra FineLine BGA | 2   | 0   |
+| Right                           | 2   | 0   |
+| Bottom                          | 4   | 0   |
+| Top A2                          | 4   | 0   |
+| Left 383-pin Micro FineLine BGA | 2   | 0   |
+| Right A4                        | 1   | 0   |
+| Bottom                          | 4   | 0   |
+| Top                             | 5   | 1   |
+| Left 484-pin Ultra FineLine BGA | 1   | 0   |
+| Right                           | 2   | 0   |
+| Bottom                          | 6   | 1   |
+| Top                             | 5   | 1   |
+| Left 484-pin FineLine BGA       | 1   | 0   |
+| Right                           | 2   | 0   |
+| Bottom                          | 6   | 1   |
 
-| Member Code Package Side            | x8 | x16 |
-|-------------------------------------|----|-----|
-| Top                                 | 4  | 0   |
-| Right 383-pin Micro FineLine BGA    | 1  | 0   |
-| Bottom                              | 4  | 0   |
-| Top                                 | 5  | 1   |
-| Right A5 484-pin Ultra FineLine BGA | 3  | 0   |
-| Bottom                              | 6  | 1   |
-| Top                                 | 7  | 2   |
-| Right 484-pin FineLine BGA          | 2  | 0   |
-| Bottom                              | 6  | 1   |
-| Top                                 | 5  | 1   |
-| Right 484-pin Micro FineLine BGA    | 4  | 0   |
-| Bottom                              | 6  | 1   |
-| Top                                 | 5  | 1   |
-| Right 484-pin Ultra FineLine BGA    | 4  | 1   |
-| Bottom                              | 6  | 1   |
-| Top                                 | 7  | 2   |
-| Right A7 484-pin FineLine BGA       | 2  | 0   |
-| Bottom                              | 6  | 1   |
-| Top                                 | 7  | 2   |
-| Right 672-pin FineLine BGA          | 6  | 0   |
-| Bottom                              | 8  | 2   |
-| Top                                 | 10 | 3   |
-| Right 896-pin FineLine BGA          | 10 | 3   |
-| Bottom                              | 10 | 3   |
+| Member Code Package Side            | x8  | x16 |
+| ----------------------------------- | --- | --- |
+| Top                                 | 4   | 0   |
+| Right 383-pin Micro FineLine BGA    | 1   | 0   |
+| Bottom                              | 4   | 0   |
+| Top                                 | 5   | 1   |
+| Right A5 484-pin Ultra FineLine BGA | 3   | 0   |
+| Bottom                              | 6   | 1   |
+| Top                                 | 7   | 2   |
+| Right 484-pin FineLine BGA          | 2   | 0   |
+| Bottom                              | 6   | 1   |
+| Top                                 | 5   | 1   |
+| Right 484-pin Micro FineLine BGA    | 4   | 0   |
+| Bottom                              | 6   | 1   |
+| Top                                 | 5   | 1   |
+| Right 484-pin Ultra FineLine BGA    | 4   | 1   |
+| Bottom                              | 6   | 1   |
+| Top                                 | 7   | 2   |
+| Right A7 484-pin FineLine BGA       | 2   | 0   |
+| Bottom                              | 6   | 1   |
+| Top                                 | 7   | 2   |
+| Right 672-pin FineLine BGA          | 6   | 0   |
+| Bottom                              | 8   | 2   |
+| Top                                 | 10  | 3   |
+| Right 896-pin FineLine BGA          | 10  | 3   |
+| Bottom                              | 10  | 3   |
 
 <span id="page-201-0"></span>
 
-| Member Code Package Side         | x8 | x16 |
-|----------------------------------|----|-----|
-| Top                              | 5  | 1   |
-| Right 484-pin Ultra FineLine BGA | 4  | 0   |
-| Bottom                           | 6  | 1   |
-| Top                              | 5  | 1   |
-| Right 484-pin FineLine BGA       | 2  | 0   |
-| Bottom A9                        | 6  | 1   |
-| Top                              | 7  | 2   |
-| Right 672-pin FineLine BGA       | 6  | 0   |
-| Bottom                           | 8  | 2   |
-| Top                              | 10 | 3   |
-| Right 896-pin FineLine BGA       | 10 | 3   |
-| Bottom                           | 10 | 3   |
+| Member Code Package Side         | x8  | x16 |
+| -------------------------------- | --- | --- |
+| Top                              | 5   | 1   |
+| Right 484-pin Ultra FineLine BGA | 4   | 0   |
+| Bottom                           | 6   | 1   |
+| Top                              | 5   | 1   |
+| Right 484-pin FineLine BGA       | 2   | 0   |
+| Bottom A9                        | 6   | 1   |
+| Top                              | 7   | 2   |
+| Right 672-pin FineLine BGA       | 6   | 0   |
+| Bottom                           | 8   | 2   |
+| Top                              | 10  | 3   |
+| Right 896-pin FineLine BGA       | 10  | 3   |
+| Bottom                           | 10  | 3   |
 
 #### [Cyclone V Device Pin-Out Files](https://www.intel.com/content/www/us/en/programmable/support/literature/lit-dp.html#cyclone-v)
 
@@ -4989,69 +4989,69 @@ Download the relevant pin tables from this web page.
 
 #### **Table 6-6: Number of DQ/DQS Groups Per Side in Cyclone V GX Devices**
 
-| Member Code Package Side            | x8 | x16 |
-|-------------------------------------|----|-----|
-| Top                                 | 3  | 0   |
-| Right 324-pin Ultra FineLine BGA    | 2  | 0   |
-| Bottom                              | 4  | 0   |
-| Top                                 | 5  | 1   |
-| Right C3 484-pin Ultra FineLine BGA | 2  | 0   |
-| Bottom                              | 6  | 1   |
-| Top                                 | 5  | 1   |
-| Right 484-pin FineLine BGA          | 2  | 0   |
-| Bottom                              | 6  | 1   |
+| Member Code Package Side            | x8  | x16 |
+| ----------------------------------- | --- | --- |
+| Top                                 | 3   | 0   |
+| Right 324-pin Ultra FineLine BGA    | 2   | 0   |
+| Bottom                              | 4   | 0   |
+| Top                                 | 5   | 1   |
+| Right C3 484-pin Ultra FineLine BGA | 2   | 0   |
+| Bottom                              | 6   | 1   |
+| Top                                 | 5   | 1   |
+| Right 484-pin FineLine BGA          | 2   | 0   |
+| Bottom                              | 6   | 1   |
 
-| Member Code Package Side            | x8 | x16 |
-|-------------------------------------|----|-----|
-| Left 301-pin Micro FineLine BGA     | 1  | 0   |
-| Bottom                              | 2  | 0   |
-| Top                                 | 4  | 0   |
-| Right 383-pin Micro FineLine BGA    | 1  | 0   |
-| Bottom                              | 4  | 0   |
-| Top                                 | 5  | 1   |
-| Right C4 484-pin Ultra FineLine BGA | 3  | 0   |
-| Bottom C5                           | 6  | 1   |
-| Top                                 | 7  | 2   |
-| Right 484-pin FineLine BGA          | 2  | 0   |
-| Bottom                              | 6  | 1   |
-| Top                                 | 7  | 2   |
-| Right 672-pin FineLine BGA          | 6  | 0   |
-| Bottom                              | 8  | 2   |
-| Top                                 | 5  | 1   |
-| Right 484-pin Micro FineLine BGA    | 4  | 0   |
-| Bottom                              | 6  | 1   |
-| Top                                 | 5  | 1   |
-| Right 484-pin Ultra FineLine BGA    | 4  | 1   |
-| Bottom                              | 6  | 1   |
-| Top                                 | 7  | 2   |
-| Right C7 484-pin FineLine BGA       | 2  | 0   |
-| Bottom                              | 6  | 1   |
-| Top                                 | 7  | 2   |
-| Right 672-pin FineLine BGA          | 6  | 0   |
-| Bottom                              | 8  | 2   |
-| Top                                 | 10 | 3   |
-| Right 896-pin FineLine BGA          | 10 | 3   |
-| Bottom                              | 10 | 3   |
+| Member Code Package Side            | x8  | x16 |
+| ----------------------------------- | --- | --- |
+| Left 301-pin Micro FineLine BGA     | 1   | 0   |
+| Bottom                              | 2   | 0   |
+| Top                                 | 4   | 0   |
+| Right 383-pin Micro FineLine BGA    | 1   | 0   |
+| Bottom                              | 4   | 0   |
+| Top                                 | 5   | 1   |
+| Right C4 484-pin Ultra FineLine BGA | 3   | 0   |
+| Bottom C5                           | 6   | 1   |
+| Top                                 | 7   | 2   |
+| Right 484-pin FineLine BGA          | 2   | 0   |
+| Bottom                              | 6   | 1   |
+| Top                                 | 7   | 2   |
+| Right 672-pin FineLine BGA          | 6   | 0   |
+| Bottom                              | 8   | 2   |
+| Top                                 | 5   | 1   |
+| Right 484-pin Micro FineLine BGA    | 4   | 0   |
+| Bottom                              | 6   | 1   |
+| Top                                 | 5   | 1   |
+| Right 484-pin Ultra FineLine BGA    | 4   | 1   |
+| Bottom                              | 6   | 1   |
+| Top                                 | 7   | 2   |
+| Right C7 484-pin FineLine BGA       | 2   | 0   |
+| Bottom                              | 6   | 1   |
+| Top                                 | 7   | 2   |
+| Right 672-pin FineLine BGA          | 6   | 0   |
+| Bottom                              | 8   | 2   |
+| Top                                 | 10  | 3   |
+| Right 896-pin FineLine BGA          | 10  | 3   |
+| Bottom                              | 10  | 3   |
 
 <span id="page-203-0"></span>
 
-| Member Code Package Side         | x8 | x16 |
-|----------------------------------|----|-----|
-| Top                              | 5  | 1   |
-| Right 484-pin Ultra FineLine BGA | 4  | 0   |
-| Bottom                           | 6  | 1   |
-| Top                              | 5  | 1   |
-| Right 484-pin FineLine BGA       | 2  | 0   |
-| Bottom                           | 6  | 1   |
-| Top                              | 7  | 2   |
-| Right C9 672-pin FineLine BGA    | 6  | 0   |
-| Bottom                           | 8  | 2   |
-| Top                              | 10 | 3   |
-| Right 896-pin FineLine BGA       | 10 | 3   |
-| Bottom                           | 10 | 3   |
-| Top                              | 12 | 4   |
-| Right 1152-pin FineLine BGA      | 11 | 4   |
-| Bottom                           | 12 | 4   |
+| Member Code Package Side         | x8  | x16 |
+| -------------------------------- | --- | --- |
+| Top                              | 5   | 1   |
+| Right 484-pin Ultra FineLine BGA | 4   | 0   |
+| Bottom                           | 6   | 1   |
+| Top                              | 5   | 1   |
+| Right 484-pin FineLine BGA       | 2   | 0   |
+| Bottom                           | 6   | 1   |
+| Top                              | 7   | 2   |
+| Right C9 672-pin FineLine BGA    | 6   | 0   |
+| Bottom                           | 8   | 2   |
+| Top                              | 10  | 3   |
+| Right 896-pin FineLine BGA       | 10  | 3   |
+| Bottom                           | 10  | 3   |
+| Top                              | 12  | 4   |
+| Right 1152-pin FineLine BGA      | 11  | 4   |
+| Bottom                           | 12  | 4   |
 
 #### [Cyclone V Device Pin-Out Files](https://www.intel.com/content/www/us/en/programmable/support/literature/lit-dp.html#cyclone-v)
 
@@ -5061,57 +5061,57 @@ Download the relevant pin tables from this web page.
 
 #### **Table 6-7: Number of DQ/DQS Groups Per Side in Cyclone V GT Devices**
 
-| Member Code Package Side            | x8 | x16 |
-|-------------------------------------|----|-----|
-| Left 301-pin Micro FineLine BGA     | 1  | 0   |
-| Bottom                              | 2  | 0   |
-| Top                                 | 4  | 0   |
-| Right 383-pin Micro FineLine BGA    | 1  | 0   |
-| Bottom                              | 4  | 0   |
-| Top                                 | 5  | 1   |
-| Right 484-pin Ultra FineLine BGA D5 | 3  | 0   |
-| Bottom                              | 6  | 1   |
-| Top                                 | 7  | 2   |
-| Right 484-pin FineLine BGA          | 2  | 0   |
-| Bottom                              | 6  | 1   |
-| Top                                 | 7  | 2   |
-| Right 672-pin FineLine BGA          | 6  | 0   |
-| Bottom                              | 8  | 2   |
-| Top                                 | 5  | 1   |
-| Right 484-pin Micro FineLine BGA    | 4  | 0   |
-| Bottom                              | 6  | 1   |
-| Top                                 | 5  | 1   |
-| Right 484-pin Ultra FineLine BGA    | 4  | 1   |
-| Bottom                              | 6  | 1   |
-| Top                                 | 7  | 2   |
-| Right D7 484-pin FineLine BGA       | 2  | 0   |
-| Bottom                              | 6  | 1   |
-| Top                                 | 7  | 2   |
-| Right 672-pin FineLine BGA          | 6  | 0   |
-| Bottom                              | 8  | 2   |
-| Top                                 | 10 | 3   |
-| Right 896-pin FineLine BGA          | 10 | 3   |
-| Bottom                              | 10 | 3   |
+| Member Code Package Side            | x8  | x16 |
+| ----------------------------------- | --- | --- |
+| Left 301-pin Micro FineLine BGA     | 1   | 0   |
+| Bottom                              | 2   | 0   |
+| Top                                 | 4   | 0   |
+| Right 383-pin Micro FineLine BGA    | 1   | 0   |
+| Bottom                              | 4   | 0   |
+| Top                                 | 5   | 1   |
+| Right 484-pin Ultra FineLine BGA D5 | 3   | 0   |
+| Bottom                              | 6   | 1   |
+| Top                                 | 7   | 2   |
+| Right 484-pin FineLine BGA          | 2   | 0   |
+| Bottom                              | 6   | 1   |
+| Top                                 | 7   | 2   |
+| Right 672-pin FineLine BGA          | 6   | 0   |
+| Bottom                              | 8   | 2   |
+| Top                                 | 5   | 1   |
+| Right 484-pin Micro FineLine BGA    | 4   | 0   |
+| Bottom                              | 6   | 1   |
+| Top                                 | 5   | 1   |
+| Right 484-pin Ultra FineLine BGA    | 4   | 1   |
+| Bottom                              | 6   | 1   |
+| Top                                 | 7   | 2   |
+| Right D7 484-pin FineLine BGA       | 2   | 0   |
+| Bottom                              | 6   | 1   |
+| Top                                 | 7   | 2   |
+| Right 672-pin FineLine BGA          | 6   | 0   |
+| Bottom                              | 8   | 2   |
+| Top                                 | 10  | 3   |
+| Right 896-pin FineLine BGA          | 10  | 3   |
+| Bottom                              | 10  | 3   |
 
 <span id="page-205-0"></span>
 
-| Member Code Package Side         | x8 | x16 |
-|----------------------------------|----|-----|
-| Top                              | 5  | 1   |
-| Right 484-pin Ultra FineLine BGA | 4  | 0   |
-| Bottom                           | 6  | 1   |
-| Top                              | 5  | 1   |
-| Right 484-pin FineLine BGA       | 2  | 0   |
-| Bottom                           | 6  | 1   |
-| Top                              | 7  | 2   |
-| Right D9 672-pin FineLine BGA    | 6  | 0   |
-| Bottom                           | 8  | 2   |
-| Top                              | 10 | 3   |
-| Right 896-pin FineLine BGA       | 10 | 3   |
-| Bottom                           | 10 | 3   |
-| Top                              | 12 | 4   |
-| Right 1152-pin FineLine BGA      | 11 | 4   |
-| Bottom                           | 12 | 4   |
+| Member Code Package Side         | x8  | x16 |
+| -------------------------------- | --- | --- |
+| Top                              | 5   | 1   |
+| Right 484-pin Ultra FineLine BGA | 4   | 0   |
+| Bottom                           | 6   | 1   |
+| Top                              | 5   | 1   |
+| Right 484-pin FineLine BGA       | 2   | 0   |
+| Bottom                           | 6   | 1   |
+| Top                              | 7   | 2   |
+| Right D9 672-pin FineLine BGA    | 6   | 0   |
+| Bottom                           | 8   | 2   |
+| Top                              | 10  | 3   |
+| Right 896-pin FineLine BGA       | 10  | 3   |
+| Bottom                           | 10  | 3   |
+| Top                              | 12  | 4   |
+| Right 1152-pin FineLine BGA      | 11  | 4   |
+| Bottom                           | 12  | 4   |
 
 #### [Cyclone V Device Pin-Out Files](https://www.intel.com/content/www/us/en/programmable/support/literature/lit-dp.html#cyclone-v)
 
@@ -5121,24 +5121,24 @@ Download the relevant pin tables from this web page.
 
 #### **Table 6-8: Number of DQ/DQS Groups Per Side in Cyclone V SE Devices**
 
-| Member Code Package Side            | x8 | x16 |
-|-------------------------------------|----|-----|
-| Right 484-pin Ultra FineLine BGA A2 | 1  | 0   |
-| Bottom                              | 2  | 0   |
-| Right A4 672-pin Ultra FineLine BGA | 1  | 0   |
-| Bottom                              | 8  | 2   |
+| Member Code Package Side            | x8  | x16 |
+| ----------------------------------- | --- | --- |
+| Right 484-pin Ultra FineLine BGA A2 | 1   | 0   |
+| Bottom                              | 2   | 0   |
+| Right A4 672-pin Ultra FineLine BGA | 1   | 0   |
+| Bottom                              | 8   | 2   |
 
 <span id="page-206-0"></span>
 
-| Member Code Package Side            | x8 | x16 |
-|-------------------------------------|----|-----|
-| Right 484-pin Ultra FineLine BGA    | 1  | 0   |
-| Bottom                              | 2  | 0   |
-| Right A5 672-pin Ultra FineLine BGA | 1  | 0   |
-| Bottom A6                           | 8  | 2   |
-| Top                                 | 5  | 2   |
-| Right 896-pin FineLine BGA          | 3  | 0   |
-| Bottom                              | 10 | 3   |
+| Member Code Package Side            | x8  | x16 |
+| ----------------------------------- | --- | --- |
+| Right 484-pin Ultra FineLine BGA    | 1   | 0   |
+| Bottom                              | 2   | 0   |
+| Right A5 672-pin Ultra FineLine BGA | 1   | 0   |
+| Bottom A6                           | 8   | 2   |
+| Top                                 | 5   | 2   |
+| Right 896-pin FineLine BGA          | 3   | 0   |
+| Bottom                              | 10  | 3   |
 
 #### **DQ/DQS Groups in Cyclone V SX**
 
@@ -5146,15 +5146,15 @@ Download the relevant pin tables from this web page.
 
 This table lists the DQ/DQS groups for the soft memory controller. For the hard memory controller, you can get the DQ/DQS groups from the pin table of the specific device.
 
-| Member Code Package Side            | x8 | x16 |
-|-------------------------------------|----|-----|
-| Right C2 672-pin Ultra FineLine BGA | 1  | 0   |
-| Bottom C4                           | 8  | 2   |
-| Right 672-pin Ultra FineLine BGA    | 1  | 0   |
-| Bottom C5                           | 8  | 2   |
-| Top C6                              | 5  | 2   |
-| Right 896-pin FineLine BGA          | 3  | 0   |
-| Bottom                              | 10 | 3   |
+| Member Code Package Side            | x8  | x16 |
+| ----------------------------------- | --- | --- |
+| Right C2 672-pin Ultra FineLine BGA | 1   | 0   |
+| Bottom C4                           | 8   | 2   |
+| Right 672-pin Ultra FineLine BGA    | 1   | 0   |
+| Bottom C5                           | 8   | 2   |
+| Top C6                              | 5   | 2   |
+| Right 896-pin FineLine BGA          | 3   | 0   |
+| Bottom                              | 10  | 3   |
 
 #### Related Information
 
@@ -5168,11 +5168,11 @@ Download the relevant pin tables from this web page.
 
 <span id="page-207-0"></span>
 
-| Member Code Package Side      | x8 | x16 |
-|-------------------------------|----|-----|
-| Top D5                        | 5  | 2   |
-| Right 896-pin FineLine BGA D6 | 3  | 0   |
-| Bottom                        | 10 | 3   |
+| Member Code Package Side      | x8  | x16 |
+| ----------------------------- | --- | --- |
+| Top D5                        | 5   | 2   |
+| Right 896-pin FineLine BGA D6 | 3   | 0   |
+| Bottom                        | 10  | 3   |
 
 #### [Cyclone V Device Pin-Out Files](https://www.intel.com/content/www/us/en/programmable/support/literature/lit-dp.html#cyclone-v)
 
@@ -5267,7 +5267,7 @@ Note: If you have a dedicated PLL that only generates the DLL input reference cl
 **Table 6-11: DLL Reference Clock Input from PLLs for Cyclone V E (A2, A4, A5, A7, and A9), GX (C4, C5, C7, and C9), and GT (D5, D7, and D9) Devices**
 
 | DLL    |          |           | PLL         |              |
-|--------|----------|-----------|-------------|--------------|
+| ------ | -------- | --------- | ----------- | ------------ |
 |        | Top Left | Top Right | Bottom Left | Bottom Right |
 | DLL_TL | pllout   | —         | —           | —            |
 | DLL_TR | —        | pllout    | —           | —            |
@@ -5277,7 +5277,7 @@ Note: If you have a dedicated PLL that only generates the DLL input reference cl
 **Table 6-12: DLL Reference Clock Input from PLLs for Cyclone V GX (C3) Device**
 
 | DLL    |          |           | PLL         |              |
-|--------|----------|-----------|-------------|--------------|
+| ------ | -------- | --------- | ----------- | ------------ |
 |        | Top Left | Top Right | Bottom Left | Bottom Right |
 | DLL_TL | pllout   | —         | —           | —            |
 | DLL_TR | —        | pllout    | —           | —            |
@@ -5287,7 +5287,7 @@ Note: If you have a dedicated PLL that only generates the DLL input reference cl
 <span id="page-215-0"></span>**Table 6-13: DLL Reference Clock Input from PLLs for Cyclone V SE A2, A4, A5, and A6 Devices, Cyclone V SX C2, C4, C5, and C6 Devices, and Cyclone V ST D5 and D6 Devices**
 
 | DLL    |          |           | PLL         |              |
-|--------|----------|-----------|-------------|--------------|
+| ------ | -------- | --------- | ----------- | ------------ |
 |        | Top Left | Top Right | Bottom Left | Bottom Right |
 | DLL_TL | pllout   | —         | —           | —            |
 | DLL_TR | —        | —         | —           | —            |
@@ -5523,7 +5523,7 @@ The hard memory controllers use dedicated I/O pins as data, address, command, co
 **Table 6-14: Features of the Cyclone V Hard Memory Controller**
 
 | Feature                     | Description                                                                                                                                                                                                     |
-|-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Memory Interface Data Width | <ul> <li>8, 16, and 32 bit data</li> <li>16 bit data + 8 bit ECC</li> <li>32 bit data + 8bit ECC</li> </ul>                                                                                                     |
 | Memory Density              | The controller supports up to four gigabits density parts and two chip selects.                                                                                                                                 |
 | Memory Burst Length         | <ul> <li>DDR3—Burst length of 8 and burst chop of 4</li> <li>DDR2—Burst lengths of 4 and 8</li> <li>LPDDR2—Burst lengths of 2, 4, 8, and 16</li> </ul>                                                          |
@@ -5531,14 +5531,14 @@ The hard memory controllers use dedicated I/O pins as data, address, command, co
 | Starvation Control          | A starvation counter ensures that all requests are served after a predefined time-out period. This function ensures that data with low priority access are not left behind when reordering data for efficiency. |
 
 | Feature                                                              | Description           |
-|----------------------------------------------------------------------|-----------------------|
+| -------------------------------------------------------------------- | --------------------- |
 | Avalon ®                                                             |                       |
 | controller intelligently keeps a row open based on incoming traffic. | This feature improves |
 
 <span id="page-231-0"></span>
 
 | Feature | Description                                                                     |
-|---------|---------------------------------------------------------------------------------|
+| ------- | ------------------------------------------------------------------------------- |
 | ECC     | Standard Hamming single error correction, double error detection (SECDED) error |
 |         | ACTIVATE command to the bank prior to t RCD to increase the command efficiency. |
 
@@ -5557,7 +5557,7 @@ This figure shows a simplified diagram of the Cyclone V hard memory interface wi
 **Table 6-15: Numbers of MPFE Command, Write-Data, and Read-Data Ports for Each Cyclone V Device**
 
 | Variant Member Code | Command | MPFE Ports Write-data | Read-data |
-|---------------------|---------|-----------------------|-----------|
+| ------------------- | ------- | --------------------- | --------- |
 | A2                  | 4       | 2                     | 2         |
 | A4                  | 4       | 2                     | 2         |
 | A5 Cyclone V E      | 6       | 4                     | 4         |
@@ -5608,7 +5608,7 @@ This figure shows hard memory controllers in the SoC devices. There is no bondin
 **Table 6-16: Hard Memory Controller Width Per Side in Cyclone V E Devices**
 
 | Package M383 M484 F256 U324 | Top ≤ 24 — 0 0 | A2 Bottom 0 — 0 0 | Top ≤ 24 — 0 0 | A4 Bottom 0 — 0 0 | Top ≤ 24 — — — | Member Code A5 Bottom 0 — — — | Top — 24 — — | A7 Bottom — 24 — — | Top — — — — | A9 Bottom — — — — |
-|-----------------------------|----------------|-------------------|----------------|-------------------|----------------|-------------------------------|--------------|--------------------|-------------|-------------------|
+| --------------------------- | -------------- | ----------------- | -------------- | ----------------- | -------------- | ----------------------------- | ------------ | ------------------ | ----------- | ----------------- |
 | U484                        | 24             | 0                 | 24             | 0                 | 24             | 24                            | 24           | 24                 | 24          | 24                |
 | F484                        | 24             | 0                 | 24             | 0                 | 40             | 24                            | 40           | 24                 | 24          | 24                |
 | F672                        | —              | —                 | —              | —                 | —              | —                             | 40           | 40                 | 40          | 40                |
@@ -5629,7 +5629,7 @@ Important information about usable pin assignments for the hard memory controlle
 **Table 6-17: Hard Memory Controller Width Per Side in Cyclone V GX Devices**
 
 |         |        |      |        |      | Member Code |     |        |     |        |
-|---------|--------|------|--------|------|-------------|-----|--------|-----|--------|
+| ------- | ------ | ---- | ------ | ---- | ----------- | --- | ------ | --- | ------ |
 | Package | C3     |      | C4     |      | C5          |     | C7     |     | C9     |
 | Top     | Bottom | Top  | Bottom | Top  | Bottom      | Top | Bottom | Top | Bottom |
 | — M30   | —      | 0    | 0      | 0    | 0           | —   | —      | —   | —      |
@@ -5640,7 +5640,7 @@ Important information about usable pin assignments for the hard memory controlle
 <span id="page-236-0"></span>
 
 | Package | Top | C3 Bottom | Top | C4 Bottom | Top | Member Code C5 Bottom | Top | C7 Bottom | Top | C9 Bottom |
-|---------|-----|-----------|-----|-----------|-----|-----------------------|-----|-----------|-----|-----------|
+| ------- | --- | --------- | --- | --------- | --- | --------------------- | --- | --------- | --- | --------- |
 | U48     | 24  | 0         | 24  | 24        | 24  | 24                    | 24  | 24        | 24  | 24        |
 | F484    | 24  | 0         | 40  | 24        | 40  | 24                    | 40  | 24        | 24  | 24        |
 | F672    | —   | —         | 40  | 40        | 40  | 40                    | 40  | 40        | 40  | 40        |
@@ -5660,7 +5660,7 @@ Important information about usable pin assignments for the hard memory controlle
 **Table 6-18: Hard Memory Controller Width Per Side in Cyclone V GT Devices**
 
 | Package M301 M383 M484 | Top 0 ≤ 24 — | D5 Bottom 0 0 — | Top — — 24 | Member Code D7 Bottom — — 24 | Top — — — | D9 Bottom — — — |
-|------------------------|--------------|-----------------|------------|------------------------------|-----------|-----------------|
+| ---------------------- | ------------ | --------------- | ---------- | ---------------------------- | --------- | --------------- |
 | U484                   | 24           | 24              | 24         | 24                           | 24        | 24              |
 | F484                   | 40           | 24              | 40         | 24                           | 24        | 24              |
 | F672                   | 40           | 40              | 40         | 40                           | 40        | 40              |
@@ -5680,18 +5680,18 @@ Important information about usable pin assignments for the hard memory controlle
 **Table 6-19: Hard Memory Controller Width Per Side in Cyclone V SE Devices**
 
 | Package | Top | A2 Bottom | Top | A4 Bottom | Member Code Top | A5 Bottom | Top | A6 Bottom |
-|---------|-----|-----------|-----|-----------|-----------------|-----------|-----|-----------|
+| ------- | --- | --------- | --- | --------- | --------------- | --------- | --- | --------- |
 | U484    | 0   | 0         | 0   | 0         | 0               | 0         | 0   | 0         |
 | U672    | 0   | 40        | 0   | 40        | 0               | 40        | 0   | 40        |
 | F896    | —   | —         | —   | —         | 0               | 40        | 0   | 40        |
 
 **Table 6-20: HPS Hard Memory Controller Width in Cyclone V SE Devices**
 
-| Package | A2 | A4 | Member Code A5 | A6 |
-|---------|----|----|----------------|----|
-| U484    | 32 | 32 | 32             | 32 |
-| U672    | 40 | 40 | 40             | 40 |
-| F896    | —  | —  | 40             | 40 |
+| Package | A2  | A4  | Member Code A5 | A6  |
+| ------- | --- | --- | -------------- | --- |
+| U484    | 32  | 32  | 32             | 32  |
+| U672    | 40  | 40  | 40             | 40  |
+| F896    | —   | —   | 40             | 40  |
 
 #### Related Information
 
@@ -5704,7 +5704,7 @@ Provides more information about which device packages and feature options contai
 **Table 6-21: Hard Memory Controller Width Per Side in Cyclone V SX Devices**
 
 | Package | Member Code |        |     |        |     |        |     |        |
-|---------|-------------|--------|-----|--------|-----|--------|-----|--------|
+| ------- | ----------- | ------ | --- | ------ | --- | ------ | --- | ------ |
 |         | C2          |        | C4  |        | C5  |        | C6  |        |
 |         | Top         | Bottom | Top | Bottom | Top | Bottom | Top | Bottom |
 | U672    | 0           | 40     | 0   | 40     | 0   | 40     | 0   | 40     |
@@ -5712,7 +5712,7 @@ Provides more information about which device packages and feature options contai
 <span id="page-238-0"></span>
 
 | Package | Member Code |        |     |        |     |        |     |        |
-|---------|-------------|--------|-----|--------|-----|--------|-----|--------|
+| ------- | ----------- | ------ | --- | ------ | --- | ------ | --- | ------ |
 |         | C2          |        | C4  |        | C5  |        | C6  |        |
 |         | Top         | Bottom | Top | Bottom | Top | Bottom | Top | Bottom |
 | F896    | —           | —      | —   | —      | 0   | 40     | 0   | 40     |
@@ -5720,7 +5720,7 @@ Provides more information about which device packages and feature options contai
 **Table 6-22: HPS Hard Memory Controller Width in Cyclone V SX Devices**
 
 | <span> </span> | <span> </span> Package | <span> </span> Member Code | <span> </span> Package | <span> </span> Member Code | <span> </span> Package |
-|----------------|------------------------|----------------------------|------------------------|----------------------------|------------------------|
+| -------------- | ---------------------- | -------------------------- | ---------------------- | -------------------------- | ---------------------- |
 |                | C2                     | C4                         | C5                     | C6                         | C6                     |
 | U672           | 40                     | 40                         | 40                     | 40                         | 40                     |
 | F896           | —                      | —                          | 40                     | 40                         | 40                     |
@@ -5734,17 +5734,17 @@ Provides more information about which device packages and feature options contai
 **Table 6-23: Hard Memory Controller Width Per Side in Cyclone V ST Devices**
 
 | Package | Member Code |        |     |        |
-|---------|-------------|--------|-----|--------|
+| ------- | ----------- | ------ | --- | ------ |
 |         | D5          |        | D6  |        |
 |         | Top         | Bottom | Top | Bottom |
 | F896    | 0           | 40     | 0   | 40     |
 
 **Table 6-24: HPS Hard Memory Controller Width in Cyclone V ST Devices**
 
-|      | Package | Member Code |  | Package |
-|------|---------|-------------|--|---------|
-|      |         | D5          |  | D6      |
-| F896 |         | 40          |  | 40      |
+|      | Package | Member Code |     | Package |
+| ---- | ------- | ----------- | --- | ------- |
+|      |         | D5          |     | D6      |
+| F896 |         | 40          |     | 40      |
 
 #### Related Information
 
@@ -5755,26 +5755,26 @@ Provides more information about which device packages and feature options contai
 ## <span id="page-239-0"></span>**External Memory Interfaces in Cyclone V Devices Revision History**
 
 | Document Version | Changes                                                                                                                                                  |
-|------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 2022.07.05       | Updated the table that lists the hard memory controller widths for Cyclone V E devices to add information for package U484 of the Cyclone V E A9 device. |
 
 | Date         | Version    | Changes                                                           |
-|--------------|------------|-------------------------------------------------------------------|
+| ------------ | ---------- | ----------------------------------------------------------------- |
 | March 2015   | 2015.03.31 | Removed all preliminary data.                                     |
 | January 2015 | 2015.01.23 | Added Cyclone V SE device in the Guideline: Using DQ/DQS Pins to  |
 | June 2014    | 2014.06.30 | Added links to the Cyclone V Device Overview for more information |
 
 | Date         | Version    | Changes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-|--------------|------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ------------ | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | January 2014 | 2014.01.10 | <ul> <li>• Added Cyclone V SE DLL reference clock input information.</li> <li>• Added the DQ/DQS groups table for Cyclone V SE.</li> <li>• Added the DQS pins and DLLs figure for Cyclone V SE.</li> <li>• Added the PHYCLK networks figure for Cyclone V SE.</li> <li>• Updated the DQ/DQS numbers for the M383 package of Cyclone V E, GX, and GT variants.</li> <li>• Removed the statement about the bottom hard memory controller restrictions in the figure that shows the Cyclone V GX C5 hard memory controller bonding.</li> <li>• Added information about the hard memory controller interface widths for the Cyclone V SE.</li> <li>• Added the HPS hard memory controller widths for Cyclone V SE, SX, and ST.</li> <li>• Added related information link to <a href="#">ALTDQ_DQS2 Megafunction User Guide</a> for more information about using the delay chains.</li> <li>• Changed all "SoC FPGA" to "SoC".</li> <li>• Added links to Altera's <a href="#">External Memory Spec Estimator</a> tool to the topics listing the external memory interface performance.</li> <li>• Updated the topic about using DQ/DQS pins to specify that only some specific DQ pins can also be used as RZQ pins.</li> <li>• Updated the topic about DQS delay chain to remove statements about using <code>delayctrlin[6..0]</code> signals in UniPHY IP to input your own gray-coded 7 bit settings. This mode is not recommended with the UniPHY controllers.</li> <li>• Updated topic about hard memory controller bonding support to specify that bonding is supported only for hard memory controllers configured with one port.</li> </ul> |
 
 | Date          | Version    | Changes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-|---------------|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | May 2013      | 2013.05.06 | <ul> <li>• Moved all links to the Related Information section of respective topics for easy reference.</li> <li>• Added link to the known document issues in the Knowledge Base.</li> <li>• Added the supported minimum operating frequencies for the supported memory interface standards.</li> <li>• Added packages and updated the DQ/DQS groups of Cyclone V E, GX, GT, and SX devices.</li> <li>• Added the number of MPFE command, write-data, and read-data ports for each Cyclone V E, GX, and GT device.</li> <li>• Added a note about the usable hard memory controller pin assignments for the F484 package of the Cyclone V E A9, GX C9, and GT D9 devices.</li> <li>• Updated the M386 package to M383.</li> <li>• Removed the F672 package from the Cyclone V E A5 device in the table listing Cyclone V E hard memory controller widths.</li> <li>• Added the U484 package for the Cyclone V GX C9 device in the table listing Cyclone V GX hard memory controller widths.</li> <li>• Updated the hard memory controller widths of Cyclone V E, GX, SX, and ST.</li> <li>• Removed the restrictions on using the bottom hard memory controller of the Cyclone V GX C5 device if the configuration is 3.3/3.0 V.</li> <li>• Added note to clarify that the DQS phase-shift circuitry figures show all possible connections and the device pin-out files have per package information.</li> </ul> |
 | December 2012 | 2012.11.28 | <ul> <li>• Reorganized content and updated template.</li> <li>• Added a list of supported external memory interface standards using the hard memory controller and soft memory controller.</li> <li>• Added performance information for external memory interfaces and the HPS external memory interfaces.</li> <li>• Separated the DQ/DQS groups tables into separate topics for each device variant for easy reference.</li> <li>• Updated the DQ/DQS numbers and device packages for the Cyclone V E, GX, GT, SX, and ST variants.</li> <li>• Moved the PHYCLK networks pin placement guideline to the <a href="#">Planning Pin and FPGA Resources</a> chapter of the <i>External Memory Interface Handbook</i>.</li> <li>• Moved information from the "Design Considerations" section into relevant topics.</li> <li>• Removed the "DDR2 SDRAM Interface" and "DDR3 SDRAM DIMM" sections. Refer to the relevant sections in the <a href="#">External Memory Interface Handbook</a> for the information.</li> </ul>                                                                                                                                                                                                                                                                                                                                                                                         |
 
 | Date          | Version | Changes                                            |
-|---------------|---------|----------------------------------------------------|
+| ------------- | ------- | -------------------------------------------------- |
 | June 2012     | 2.0     | Updated for the Quartus II software v12.0 release: |
 | February 2012 | 1.2     | Updated Figure 6–20.                               |
 |               | 1.1     | Updated Table 6–2.                                 |
@@ -5828,7 +5828,7 @@ Registered
 <span id="page-244-0"></span>**Table 7-1: Configuration Schemes and Features Supported by Cyclone V Devices**
 
 | Mode       | Data    |     |     |     |     |             |     |
-|------------|---------|-----|-----|-----|-----|-------------|-----|
+| ---------- | ------- | --- | --- | --- | --- | ----------- | --- |
 |            |         |     |     |     |     | ration (19) |     |
 |            |         | 100 | —   | Yes | Yes | —           | Yes |
 |            | 1 bit   | 125 | 125 | Yes | Yes | —           | —   |
@@ -5857,7 +5857,7 @@ Note: Altera recommends connecting the MSEL pins directly to VCCPGM or GND. Driv
 <span id="page-245-0"></span>**Table 7-2: MSEL Pin Settings for Each Configuration Scheme of Cyclone V Devices**
 
 | Configuration Scheme | Compression |          |                 |          |                        |
-|----------------------|-------------|----------|-----------------|----------|------------------------|
+| -------------------- | ----------- | -------- | --------------- | -------- | ---------------------- |
 |                      |             |          | V CCPGM (V)     | Power-On |                        |
 |                      | Disabled    | Disabled | 1.8/2.5/3.0/3.3 |          |                        |
 |                      |             |          |                 | Fast     | 10100                  |
@@ -6077,7 +6077,7 @@ Note: 1. he TDI, TMS, TCK, and TDO pins are powered by VCCPD of the bank in whic
 **Table 7-3: Configuration Pin Summary for Cyclone V Devices**
 
 | Configuration Pin | Configuration |               |           |                  |
-|-------------------|---------------|---------------|-----------|------------------|
+| ----------------- | ------------- | ------------- | --------- | ---------------- |
 |                   |               | Input/Output  | User Mode | Powered By       |
 | TDI               | JTAG          | Input         | —         | V CCPD           |
 | TMS               | JTAG          | Input         | —         | V CCPD           |
@@ -6115,7 +6115,7 @@ Note: 1. he TDI, TMS, TCK, and TDO pins are powered by VCCPD of the bank in whic
 <span id="page-255-0"></span>
 
 | Configuration Pin        | Configuration Scheme    | Input/Output  | User Mode | Powered By                  |
-|--------------------------|-------------------------|---------------|-----------|-----------------------------|
+| ------------------------ | ----------------------- | ------------- | --------- | --------------------------- |
 | nCSO/DATA4               | AS                      | Output        | —         | $V_{CCPGM}$                 |
 |                          | FPP                     | Input         | —         | $V_{CCPGM}$                 |
 | AS_DATA[3..1]/DATA[3..1] | AS                      | Bidirectional | —         | $V_{CCPGM}$                 |
@@ -6145,7 +6145,7 @@ In configuration mode, the output drive strength is set as listed in the table b
 The configuration pins listed support only fast slew rate and OCT is not enabled for these pins.
 
 | Configuration Pin | Type          | I/O Standard | Drive Strength (mA) |
-|-------------------|---------------|--------------|---------------------|
+| ----------------- | ------------- | ------------ | ------------------- |
 | nSTATUS           | Dedicated     | 3.0 V LVTTL  | 4                   |
 | CONF_DONE         | Dedicated     | 3.0 V LVTTL  | 4                   |
 | CvP_CONFDONE      | Dual Function | 3.0 V LVTTL  | 4                   |
@@ -6154,7 +6154,7 @@ The configuration pins listed support only fast slew rate and OCT is not enabled
 <span id="page-256-0"></span>
 
 | Configuration Pin | Type          | I/O Standard | Drive Strength (mA) |
-|-------------------|---------------|--------------|---------------------|
+| ----------------- | ------------- | ------------ | ------------------- |
 | TDO               | Dedicated     | 3.0 V LVTTL  | 12                  |
 | AS_DATA0/ASDO     | Dedicated     | 3.0 V LVTTL  | 8                   |
 | AS_DATA1          | Dedicated     | 3.0 V LVTTL  | 8                   |
@@ -6173,7 +6173,7 @@ The following table lists the dual-purpose configuration pins available in the D
 **Table 7-5: Configuration Pin Options**
 
 | Configuration Pin | Category Page       | Option                              |
-|-------------------|---------------------|-------------------------------------|
+| ----------------- | ------------------- | ----------------------------------- |
 | CLKUSR            | General             | Enable user-supplied start-up clock |
 | DEV_CLRn          | General             | Enable device-wide reset            |
 | DEV_OE            | General             | Enable device-wide output enable    |
@@ -6261,7 +6261,7 @@ For example, if the .rbf file contains the byte sequence 02 1B EE 01, refer to t
 In FPP x8 configuration scheme, the LSB of a byte is BIT0, and the MSB is BIT7.
 
 | BYTE0 = 02 | BYTE1 = 1B | BYTE2 = EE | BYTE3 = 01 |
-|------------|------------|------------|------------|
+| ---------- | ---------- | ---------- | ---------- |
 | D[7..0]    | D[7..0]    | D[7..0]    | D[7..0]    |
 | 0000 0010  | 0001 1011  | 1110 1110  | 0000 0001  |
 
@@ -6272,7 +6272,7 @@ In FPP x16 configuration scheme, the first byte in the file is the LSB of the co
 <span id="page-261-0"></span>
 
 | WORD0 = 1B02    |                 |                 | WORD1 = 01EE    |
-|-----------------|-----------------|-----------------|-----------------|
+| --------------- | --------------- | --------------- | --------------- |
 | LSB: BYTE0 = 02 | MSB: BYTE1 = 1B | LSB: BYTE2 = EE | MSB: BYTE3 = 01 |
 | D[7..0]         | D[15..8]        | D[7..0]         | D[15..8]        |
 | 0000 0010       | 0001 1011       | 1110 1110       | 0000 0001       |
@@ -6725,7 +6725,7 @@ Remote Update Intel FPGA IP core provides a memory-like interface to the remote 
 **Table 7-8: Remote System Upgrade Registers**
 
 | Register | Description                                                                         |
-|----------|-------------------------------------------------------------------------------------|
+| -------- | ----------------------------------------------------------------------------------- |
 | Shift    | Accessible by the logic array and clocked by RU_CLK                                 |
 |          | Bits[4..0] —Contents of the status register are shifted into these bits.            |
 |          | Bits[37..0] —Contents of the update and control registers are shifted               |
@@ -6743,17 +6743,17 @@ Remote Update Intel FPGA IP core provides a memory-like interface to the remote 
 
 **Table 7-9: Control Register Bits**
 
-|   | Bit |     | Name | Reset      |                                            |
-|---|-----|-----|------|------------|--------------------------------------------|
-|   |     |     |      | Value (22) |                                            |
-| 0 |     | AnF |      | 1'b0       | Application not Factory bit. Indicates the |
+|     | Bit |     | Name | Reset      |                                            |
+| --- | --- | --- | ---- | ---------- | ------------------------------------------ |
+|     |     |     |      | Value (22) |                                            |
+| 0   |     | AnF |      | 1'b0       | Application not Factory bit. Indicates the |
 
 <sup>(22)</sup> This is the default value after the device exits POR and during reconfiguration back to the factory configura‐ tion image.
 
 <span id="page-286-0"></span>
 
 | Bit    | Name            | Reset            |                                                 |
-|--------|-----------------|------------------|-------------------------------------------------|
+| ------ | --------------- | ---------------- | ----------------------------------------------- |
 |        |                 | Value            | (22)                                            |
 | 1..24  | PGM[0..23]      | 24'h000000       | Upper 24 bits of AS configuration start         |
 |        |                 |                  | address ( StAdd[31..8] ), the 8 LSB are zero.   |
@@ -6765,7 +6765,7 @@ Remote Update Intel FPGA IP core provides a memory-like interface to the remote 
 **Table 7-10: Status Register Bits**
 
 | Bit | Name         | Reset |                                                      |
-|-----|--------------|-------|------------------------------------------------------|
+| --- | ------------ | ----- | ---------------------------------------------------- |
 |     |              | Value | (23)                                                 |
 | 0   | CRC          | 1'b0  | When set to 1, indicates CRC error during applica‐   |
 | 1   | nSTATUS      | 1'b0  | When set to 1, indicates that nSTATUS is asserted by |
@@ -6834,7 +6834,7 @@ Cyclone V devices offer two types of keys—volatile and non-volatile. The follo
 **Table 7-11: Security Key Types**
 
 | Key Types | Key Programmability | Power Supply for Key |
-|-----------|---------------------|----------------------|
+| --------- | ------------------- | -------------------- |
 | Volatile  | Reprogrammable      |                      |
 |           |                     | battery, V CCBAT     |
 
@@ -6843,7 +6843,7 @@ Cyclone V devices offer two types of keys—volatile and non-volatile. The follo
 <span id="page-289-0"></span>
 
 | Key Types    | Key Programmability | Power Supply for Key |                  |
-|--------------|---------------------|----------------------|------------------|
+| ------------ | ------------------- | -------------------- | ---------------- |
 | Non-volatile | One-time            |                      |                  |
 |              |                     |                      | programming (25) |
 
@@ -6866,7 +6866,7 @@ Note: To clear the volatile key, issue the KEY\_CLR\_VREG JTAG instruction. To v
 There is no impact to the configuration time required when compared with unencrypted configuration schemes except FPP with AES (and/or decompression), which requires a DCLK that is up to ×4 the data rate.
 
 | Security Mode    | Tamper |     |     |                    |
-|------------------|--------|-----|-----|--------------------|
+| ---------------- | ------ | --- | --- | ------------------ |
 | No key           | —      | Yes | No  | —                  |
 | Volatile Key     | —      | Yes | Yes | Secure             |
 |                  | Set    | No  | Yes | Secure with tamper |
@@ -6899,7 +6899,7 @@ To carry out secure configuration, follow these steps:
 #### <span id="page-291-0"></span>**Configuration, Design Security, and Remote System Upgrades in Cyclone V Devices Revision History**
 
 | Document Version                | Changes                                                                                               |
-|---------------------------------|-------------------------------------------------------------------------------------------------------|
+| ------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | 2023.10.18 Updated the notes in | Security Modes for clarity.                                                                           |
 | 2020.07.24 Updated Figure:      | Single Device AS x1 Mode Configuration and Figure: Single Device AS x4 Mode Configuration             |
 | Updated Figure:                 | Connection Setup for Programming the EPCS Using the JTAG Interface                                    |
@@ -6916,14 +6916,14 @@ To carry out secure configuration, follow these steps:
 | Updated Figure:                 | AS Configuration Timing Waveform                                                                      |
 
 | Date      | Version    | Changes                                                                |
-|-----------|------------|------------------------------------------------------------------------|
+| --------- | ---------- | ---------------------------------------------------------------------- |
 |           | 2017.12.15 | Added description in the I/O Standards and Drive Strength for Configu‐ |
 |           |            | ration Pins table.                                                     |
 |           | 2016.12.09 | Added note to Power Up and Reset states in the Configuration           |
 | June 2016 | 2016.06.10 | Added a note to specify the time between nCSO falling edge to first    |
 
 | Date         | Version    | Changes                                                                |
-|--------------|------------|------------------------------------------------------------------------|
+| ------------ | ---------- | ---------------------------------------------------------------------- |
 |              | 2015.12.21 | Changed instances of Quartus II to Quartus Prime                       |
 |              |            | Added the CvP_CONFDONE pin to the Configuration Pin Summary for        |
 | June 2015    | 2015.06.12 | Added timing waveforms for FPP, AS, and PS configuration.              |
@@ -6935,7 +6935,7 @@ To carry out secure configuration, follow these steps:
 | May 2013     | 2013.05.06 | Added link to the known document issues in the Knowledge Base.         |
 
 | Date         | Version    | Changes                                                       |
-|--------------|------------|---------------------------------------------------------------|
+| ------------ | ---------- | ------------------------------------------------------------- |
 |              | 2012.12.28 | Added configuration modes and features for Cyclone V devices. |
 |              |            | Added PR_REQUEST , PR_READY , PR_ERROR , and PR_DONE pins to  |
 | June 2012    | 2.0        | Restructured the chapter.                                     |
@@ -7017,7 +7017,7 @@ The interval between each update of the error message register depends on the de
 **Table 8-1: Estimated Minimum EMR Update Interval in Cyclone V Devices**
 
 | Variant Member Code | Timing Interval (µs) |
-|---------------------|----------------------|
+| ------------------- | -------------------- |
 | A2                  | 1.47                 |
 | A4                  | 1.47                 |
 | A5                  | 1.79                 |
@@ -7054,7 +7054,7 @@ The speed of the error detection process for each data frame is determined by th
 The following table lists the frequencies and valid values of n.
 
 | Internal Oscillator |         | Error Detection Frequency |                           |               |
-|---------------------|---------|---------------------------|---------------------------|---------------|
+| ------------------- | ------- | ------------------------- | ------------------------- | ------------- |
 | Frequency           |         |                           | n                         | Divisor Range |
 |                     | Maximum | Minimum                   |                           |               |
 | 100 MHz             | 100 MHz | 390 kHz                   | 0, 1, 2, 3, 4, 5, 6, 7, 8 | 1 – 256       |
@@ -7081,7 +7081,7 @@ The following table lists the minimum and maximum time taken to calculate the CR
   - (n) of 8.
 
 | Variant Member Code | t MIN (ms) | t MAX (s) | Minimum Divisor Settings |
-|---------------------|------------|-----------|--------------------------|
+| ------------------- | ---------- | --------- | ------------------------ |
 | A2                  | 9          | 2.76      | 2                        |
 | A4                  | 9          | 2.76      | 2                        |
 | A5 Cyclone V E      | 14         | 4.21      | 2                        |
@@ -7091,7 +7091,7 @@ The following table lists the minimum and maximum time taken to calculate the CR
 <span id="page-298-0"></span>
 
 | Variant Member Code | t MIN (ms) | t MAX (s) | Minimum Divisor Settings |
-|---------------------|------------|-----------|--------------------------|
+| ------------------- | ---------- | --------- | ------------------------ |
 | C3                  | 12         | 1.83      | 4                        |
 | C4                  | 14         | 4.21      | 2                        |
 | C5 Cyclone V GX     | 14         | 4.21      | 2                        |
@@ -7133,7 +7133,7 @@ To enable user mode error detection and internal scrubbing in the Intel Quartus 
 **Table 8-4: Pin Description**
 
 | Pin Name Pin Type        |                                   | Description                             |
-|--------------------------|-----------------------------------|-----------------------------------------|
+| ------------------------ | --------------------------------- | --------------------------------------- |
 | CRC_ERROR I/O or output/ |                                   |                                         |
 | crcerror                 | port from the WYSIWYG atom to the |                                         |
 | dedicated                | CRC_ERROR                         | pin or any user I/O pin. To route       |
@@ -7152,7 +7152,7 @@ The block diagram shows the registers and data flow in user mode.
 **Table 8-5: Error Detection Registers**
 
 | Name                          | Width |                                                               |
-|-------------------------------|-------|---------------------------------------------------------------|
+| ----------------------------- | ----- | ------------------------------------------------------------- |
 | Syndrome register             | 32    | Contains the 32-bit CRC signature calculated for the          |
 |                               |       | current frame. If the CRC value is 0, the CRC_ERROR pin is    |
 | Error message register (EMR)  | 67    | Contains error details for single-bit and double-adjacent     |
@@ -7174,7 +7174,7 @@ The block diagram shows the registers and data flow in user mode.
 The following table lists the possible error types reported in the error type field in the EMR.
 
 | Bit 3 | Bit 2 | Error Type Bit 1 | Bit 0 | Description                                                   |
-|-------|-------|------------------|-------|---------------------------------------------------------------|
+| ----- | ----- | ---------------- | ----- | ------------------------------------------------------------- |
 | 0     | 0     | 0                | 0     | No CRC error.                                                 |
 | 0     | 0     | 0                | 1     | Location of a single-bit error is identified.                 |
 | 0     | 0     | 1                | 0     | Location of a double-adjacent error is identified.            |
@@ -7183,7 +7183,7 @@ The following table lists the possible error types reported in the error type fi
 **Table 8-7: JTAG Fault Injection Register Map**
 
 | Field Name Error Byte Value Byte Location Bit 45 | Bit 44 | Bit Range 31:0 41:32 45:42 Bit 43 | Bit 42 | Description field. the first data frame. |
-|--------------------------------------------------|--------|-----------------------------------|--------|------------------------------------------|
+| ------------------------------------------------ | ------ | --------------------------------- | ------ | ---------------------------------------- |
 | 0                                                | 0      | 0                                 | 0      | No error                                 |
 | 0                                                | 0      | 0                                 | 1      | Single-bit error                         |
 | 0                                                | 0      | 1                                 | 0      | Double adjacent error                    |
@@ -7229,7 +7229,7 @@ You can intentionally inject single or double-adjacent errors into the configura
 <span id="page-303-0"></span>**Table 8-8: EDERROR\_INJECT instruction**
 
 | JTAG Instruction | Instruction Code | Description                                                                                                                                                                                     |
-|------------------|------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ---------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | EDERROR_INJECT   | 00 0001 0101     | Use this instruction to inject errors into the configuration data. This instruction controls the JTAG fault injection register, which contains the error you want to inject into the bitstream. |
 
 You can only inject errors into the first frame of the configuration data. However, you can monitor the error information at any time. Altera recommends that you reconfigure the FPGA after the test completes.
@@ -7245,12 +7245,12 @@ AN 539: Test Methodology of Error Detection and Recovery using CRC in Intel FPGA
 #### **SEU Mitigation for Cyclone V Devices Document Revision History**
 
 | Document Version | Changes                                                                                         |
-|------------------|-------------------------------------------------------------------------------------------------|
+| ---------------- | ----------------------------------------------------------------------------------------------- |
 | 2019.10.03       | Updated the Minimum time calculation formula in <i>CRC Calculation Time For Entire Device</i> . |
 | 2018.06.01       | Updated the Minimum time calculation formula in <i>CRC Calculation Time For Entire Device</i> . |
 
 | Date         | Version    | Changes                                                             |
-|--------------|------------|---------------------------------------------------------------------|
+| ------------ | ---------- | ------------------------------------------------------------------- |
 | March 2018   | 2018.03.02 | Updated Cyclone V SX t MIN (ms) value in Device EDCRC Detection     |
 |              |            | Time in Cyclone V Devices table.                                    |
 |              | 2017.12.15 | Updated Device EDCRC Detection Time in Cyclone V Devices table to   |
@@ -7261,7 +7261,7 @@ AN 539: Test Methodology of Error Detection and Recovery using CRC in Intel FPGA
 | June 2014    | 2014.06.30 | Updated the CRC Calculation Time section.                           |
 
 | Date         | Version    | Changes                                                              |
-|--------------|------------|----------------------------------------------------------------------|
+| ------------ | ---------- | -------------------------------------------------------------------- |
 |              | 2013.11.12 | Updated the CRC Calculation Time section to include a formula to     |
 | May 2013     | 2013.05.06 | Added link to the known document issues in the Knowledge Base.       |
 |              | 2012.12.28 | Updated the width of the JTAG fault injection and fault injection    |
@@ -7302,7 +7302,7 @@ Intel Corporation. All rights reserved. Intel, the Intel logo, Altera, Arria, Cy
 **Table 9-1: IDCODE Information for Cyclone V Devices**
 
 | Variant      | Member Code | IDCODE (32 Bits) |                        |                                |             |
-|--------------|-------------|------------------|------------------------|--------------------------------|-------------|
+| ------------ | ----------- | ---------------- | ---------------------- | ------------------------------ | ----------- |
 |              |             | Version (4 Bits) | Part Number (16 Bits)  | Manufacture Identity (11 Bits) | LSB (1 Bit) |
 | Cyclone V E  | A2          | 0000             | 0010 1011<br>0001 0101 | 000 0110 1110                  | 1           |
 |              | A4          | 0000             | 0010 1011<br>0000 0101 | 000 0110 1110                  | 1           |
@@ -7325,7 +7325,7 @@ Intel Corporation. All rights reserved. Intel, the Intel logo, Altera, Arria, Cy
 <span id="page-307-0"></span>
 
 | Variant      | Member Code | IDCODE (32 Bits) |                        |                                |             |
-|--------------|-------------|------------------|------------------------|--------------------------------|-------------|
+| ------------ | ----------- | ---------------- | ---------------------- | ------------------------------ | ----------- |
 |              |             | Version (4 Bits) | Part Number (16 Bits)  | Manufacture Identity (11 Bits) | LSB (1 Bit) |
 | Cyclone V SX | C2          | 0000             | 0010 1101<br>0001 0001 | 000 0110 1110                  | 1           |
 |              | C4          | 0000             | 0010 1101<br>0000 0001 | 000 0110 1110                  | 1           |
@@ -7339,23 +7339,23 @@ Intel Corporation. All rights reserved. Intel, the Intel logo, Altera, Arria, Cy
 **Table 9-2: JTAG Instructions Supported by Cyclone V Devices**
 
 | JTAG Instruction | Instruction Code | Description                        |
-|------------------|------------------|------------------------------------|
+| ---------------- | ---------------- | ---------------------------------- |
 | SAMPLE / PRELOAD | 00 0000 0101     | Allows you to capture and          |
 |                  |                  | before loading the EXTEST instruc‐ |
 
 | JTAG Instruction | Instruction Code | Description                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-|------------------|------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ---------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | EXTEST           | 00 0000 1111     | <ul> <li>Allows you to test the external circuit and board-level interconnects by forcing a test pattern at the output pins, and capturing the test results at the input pins. Forcing known logic high and low levels on output pins allows you to detect opens and shorts at the pins of any device in the scan chain.</li> <li>The high-impedance state of EXTEST is overridden by bus hold and weak pull-up resistor features.</li> </ul> |
 | BYPASS           | 11 1111 1111     | Places the 1-bit bypass register between the TDI and TDO pins. During normal device operation, the 1-bit bypass register allows the BST data to pass synchronously through the selected devices to adjacent devices.                                                                                                                                                                                                                          |
 | USERCODE         | 00 0000 0111     | <ul> <li>Examines the user electronic signature (UES) within the devices along a JTAG chain.</li> <li>Selects the 32-bit USERCODE register and places it between the TDI and TDO pins to allow serial shifting of USERCODE out of TDO.</li> <li>The UES value is set to default value before configuration and is only user-defined after the device is configured.</li> </ul>                                                                |
 
 | JTAG Instruction | Instruction Code | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-|------------------|------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ---------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | IDCODE           | 00 0000 0110     | <ul> <li>Identifies the devices in a JTAG chain. If you select IDCODE, the device identification register is loaded with the 32-bit vendor-defined identification code.</li> <li>Selects the IDCODE register and places it between the TDI and TDO pins to allow serial shifting of IDCODE out of TDO.</li> <li>IDCODE is the default instruction at power up and in the TAP RESET state. Without loading any instructions, you can go to the SHIFT_DR state and shift out the JTAG device ID.</li> </ul>                              |
 | HIGHZ            | 00 0000 1011     | <ul> <li>Sets all user I/O pins to an inactive drive state.</li> <li>Places the 1-bit bypass register between the TDI and TDO pins. During normal operation, the 1-bit bypass register allows the BST data to pass synchronously through the selected devices to adjacent devices while tri-stating all I/O pins until a new JTAG instruction is executed.</li> <li>If you are testing the device after configuration, the programmable weak pull-up resistor or the bus hold feature overrides the HIGHZ value at the pin.</li> </ul> |
 
 | JTAG Instruction | Instruction Code | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-|------------------|------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ---------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | CLAMP            | 00 0000 1010     | <ul> <li>Places the 1-bit bypass register between the TDI and TDO pins. During normal operation, the 1-bit bypass register allows the BST data to pass synchronously through the selected devices to adjacent devices while holding the I/O pins to a state defined by the data in the boundary-scan register.</li> <li>If you are testing the device after configuration, the programmable weak pull-up resistor or the bus hold feature overrides the CLAMP value at the pin. The CLAMP value is the value stored in the update register of the boundary-scan cell (BSC).</li> </ul> |
 | PULSE_NCONFIG    | 00 0000 0001     | Emulates pulsing the nCONFIG pin low to trigger reconfiguration even though the physical pin is not affected.                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | CONFIG_IO        | 00 0000 1101     | Allows I/O reconfiguration (after or during reconfigurations) through the JTAG ports using I/O configuration shift register (IOCSR) for JTAG testing. You can issue the CONFIG_IO instruction only after the nSTATUS pin goes high.                                                                                                                                                                                                                                                                                                                                                    |
@@ -7364,7 +7364,7 @@ Intel Corporation. All rights reserved. Intel, the Intel logo, Altera, Arria, Cy
 <span id="page-311-0"></span>
 
 | JTAG Instruction | Instruction Code | Description                            |
-|------------------|------------------|----------------------------------------|
+| ---------------- | ---------------- | -------------------------------------- |
 | UNLOCK           | 11 0011 0001     | Release the device from the JTAG       |
 | KEY_CLR_VREG     | 00 0010 1001     | Clears the volatile key.               |
 | KEY_VERIFY       | 00 0001 0011     | Verifies the non-volatile key has been |
@@ -7409,7 +7409,7 @@ The JTAG chain supports several different devices. Use the supported TDO and TDI
 The TDO output buffer for VCCPD of 3.3 V or 3.0 V meets VOH (MIN) of 2.4 V, and the TDO output buffer for VCCPD of 2.5 V meets VOH (MIN) of 2.0 V.
 
 | Device TDI Input Buffer |      |       |                |                 |                |
-|-------------------------|------|-------|----------------|-----------------|----------------|
+| ----------------------- | ---- | ----- | -------------- | --------------- | -------------- |
 |                         |      |       |                | Cyclone V TDO V | CCPD           |
 |                         |      |       | V CCPD = 3.3 V | V CCPD = 3.0 V  | V CCPD = 2.5 V |
 | V                       | CCPD | = 3.3 | Yes            | Yes             | Yes            |
@@ -7453,7 +7453,7 @@ To ensure that you do not inadvertently enable the IEEE Std. 1149.1 circuitry wh
 **Table 9-4: Pin Connections to Permanently Disable the IEEE Std. 1149.1 Circuitry for Cyclone V Devices**
 
 |     | JTAG Pins (27) | Connection for Disabling |
-|-----|----------------|--------------------------|
+| --- | -------------- | ------------------------ |
 | TMS |                | V CCPD supply of Bank 3A |
 | TCK |                | GND                      |
 | TDI |                | V CCPD supply of Bank 3A |
@@ -7510,7 +7510,7 @@ Note: TDI, TDO, TMS, and TCK pins, all VCC and GND pin types, and VREF pins do n
 This table lists the capture and update register capabilities of all BSCs within Cyclone V devices.
 
 |               |        | Captures |        |         | Drives |      |               |
-|---------------|--------|----------|--------|---------|--------|------|---------------|
+| ------------- | ------ | -------- | ------ | ------- | ------ | ---- | ------------- |
 |               | Output |          |        |         |        |      | Comments      |
 | User I/O pins | OUTJ   | OEJ      | PIN_IN | PIN_OUT | PIN_OE | INJ  | —             |
 |               | 0      | 1        | PIN_IN | No      |        |      |               |
@@ -7519,7 +7519,7 @@ This table lists the capture and update register capabilities of all BSCs within
 <span id="page-317-0"></span>
 
 | Pin Type                                             | Captures                |                     |                        | Drives                 |                    |                       | Comments                                                                        |
-|------------------------------------------------------|-------------------------|---------------------|------------------------|------------------------|--------------------|-----------------------|---------------------------------------------------------------------------------|
+| ---------------------------------------------------- | ----------------------- | ------------------- | ---------------------- | ---------------------- | ------------------ | --------------------- | ------------------------------------------------------------------------------- |
 |                                                      | Output Capture Register | OE Capture Register | Input Capture Register | Output Update Register | OE Update Register | Input Update Register |                                                                                 |
 | Dedicated input <sup>(28)</sup>                      | 0                       | 1                   | PIN_IN                 | N.C.                   | N.C.               | N.C.                  | PIN_IN drives to the control logic                                              |
 | Dedicated bidirectional (open drain) <sup>(29)</sup> | 0                       | OEJ                 | PIN_IN                 | N.C.                   | N.C.               | N.C.                  | PIN_IN drives to the configuration control                                      |
@@ -7529,7 +7529,7 @@ This table lists the capture and update register capabilities of all BSCs within
 #### **JTAG Boundary-Scan Testing inCyclone V Devices Revision History**
 
 | Date         | Version    | Changes                                                         |
-|--------------|------------|-----------------------------------------------------------------|
+| ------------ | ---------- | --------------------------------------------------------------- |
 |              | 2015.12.21 | Changed instances of Quartus II to Quartus Prime.               |
 | June 2015    | 2015.06.12 | Added a note in the Enabling and Disabling IEEE Std. 1149.1 BST |
 | June 2014    | 2014.06.30 | Removed a note in the Performing BST section.                   |
@@ -7545,7 +7545,7 @@ This table lists the capture and update register capabilities of all BSCs within
 <sup>(31)</sup> This includes the nCEO pin.
 
 | Date         | Version    | Changes                                                        |
-|--------------|------------|----------------------------------------------------------------|
+| ------------ | ---------- | -------------------------------------------------------------- |
 | May 2013     | 2013.05.06 | Added link to the known document issues in the Knowledge Base. |
 |              | 2012.12.28 | Reorganized content and updated template.                      |
 | June 2012    | 2.0        | Restructured the chapter.                                      |
@@ -7652,10 +7652,10 @@ For details about the minimum current requirements, refer to the Early Power Est
 
 **Table 10-1: Maximum Power Supply Current Transient and Typical Duration**
 
-|  | Power Rail                            | Maximum Power Supply Current Transient (mA) | Typical Duration ( $\mu$ s) <sup>(32)</sup> |
-|--|---------------------------------------|---------------------------------------------|---------------------------------------------|
-|  | $V_{\text{CCPD}}$ <sup>(33)(34)</sup> | 1000                                        | 50                                          |
-|  | $V_{\text{CClO}}$ <sup>(34)(35)</sup> | 250                                         | 200                                         |
+|     | Power Rail                            | Maximum Power Supply Current Transient (mA) | Typical Duration ( $\mu$ s) <sup>(32)</sup> |
+| --- | ------------------------------------- | ------------------------------------------- | ------------------------------------------- |
+|     | $V_{\text{CCPD}}$ <sup>(33)(34)</sup> | 1000                                        | 50                                          |
+|     | $V_{\text{CClO}}$ <sup>(34)(35)</sup> | 250                                         | 200                                         |
 
 <sup>(32)</sup> Only typical duration is provided as it may vary on the board design.
 
@@ -7668,7 +7668,7 @@ For details about the minimum current requirements, refer to the Early Power Est
 <span id="page-323-0"></span>
 
 | Power Rail                               | Maximum Power Supply Current Transient (mA) | Typical Duration ( $\mu$ s) <sup>(32)</sup> |
-|------------------------------------------|---------------------------------------------|---------------------------------------------|
+| ---------------------------------------- | ------------------------------------------- | ------------------------------------------- |
 | $V_{CC_{AUX}}$ <sup>(36)</sup>           | 400                                         | 10                                          |
 | $V_{CC}$ <sup>(36)</sup>                 | 350                                         | 100                                         |
 | $V_{CCPD_{HPS}}$ <sup>(37)(38)(39)</sup> | 400                                         | 50                                          |
@@ -7719,24 +7719,24 @@ Provides more information about the POR delay specification and tRAMP.
 
 **Table 10-2: Power Supplies Monitored and Not Monitored by the Cyclone V POR Circuitry**
 
-|   | Power Supplies Monitored Power Supplies Not Monitored |
-|---|-------------------------------------------------------|
-| V | CC_AUX                                                |
-| V | CCBAT                                                 |
-| V | CC                                                    |
-| V | CCPD                                                  |
-| V | CCPGM                                                 |
-| V | CC_HPS                                                |
-| V | CCPD_HPS                                              |
-| V | CCRSTCLK_HPS                                          |
-| V | CC_AUX_SHARED                                         |
-|   | V CCE_GXBL                                            |
-|   | V CCH_GXBL                                            |
-|   | V CCL_GXBL                                            |
-|   | V CCA_FPLL                                            |
-|   | V CCIO                                                |
-|   | V CCIO_HPS                                            |
-|   | V CCPLL_HPS                                           |
+|     | Power Supplies Monitored Power Supplies Not Monitored |
+| --- | ----------------------------------------------------- |
+| V   | CC_AUX                                                |
+| V   | CCBAT                                                 |
+| V   | CC                                                    |
+| V   | CCPD                                                  |
+| V   | CCPGM                                                 |
+| V   | CC_HPS                                                |
+| V   | CCPD_HPS                                              |
+| V   | CCRSTCLK_HPS                                          |
+| V   | CC_AUX_SHARED                                         |
+|     | V CCE_GXBL                                            |
+|     | V CCH_GXBL                                            |
+|     | V CCL_GXBL                                            |
+|     | V CCA_FPLL                                            |
+|     | V CCIO                                                |
+|     | V CCIO_HPS                                            |
+|     | V CCPLL_HPS                                           |
 
 Note: For the device to exit POR, you must power the VCCBAT power supply even if you do not use the volatile key.
 
@@ -7750,7 +7750,7 @@ Note: For the device to exit POR, you must power the VCCBAT power supply even if
 # <span id="page-326-0"></span>**Power Management in Cyclone V Devices Revision History**
 
 | Date         | Version    | Changes                                                                  |
-|--------------|------------|--------------------------------------------------------------------------|
+| ------------ | ---------- | ------------------------------------------------------------------------ |
 |              | 2017.12.15 | Updated the Power-Up Sequence section title to Power-Up Sequence         |
 |              | 2017.09.19 | Added a note to V CCPD in Power Supplies Monitored and Not Monitored     |
 |              | 2015.12.21 | Changed instances of Quartus II to Quartus Prime.                        |
