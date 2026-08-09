@@ -10,7 +10,7 @@ node_modules/
 !.repos/versions.json
 
 # Hide document file due to copyright purposes
-docs/virtualboy-transcribed/licensed-documents/
+docs/transcribed-documents/licensed-documents/
 
 # Claude local files
 .claude/
