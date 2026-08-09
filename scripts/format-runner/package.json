@@ -1,6 +1,6 @@
 {
   "name": "format-runner",
-  "publisher": "openfpga-virtualboy",
+  "publisher": "virtualboy-fpga",
   "version": "0.0.0",
   "private": true,
   "type": "commonjs",
