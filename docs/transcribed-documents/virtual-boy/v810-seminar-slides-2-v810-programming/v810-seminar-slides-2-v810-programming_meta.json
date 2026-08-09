@@ -1,0 +1,1346 @@
+{
+  "table_of_contents": [
+    {
+      "title": "V810 Programming",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          421.88000000000005,
+          460.4599999999999
+        ],
+        [
+          1655.7200000000003,
+          460.4599999999999
+        ],
+        [
+          1655.7200000000003,
+          599.06
+        ],
+        [
+          421.88000000000005,
+          599.06
+        ]
+      ]
+    },
+    {
+      "title": "Assembler Programming",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          449.44,
+          429.65999999999997
+        ],
+        [
+          1570.9199999999998,
+          429.65999999999997
+        ],
+        [
+          1570.9199999999998,
+          535.92
+        ],
+        [
+          449.44,
+          535.92
+        ]
+      ]
+    },
+    {
+      "title": "Register Convention",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          574.5200000000001,
+          181.71999999999997
+        ],
+        [
+          1494.6,
+          181.71999999999997
+        ],
+        [
+          1494.6,
+          286.44
+        ],
+        [
+          574.5200000000001,
+          286.44
+        ]
+      ]
+    },
+    {
+      "title": "Section",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          856.4800000000001,
+          170.94
+        ],
+        [
+          1204.16,
+          170.94
+        ],
+        [
+          1204.16,
+          260.26
+        ],
+        [
+          856.4800000000001,
+          260.26
+        ]
+      ]
+    },
+    {
+      "title": "Data access using \"gp\"",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          513.0400000000001,
+          177.1
+        ],
+        [
+          1556.0800000000002,
+          177.1
+        ],
+        [
+          1556.0800000000002,
+          283.35999999999996
+        ],
+        [
+          513.0400000000001,
+          283.35999999999996
+        ]
+      ]
+    },
+    {
+      "title": "Ordinal Data",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          315.88,
+          523.6
+        ],
+        [
+          546.96,
+          523.6
+        ],
+        [
+          546.96,
+          565.18
+        ],
+        [
+          315.88,
+          565.18
+        ]
+      ]
+    },
+    {
+      "title": "\"gp\" Register Indirect",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          1113.0,
+          523.6
+        ],
+        [
+          1500.96,
+          523.6
+        ],
+        [
+          1500.96,
+          569.8
+        ],
+        [
+          1113.0,
+          569.8
+        ]
+      ]
+    },
+    {
+      "title": "Pipelining",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          780.1600000000001,
+          421.96
+        ],
+        [
+          1235.96,
+          421.96
+        ],
+        [
+          1235.96,
+          529.76
+        ],
+        [
+          780.1600000000001,
+          529.76
+        ]
+      ]
+    },
+    {
+      "title": "Load and Store",
+      "heading_level": null,
+      "page_id": 6,
+      "polygon": [
+        [
+          678.4,
+          178.64
+        ],
+        [
+          1380.1200000000001,
+          178.64
+        ],
+        [
+          1380.1200000000001,
+          267.96
+        ],
+        [
+          678.4,
+          267.96
+        ]
+      ]
+    },
+    {
+      "title": "Back-to-back Load",
+      "heading_level": null,
+      "page_id": 7,
+      "polygon": [
+        [
+          606.3199999999999,
+          192.5
+        ],
+        [
+          1456.44,
+          192.5
+        ],
+        [
+          1456.44,
+          278.73999999999995
+        ],
+        [
+          606.3199999999999,
+          278.73999999999995
+        ]
+      ]
+    },
+    {
+      "title": "Back-to-back Store",
+      "heading_level": null,
+      "page_id": 8,
+      "polygon": [
+        [
+          593.6,
+          177.1
+        ],
+        [
+          1458.56,
+          177.1
+        ],
+        [
+          1458.56,
+          266.41999999999996
+        ],
+        [
+          593.6,
+          266.41999999999996
+        ]
+      ]
+    },
+    {
+      "title": "Flag Hazard",
+      "heading_level": null,
+      "page_id": 9,
+      "polygon": [
+        [
+          746.24,
+          170.94
+        ],
+        [
+          1305.92,
+          170.94
+        ],
+        [
+          1305.92,
+          275.65999999999997
+        ],
+        [
+          746.24,
+          275.65999999999997
+        ]
+      ]
+    },
+    {
+      "title": "Register Hazard",
+      "heading_level": null,
+      "page_id": 10,
+      "polygon": [
+        [
+          665.6800000000001,
+          180.17999999999998
+        ],
+        [
+          1401.3200000000002,
+          180.17999999999998
+        ],
+        [
+          1401.3200000000002,
+          284.9
+        ],
+        [
+          665.6800000000001,
+          284.9
+        ]
+      ]
+    },
+    {
+      "title": "System level Issue",
+      "heading_level": null,
+      "page_id": 11,
+      "polygon": [
+        [
+          574.5200000000001,
+          423.50000000000006
+        ],
+        [
+          1431.0000000000002,
+          423.50000000000006
+        ],
+        [
+          1431.0000000000002,
+          531.3
+        ],
+        [
+          574.5200000000001,
+          531.3
+        ]
+      ]
+    },
+    {
+      "title": "Interrupt Enable/Disable",
+      "heading_level": null,
+      "page_id": 12,
+      "polygon": [
+        [
+          483.36000000000007,
+          177.1
+        ],
+        [
+          1573.0400000000002,
+          177.1
+        ],
+        [
+          1573.0400000000002,
+          283.35999999999996
+        ],
+        [
+          483.36000000000007,
+          283.35999999999996
+        ]
+      ]
+    },
+    {
+      "title": "Interrupt Handler",
+      "heading_level": null,
+      "page_id": 13,
+      "polygon": [
+        [
+          659.32,
+          163.23999999999998
+        ],
+        [
+          1435.2400000000002,
+          163.23999999999998
+        ],
+        [
+          1435.2400000000002,
+          266.41999999999996
+        ],
+        [
+          659.32,
+          266.41999999999996
+        ]
+      ]
+    },
+    {
+      "title": "Saving Register in INT Handler",
+      "heading_level": null,
+      "page_id": 14,
+      "polygon": [
+        [
+          328.6,
+          175.56
+        ],
+        [
+          1729.92,
+          175.56
+        ],
+        [
+          1729.92,
+          283.35999999999996
+        ],
+        [
+          328.6,
+          283.35999999999996
+        ]
+      ]
+    },
+    {
+      "title": "Interrupt Tips (1)",
+      "heading_level": null,
+      "page_id": 15,
+      "polygon": [
+        [
+          657.2,
+          177.1
+        ],
+        [
+          1409.8000000000002,
+          177.1
+        ],
+        [
+          1409.8000000000002,
+          284.9
+        ],
+        [
+          657.2,
+          284.9
+        ]
+      ]
+    },
+    {
+      "title": "Interrupt Tips (2)",
+      "heading_level": null,
+      "page_id": 16,
+      "polygon": [
+        [
+          659.32,
+          178.64
+        ],
+        [
+          1411.9200000000003,
+          178.64
+        ],
+        [
+          1411.9200000000003,
+          283.35999999999996
+        ],
+        [
+          659.32,
+          283.35999999999996
+        ]
+      ]
+    },
+    {
+      "title": "Cache Enable/Disable",
+      "heading_level": null,
+      "page_id": 17,
+      "polygon": [
+        [
+          530.0,
+          164.78
+        ],
+        [
+          1537.0,
+          164.78
+        ],
+        [
+          1537.0,
+          254.10000000000002
+        ],
+        [
+          530.0,
+          254.10000000000002
+        ]
+      ]
+    },
+    {
+      "title": "Cache Tips",
+      "heading_level": null,
+      "page_id": 18,
+      "polygon": [
+        [
+          778.0400000000001,
+          172.48
+        ],
+        [
+          1301.68,
+          172.48
+        ],
+        [
+          1301.68,
+          277.2
+        ],
+        [
+          778.0400000000001,
+          277.2
+        ]
+      ]
+    },
+    {
+      "title": "Others",
+      "heading_level": null,
+      "page_id": 19,
+      "polygon": [
+        [
+          848.0,
+          426.58000000000004
+        ],
+        [
+          1170.2400000000002,
+          426.58000000000004
+        ],
+        [
+          1170.2400000000002,
+          517.4399999999999
+        ],
+        [
+          848.0,
+          517.4399999999999
+        ]
+      ]
+    },
+    {
+      "title": "Data Alignment",
+      "heading_level": null,
+      "page_id": 20,
+      "polygon": [
+        [
+          682.64,
+          175.56
+        ],
+        [
+          1386.4800000000002,
+          175.56
+        ],
+        [
+          1386.4800000000002,
+          280.28
+        ],
+        [
+          682.64,
+          280.28
+        ]
+      ]
+    },
+    {
+      "title": "Call / Return",
+      "heading_level": null,
+      "page_id": 21,
+      "polygon": [
+        [
+          746.24,
+          174.01999999999998
+        ],
+        [
+          1320.76,
+          174.01999999999998
+        ],
+        [
+          1320.76,
+          264.88
+        ],
+        [
+          746.24,
+          264.88
+        ]
+      ]
+    },
+    {
+      "title": "Pipeline Coding Tip (1)",
+      "heading_level": null,
+      "page_id": 22,
+      "polygon": [
+        [
+          523.64,
+          170.94
+        ],
+        [
+          1556.0800000000002,
+          170.94
+        ],
+        [
+          1556.0800000000002,
+          277.2
+        ],
+        [
+          523.64,
+          277.2
+        ]
+      ]
+    },
+    {
+      "title": "Pipeline Coding Tips (2)",
+      "heading_level": null,
+      "page_id": 23,
+      "polygon": [
+        [
+          485.4800000000001,
+          174.01999999999998
+        ],
+        [
+          1568.8000000000002,
+          174.01999999999998
+        ],
+        [
+          1568.8000000000002,
+          281.82
+        ],
+        [
+          485.4800000000001,
+          281.82
+        ]
+      ]
+    },
+    {
+      "title": "NEC NEC Electronics Inc.",
+      "heading_level": null,
+      "page_id": 24,
+      "polygon": [
+        [
+          574.5200000000001,
+          666.8199999999999
+        ],
+        [
+          1494.6,
+          666.8199999999999
+        ],
+        [
+          1494.6,
+          987.1399999999999
+        ],
+        [
+          574.5200000000001,
+          987.1399999999999
+        ]
+      ]
+    }
+  ],
+  "page_stats": [
+    {
+      "page_id": 0,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Text",
+          10
+        ],
+        [
+          "Picture",
+          2
+        ],
+        [
+          "SectionHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 1,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "PageFooter",
+          6
+        ],
+        [
+          "Text",
+          4
+        ],
+        [
+          "PageHeader",
+          2
+        ],
+        [
+          "SectionHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 2,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Text",
+          19
+        ],
+        [
+          "PageFooter",
+          8
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "Table",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 3,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Text",
+          25
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "PageFooter",
+          2
+        ],
+        [
+          "Table",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 4,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "PageFooter",
+          7
+        ],
+        [
+          "SectionHeader",
+          6
+        ],
+        [
+          "Text",
+          6
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 5,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Text",
+          7
+        ],
+        [
+          "PageFooter",
+          6
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 6,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Text",
+          15
+        ],
+        [
+          "PageFooter",
+          6
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "ListGroup",
+          2
+        ],
+        [
+          "Diagram",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 7,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Text",
+          28
+        ],
+        [
+          "PageFooter",
+          6
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "Diagram",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 8,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Text",
+          11
+        ],
+        [
+          "PageFooter",
+          6
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "Diagram",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 9,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Text",
+          28
+        ],
+        [
+          "Picture",
+          4
+        ],
+        [
+          "PageFooter",
+          4
+        ],
+        [
+          "SectionHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 10,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Text",
+          20
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "PageFooter",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 11,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Text",
+          6
+        ],
+        [
+          "PageFooter",
+          6
+        ],
+        [
+          "SectionHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 12,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Text",
+          20
+        ],
+        [
+          "PageFooter",
+          6
+        ],
+        [
+          "SectionHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 13,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Text",
+          7
+        ],
+        [
+          "PageFooter",
+          6
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "Diagram",
+          1
+        ],
+        [
+          "Table",
+          1
+        ],
+        [
+          "Picture",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 14,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Text",
+          10
+        ],
+        [
+          "PageFooter",
+          6
+        ],
+        [
+          "SectionHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 15,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "PageFooter",
+          6
+        ],
+        [
+          "Text",
+          3
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "Table",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 16,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Text",
+          7
+        ],
+        [
+          "PageFooter",
+          6
+        ],
+        [
+          "Diagram",
+          4
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "ListGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 17,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Text",
+          8
+        ],
+        [
+          "PageFooter",
+          6
+        ],
+        [
+          "SectionHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 18,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Text",
+          33
+        ],
+        [
+          "PageFooter",
+          8
+        ],
+        [
+          "SectionHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 19,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Text",
+          7
+        ],
+        [
+          "PageFooter",
+          6
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "PageHeader",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 20,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "PageFooter",
+          6
+        ],
+        [
+          "Text",
+          5
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "ListGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 21,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Text",
+          8
+        ],
+        [
+          "PageFooter",
+          6
+        ],
+        [
+          "SectionHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 22,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Text",
+          12
+        ],
+        [
+          "PageFooter",
+          6
+        ],
+        [
+          "SectionHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 23,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Text",
+          12
+        ],
+        [
+          "PageFooter",
+          6
+        ],
+        [
+          "SectionHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 24,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Picture",
+          2
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "PageFooter",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    }
+  ],
+  "debug_data_path": "debug_data\\v810-seminar-slides-2-v810-programming"
+}
