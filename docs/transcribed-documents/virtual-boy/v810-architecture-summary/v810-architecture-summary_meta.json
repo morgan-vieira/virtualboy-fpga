@@ -1,0 +1,431 @@
+{
+  "table_of_contents": [
+    {
+      "title": "V810 Architecture: Summary",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          352.342,
+          103.9
+        ],
+        [
+          1045.33,
+          103.9
+        ],
+        [
+          1045.33,
+          157.928
+        ],
+        [
+          352.342,
+          157.928
+        ]
+      ]
+    },
+    {
+      "title": "Register set:",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          95.03,
+          203.644
+        ],
+        [
+          308.48199999999997,
+          203.644
+        ],
+        [
+          308.48199999999997,
+          241.04800000000003
+        ],
+        [
+          95.03,
+          241.04800000000003
+        ]
+      ]
+    },
+    {
+      "title": "Data types:",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          95.03,
+          455.082
+        ],
+        [
+          286.552,
+          455.082
+        ],
+        [
+          286.552,
+          492.48599999999993
+        ],
+        [
+          95.03,
+          492.48599999999993
+        ]
+      ]
+    },
+    {
+      "title": "Alignment:",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          95.03,
+          625.478
+        ],
+        [
+          279.242,
+          625.478
+        ],
+        [
+          279.242,
+          664.96
+        ],
+        [
+          95.03,
+          664.96
+        ]
+      ]
+    },
+    {
+      "title": "Instruction Set:",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          95.03,
+          837.4340000000001
+        ],
+        [
+          350.88,
+          837.4340000000001
+        ],
+        [
+          350.88,
+          874.838
+        ],
+        [
+          95.03,
+          874.838
+        ]
+      ]
+    },
+    {
+      "title": "Instruction Execution Clock Cycles:",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          95.03,
+          1282.126
+        ],
+        [
+          676.9060000000001,
+          1282.126
+        ],
+        [
+          676.9060000000001,
+          1323.6860000000001
+        ],
+        [
+          95.03,
+          1323.6860000000001
+        ]
+      ]
+    },
+    {
+      "title": "Instruction Format:",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          95.03,
+          1614.606
+        ],
+        [
+          413.746,
+          1614.606
+        ],
+        [
+          413.746,
+          1652.01
+        ],
+        [
+          95.03,
+          1652.01
+        ]
+      ]
+    },
+    {
+      "title": "Addressing modes:",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          95.03,
+          1751.754
+        ],
+        [
+          421.0559999999999,
+          1751.754
+        ],
+        [
+          421.0559999999999,
+          1791.2359999999999
+        ],
+        [
+          95.03,
+          1791.2359999999999
+        ]
+      ]
+    },
+    {
+      "title": "Flags:",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          103.80199999999998,
+          124.67999999999999
+        ],
+        [
+          213.45200000000003,
+          124.67999999999999
+        ],
+        [
+          213.45200000000003,
+          164.16199999999998
+        ],
+        [
+          103.80199999999998,
+          164.16199999999998
+        ]
+      ]
+    },
+    {
+      "title": "Load/In:",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          103.80199999999998,
+          299.23199999999997
+        ],
+        [
+          242.69200000000004,
+          299.23199999999997
+        ],
+        [
+          242.69200000000004,
+          334.558
+        ],
+        [
+          103.80199999999998,
+          334.558
+        ]
+      ]
+    },
+    {
+      "title": "Function Call (jal): (synthesized through discrete instructions in V810)",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          103.80199999999998,
+          432.224
+        ],
+        [
+          1229.542,
+          432.224
+        ],
+        [
+          1229.542,
+          473.784
+        ],
+        [
+          103.80199999999998,
+          473.784
+        ]
+      ]
+    },
+    {
+      "title": "Bitstring Operation:",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          103.80199999999998,
+          679.5060000000001
+        ],
+        [
+          428.366,
+          679.5060000000001
+        ],
+        [
+          428.366,
+          723.1439999999999
+        ],
+        [
+          103.80199999999998,
+          723.1439999999999
+        ]
+      ]
+    },
+    {
+      "title": "Floating point operations: (add, subtract, multiply and divide)",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          103.80199999999998,
+          893.5400000000001
+        ],
+        [
+          1092.114,
+          893.5400000000001
+        ],
+        [
+          1092.114,
+          935.1000000000001
+        ],
+        [
+          103.80199999999998,
+          935.1000000000001
+        ]
+      ]
+    },
+    {
+      "title": "Interrupts and Exceptions:",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          103.80199999999998,
+          1105.496
+        ],
+        [
+          533.63,
+          1105.496
+        ],
+        [
+          533.63,
+          1144.978
+        ],
+        [
+          103.80199999999998,
+          1144.978
+        ]
+      ]
+    },
+    {
+      "title": "Important Hardware Issues",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          103.80199999999998,
+          1435.898
+        ],
+        [
+          538.016,
+          1435.898
+        ],
+        [
+          538.016,
+          1477.4579999999999
+        ],
+        [
+          103.80199999999998,
+          1477.4579999999999
+        ]
+      ]
+    },
+    {
+      "title": "Cache:",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          103.80199999999998,
+          1687.336
+        ],
+        [
+          222.22400000000002,
+          1687.336
+        ],
+        [
+          222.22400000000002,
+          1726.818
+        ],
+        [
+          103.80199999999998,
+          1726.818
+        ]
+      ]
+    }
+  ],
+  "page_stats": [
+    {
+      "page_id": 0,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Text",
+          39
+        ],
+        [
+          "SectionHeader",
+          16
+        ],
+        [
+          "PageFooter",
+          2
+        ],
+        [
+          "Table",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 1,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "SectionHeader",
+          16
+        ],
+        [
+          "Text",
+          16
+        ],
+        [
+          "PageFooter",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    }
+  ],
+  "debug_data_path": "debug_data\\v810-architecture-summary"
+}
