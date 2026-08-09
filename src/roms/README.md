@@ -21,11 +21,12 @@ import { defineRom } from "#scripts/lib/vb-rom";
 import { r6, r7 } from "#scripts/lib/v810";
 
 export default defineRom({
-  name: "halt",
-  header: { gameTitle: "OPENFPGA HALT", makerCode: "OF", gameCode: "VHLT", revision: 0 },
+  name: "wram-signature",
+  header: { gameTitle: "OPENFPGA WRAM", makerCode: "OF", gameCode: "VWRM", revision: 0 },
   expectation: "what a maintainer should see on the Pocket, and what failure looks like",
   program: (asm) => {
     asm.label("start");
+    asm.di();
     asm.loadImm(0x05000000, r6);
     asm.loadImm(0xdeadbeef, r7);
     asm.stW(r7, 0, r6);
@@ -66,10 +67,9 @@ Vectors the ROM does not name get a stub that halts and branches onto itself. A 
 
 ## The ROMs
 
-| ROM            | Module under test                       | Pass looks like                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| -------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `halt`         | none — the packaging itself             | Loads in a reference emulator without being rejected, writes `0xDEADBEEF` to WRAM `0x05000000`, and sits in `HALT`. Not yet judgeable on the Pocket: the core has no CPU, so a black screen there proves nothing.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| `video-raster` | `vb_video_timing.v`, `vb_framebuffer.v` | A one-pixel border on all four edges, a solid 8×8 block in the top-left corner only, an unbroken diagonal corner to corner, ticks every 32 columns and rows, and a framed row of four bars stepping black → full brightness. A clipped edge means the raster misses pixels, the block in another corner means rotation or mirroring, a broken diagonal means the column stride is wrong, and fewer than four distinct bars means the 2-bit pixels are unpacked wrongly. Runs on the Pocket: the image is the first 24KB of the ROM and the core reads it straight from the cartridge slot, so no CPU is needed. Verified against Mednafen — all 86,016 pixels match the core's decode. Confirmed on hardware 2026-08-02: 86,016/86,016 pixels, and **Tools > Developer > Statistics** reported 50.274Hz over three power cycles against an expected 50.273488Hz (+10ppm). Any wrong raster count would land at least 0.065Hz away, so that reading pins `H_TOTAL`×`V_TOTAL` exactly. |
+| ROM    | Module under test           | Pass looks like                                                                                                                                                                                                   |
+| ------ | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `halt` | none — the packaging itself | Loads in a reference emulator without being rejected, writes `0xDEADBEEF` to WRAM `0x05000000`, and sits in `HALT`. Not yet judgeable on the Pocket: the core has no CPU, so a black screen there proves nothing. |
 
 ## Where the format came from
 
