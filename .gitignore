@@ -12,9 +12,6 @@ node_modules/
 # Hide document file due to copyright purposes
 docs/transcribed-documents/virtual-boy/licensed/
 
-# Claude local files
-.claude/
-
 # Disposable VS Code used by scripts/format-with-vscode.ts
 .vscode-test/
 
