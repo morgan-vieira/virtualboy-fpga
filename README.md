@@ -1,3 +1,9 @@
+> [!NOTE]
+> This core was developed with Claude Opus 5 (1M context) in Claude Code.
+
+> [!NOTE]
+> Some parts of the documentation and technical notes have been omitted because of possible copyright concerns.
+
 # Virtual Boy
 
 A Nintendo Virtual Boy core for the Analogue Pocket, built on openFPGA.
