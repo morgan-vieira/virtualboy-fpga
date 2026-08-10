@@ -59,24 +59,24 @@ The document describes the Virtual Boy controller's serial report format: it sta
 
 Introduced by "After strobing the controller, the following 16 bits can be read from the data line:" [L8].
 
-| Bit | Meaning as printed |
-| --- | --- |
-| 0 | Right D-pad Down |
-| 1 | Right D-pad Left |
-| 2 | Select |
-| 3 | Start |
-| 4 | Left D-pad Up |
-| 5 | Left D-pad Down |
-| 6 | Left D-pad Left |
-| 7 | Left D-pad Right |
-| 8 | Right D-pad Right |
-| 9 | Right D-pad Up |
-| 10 | L (rear left trigger) |
-| 11 | R (rear right trigger) |
-| 12 | B |
-| 13 | A |
-| 14 | Always 1 |
-| 15 | Battery voltage; 1 = low voltage |
+| Bit | Meaning as printed               |
+| --- | -------------------------------- |
+| 0   | Right D-pad Down                 |
+| 1   | Right D-pad Left                 |
+| 2   | Select                           |
+| 3   | Start                            |
+| 4   | Left D-pad Up                    |
+| 5   | Left D-pad Down                  |
+| 6   | Left D-pad Left                  |
+| 7   | Left D-pad Right                 |
+| 8   | Right D-pad Right                |
+| 9   | Right D-pad Up                   |
+| 10  | L (rear left trigger)            |
+| 11  | R (rear right trigger)           |
+| 12  | B                                |
+| 13  | A                                |
+| 14  | Always 1                         |
+| 15  | Battery voltage; 1 = low voltage |
 
 [L10–26]
 

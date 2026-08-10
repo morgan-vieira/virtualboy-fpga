@@ -219,64 +219,64 @@ The manual states explicitly that it is the HARDWARE volume of a two-volume set,
 
 ### Part numbers and operating voltage/frequency (§1.1, p.1)
 
-| Part number | VDD = +5 V ± 10% | VDD = 3.0 to 3.6 V | VDD = 2.7 to 3.6 V | VDD = 2.2 to 3.6 V |
-| --- | --- | --- | --- | --- |
-| V805 µPD70731-16 | Max. 16 MHz | — | — | — |
-| V805 µPD70731-20 | Max. 20 MHz | Max. 16 MHz | Max. 12.5 MHz | Max. 10 MHz |
-| V810 µPD70732-16 | Max. 16 MHz | — | — | — |
-| V810 µPD70732-20 | Max. 20 MHz | — | — | — |
-| V810 µPD70732-25 | Max. 25 MHz | — | Max. 16 MHz | Max. 10 MHz |
+| Part number      | VDD = +5 V ± 10% | VDD = 3.0 to 3.6 V | VDD = 2.7 to 3.6 V | VDD = 2.2 to 3.6 V |
+| ---------------- | ---------------- | ------------------ | ------------------ | ------------------ |
+| V805 µPD70731-16 | Max. 16 MHz      | —                  | —                  | —                  |
+| V805 µPD70731-20 | Max. 20 MHz      | Max. 16 MHz        | Max. 12.5 MHz      | Max. 10 MHz        |
+| V810 µPD70732-16 | Max. 16 MHz      | —                  | —                  | —                  |
+| V810 µPD70732-20 | Max. 20 MHz      | —                  | —                  | —                  |
+| V810 µPD70732-25 | Max. 25 MHz      | —                  | Max. 16 MHz        | Max. 10 MHz        |
 
 ### Ordering information (§1.2, p.2)
 
 V805:
 
-| Part Number | Package | Max. operating freq. (MHz) |
-| --- | --- | --- |
-| µPD70731GC-16-7EA | 100-pin plastic QFP (Fine pitch) (14 x 14 mm) | 16 |
-| µPD70731GC-20-7EA | 100-pin plastic QFP (Fine pitch) (14 x 14 mm) | 20 |
+| Part Number       | Package                                       | Max. operating freq. (MHz) |
+| ----------------- | --------------------------------------------- | -------------------------- |
+| µPD70731GC-16-7EA | 100-pin plastic QFP (Fine pitch) (14 x 14 mm) | 16                         |
+| µPD70731GC-20-7EA | 100-pin plastic QFP (Fine pitch) (14 x 14 mm) | 20                         |
 
 V810:
 
-| Part Number | Package | Max. operating freq. (MHz) |
-| --- | --- | --- |
-| µPD70732GD-16-LBB | 120-pin plastic QFP (28 x 28 mm) | 16 |
-| µPD70732GD-20-LBB | 120-pin plastic QFP (28 x 28 mm) | 20 |
-| µPD70732GD-25-LBB | 120-pin plastic QFP (28 x 28 mm) | 25 |
-| µPD70732GC-25-9EV | 120-pin plastic TQFP (Fine pitch) (14 x 14 mm) | 25 |
-| µPD70732R-25 | 176-pin ceramic PGA (Seam weld) | 25 |
+| Part Number       | Package                                        | Max. operating freq. (MHz) |
+| ----------------- | ---------------------------------------------- | -------------------------- |
+| µPD70732GD-16-LBB | 120-pin plastic QFP (28 x 28 mm)               | 16                         |
+| µPD70732GD-20-LBB | 120-pin plastic QFP (28 x 28 mm)               | 20                         |
+| µPD70732GD-25-LBB | 120-pin plastic QFP (28 x 28 mm)               | 25                         |
+| µPD70732GC-25-9EV | 120-pin plastic TQFP (Fine pitch) (14 x 14 mm) | 25                         |
+| µPD70732R-25      | 176-pin ceramic PGA (Seam weld)                | 25                         |
 
 ### System register numbers (§1.5.2, p.6)
 
-| No | System register | Access |
-| --- | --- | --- |
-| 0 | EIPC : Exception/Interrupt PC | read/write enabled |
-| 1 | EIPSW : Exception/Interrupt PSW | read/write enabled |
-| 2 | FEPC : Fatal Error PC | read/write enabled |
-| 3 | FEPSW : Fatal Error PSW | read/write enabled |
-| 4 | ECR : Exception Cause Register | write disabled |
-| 5 | PSW : Program Status Word | read/write enabled |
-| 6 | PIR : Processor ID Register | write disabled |
-| 7 | TKCW : TasK Control Word | write disabled |
-| 8 to 23 | Reserved | operation not guaranteed if accessed |
-| 24 | CHCW : CacHe Control Word | read/write enabled |
-| 25 | ADTRE : ADdress Trap Register for Execution | read/write enabled |
-| 26 to 31 | Reserved | operation not guaranteed if accessed |
+| No       | System register                             | Access                               |
+| -------- | ------------------------------------------- | ------------------------------------ |
+| 0        | EIPC : Exception/Interrupt PC               | read/write enabled                   |
+| 1        | EIPSW : Exception/Interrupt PSW             | read/write enabled                   |
+| 2        | FEPC : Fatal Error PC                       | read/write enabled                   |
+| 3        | FEPSW : Fatal Error PSW                     | read/write enabled                   |
+| 4        | ECR : Exception Cause Register              | write disabled                       |
+| 5        | PSW : Program Status Word                   | read/write enabled                   |
+| 6        | PIR : Processor ID Register                 | write disabled                       |
+| 7        | TKCW : TasK Control Word                    | write disabled                       |
+| 8 to 23  | Reserved                                    | operation not guaranteed if accessed |
+| 24       | CHCW : CacHe Control Word                   | read/write enabled                   |
+| 25       | ADTRE : ADdress Trap Register for Execution | read/write enabled                   |
+| 26 to 31 | Reserved                                    | operation not guaranteed if accessed |
 
 The table's legend reads "— : Write disabled" and notes that read/write-enabled registers "cannot be set in some cases".
 
 ### Bus cycle status encoding (Table 2-1, p.15)
 
-| MRQ | ST1 | ST0 | Type of bus cycle |
-| --- | --- | --- | --- |
-| L | L | L | RFU (reserved area) |
-| L | L | H | Fetch after branch (Note) |
-| L | H | L | Data access |
-| L | H | H | Instruction fetch |
-| H | L | L | RFU (reserved area) |
-| H | L | H | Machine fault acknowledge |
-| H | H | L | I/O access |
-| H | H | H | Halt acknowledge |
+| MRQ | ST1 | ST0 | Type of bus cycle         |
+| --- | --- | --- | ------------------------- |
+| L   | L   | L   | RFU (reserved area)       |
+| L   | L   | H   | Fetch after branch (Note) |
+| L   | H   | L   | Data access               |
+| L   | H   | H   | Instruction fetch         |
+| H   | L   | L   | RFU (reserved area)       |
+| H   | L   | H   | Machine fault acknowledge |
+| H   | H   | L   | I/O access                |
+| H   | H   | H   | Halt acknowledge          |
 
 Note on "Fetch after branch": "Does not output if cache is ON."
 
@@ -287,30 +287,30 @@ Note on "Fetch after branch": "Does not output if cache is ON."
 
 ### Pin status (Table 2-2, p.19)
 
-| Pin | I/O | Bus hold status during operation | Bus hold status at reset | Bus idle status at reset |
-| --- | --- | --- | --- | --- |
-| A31 to A1 | 3-state output | Hi-Z | Hi-Z | H (Note 1) |
-| D15 to D0 (V805 only) | 3-state input/output | Hi-Z | Hi-Z | Hi-Z |
-| D31 to D0 (V810 only) | 3-state input/output | Hi-Z | Hi-Z | Hi-Z |
-| BE1, BE0 (V805 only) | 3-state input/output | Hi-Z | Hi-Z | H |
-| BE3 to BE0 (V810 only) | 3-state output | Hi-Z | Hi-Z | H |
-| ST1, ST0 | 3-state output | Hi-Z | Hi-Z | H |
-| DA | 3-state output | Hi-Z | Hi-Z | H |
-| MRQ | 3-state output | Hi-Z | Hi-Z | H |
-| R/W | 3-state output | Hi-Z | Hi-Z | H |
-| BCYST | 3-state output | Hi-Z | Hi-Z | H |
-| READY | Input | — | — | — |
-| HLDRQ | Input | — | — | — |
-| HLDAK | Output | L | L | H |
-| SZRQ (V810 only) | Input | — | — | — |
-| SIZ16B (V810 only) | Input | — | — | — |
-| BLOCK | Output | L | L | L |
-| ICHEEN (V810 only) | Input | — | — | — |
-| ADRSERR | Output | Not affected | H | H |
-| INT | Input | — | — | — |
-| INTV3 to INTV0 | Input | — | — | — |
-| NMI | Input | — | — | — |
-| CLK | Input | — | — | — |
+| Pin                    | I/O                  | Bus hold status during operation | Bus hold status at reset | Bus idle status at reset |
+| ---------------------- | -------------------- | -------------------------------- | ------------------------ | ------------------------ |
+| A31 to A1              | 3-state output       | Hi-Z                             | Hi-Z                     | H (Note 1)               |
+| D15 to D0 (V805 only)  | 3-state input/output | Hi-Z                             | Hi-Z                     | Hi-Z                     |
+| D31 to D0 (V810 only)  | 3-state input/output | Hi-Z                             | Hi-Z                     | Hi-Z                     |
+| BE1, BE0 (V805 only)   | 3-state input/output | Hi-Z                             | Hi-Z                     | H                        |
+| BE3 to BE0 (V810 only) | 3-state output       | Hi-Z                             | Hi-Z                     | H                        |
+| ST1, ST0               | 3-state output       | Hi-Z                             | Hi-Z                     | H                        |
+| DA                     | 3-state output       | Hi-Z                             | Hi-Z                     | H                        |
+| MRQ                    | 3-state output       | Hi-Z                             | Hi-Z                     | H                        |
+| R/W                    | 3-state output       | Hi-Z                             | Hi-Z                     | H                        |
+| BCYST                  | 3-state output       | Hi-Z                             | Hi-Z                     | H                        |
+| READY                  | Input                | —                                | —                        | —                        |
+| HLDRQ                  | Input                | —                                | —                        | —                        |
+| HLDAK                  | Output               | L                                | L                        | H                        |
+| SZRQ (V810 only)       | Input                | —                                | —                        | —                        |
+| SIZ16B (V810 only)     | Input                | —                                | —                        | —                        |
+| BLOCK                  | Output               | L                                | L                        | L                        |
+| ICHEEN (V810 only)     | Input                | —                                | —                        | —                        |
+| ADRSERR                | Output               | Not affected                     | H                        | H                        |
+| INT                    | Input                | —                                | —                        | —                        |
+| INTV3 to INTV0         | Input                | —                                | —                        | —                        |
+| NMI                    | Input                | —                                | —                        | —                        |
+| CLK                    | Input                | —                                | —                        | —                        |
 
 Note 1: "A1 is 'H' in the 16-bit bus mode; otherwise, it is 'L' (V810 only)."
 
@@ -322,105 +322,105 @@ The table pairs each pin with an I/O circuit type number and a recommended conne
 
 ### Address, data length, byte enable and A1 — 32-bit bus mode (Table 3-1, p.27)
 
-| Data length | Addr bit 1 | Addr bit 0 | BE3 | BE2 | BE1 | BE0 | A1 | Bus cycle sequence |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Byte | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 1 |
-| Byte | 0 | 1 | 1 | 1 | 0 | 1 | 0 | 1 |
-| Byte | 1 | 0 | 1 | 0 | 1 | 1 | 0 | 1 |
-| Byte | 1 | 1 | 0 | 1 | 1 | 1 | 0 | 1 |
-| Halfword | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 |
-| Halfword | 1 | 0 | 0 | 0 | 1 | 1 | 0 | 1 |
-| Word | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
-| Word | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 2 (Note) |
+| Data length | Addr bit 1 | Addr bit 0 | BE3 | BE2 | BE1 | BE0 | A1  | Bus cycle sequence |
+| ----------- | ---------- | ---------- | --- | --- | --- | --- | --- | ------------------ |
+| Byte        | 0          | 0          | 1   | 1   | 1   | 0   | 0   | 1                  |
+| Byte        | 0          | 1          | 1   | 1   | 0   | 1   | 0   | 1                  |
+| Byte        | 1          | 0          | 1   | 0   | 1   | 1   | 0   | 1                  |
+| Byte        | 1          | 1          | 0   | 1   | 1   | 1   | 0   | 1                  |
+| Halfword    | 0          | 0          | 1   | 1   | 0   | 0   | 0   | 1                  |
+| Halfword    | 1          | 0          | 0   | 0   | 1   | 1   | 0   | 1                  |
+| Word        | 0          | 0          | 0   | 0   | 0   | 0   | 0   | 1                  |
+| Word        | 0          | 0          | 0   | 0   | 1   | 1   | 1   | 2 (Note)           |
 
 Note: "Bus cycle added by dynamic bus sizing".
 
 ### Address, data length, byte enable and A1 — 16-bit bus fixed mode (Table 3-3, p.47)
 
-| Data length | Addr bit 1 | Addr bit 0 | BE3 (Note 1) | BE2 (Note 1) | BE1 | BE0 | A1 | Bus cycle sequence |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Byte | 0 | 0 | Hi-Z | Hi-Z | 1 | 0 | 0 | 1 |
-| Byte | 0 | 1 | Hi-Z | Hi-Z | 0 | 1 | 0 | 1 |
-| Byte | 1 | 0 | Hi-Z | Hi-Z | 1 | 0 | 1 | 1 |
-| Byte | 1 | 1 | Hi-Z | Hi-Z | 0 | 1 | 1 | 1 |
-| Halfword | 0 | 0 | Hi-Z | Hi-Z | 0 | 0 | 0 | 1 |
-| Halfword | 1 | 0 | Hi-Z | Hi-Z | 0 | 0 | 1 | 1 |
-| Word | 0 | 0 | Hi-Z | Hi-Z | 0 | 0 | 0 | 1 |
-| Word | 0 | 0 | Hi-Z | Hi-Z | 0 | 0 | 1 | 2 (Note 2) |
+| Data length | Addr bit 1 | Addr bit 0 | BE3 (Note 1) | BE2 (Note 1) | BE1 | BE0 | A1  | Bus cycle sequence |
+| ----------- | ---------- | ---------- | ------------ | ------------ | --- | --- | --- | ------------------ |
+| Byte        | 0          | 0          | Hi-Z         | Hi-Z         | 1   | 0   | 0   | 1                  |
+| Byte        | 0          | 1          | Hi-Z         | Hi-Z         | 0   | 1   | 0   | 1                  |
+| Byte        | 1          | 0          | Hi-Z         | Hi-Z         | 1   | 0   | 1   | 1                  |
+| Byte        | 1          | 1          | Hi-Z         | Hi-Z         | 0   | 1   | 1   | 1                  |
+| Halfword    | 0          | 0          | Hi-Z         | Hi-Z         | 0   | 0   | 0   | 1                  |
+| Halfword    | 1          | 0          | Hi-Z         | Hi-Z         | 0   | 0   | 1   | 1                  |
+| Word        | 0          | 0          | Hi-Z         | Hi-Z         | 0   | 0   | 0   | 1                  |
+| Word        | 0          | 0          | Hi-Z         | Hi-Z         | 0   | 0   | 1   | 2 (Note 2)         |
 
 Note 1: "The V805 does not have these signals." Note 2: "Added bus cycle".
 
 ### Machine fault cycle bus contents — 32-bit bus mode (Table 3-2, p.41)
 
-| Sequence | Address bus (A31 to A1) | Data bus (D31 to D0) |
-| --- | --- | --- |
-| 1 | 00000000H | Cause code of fatal exception (logical sum of FFFF0000H and an exception code) |
-| 2 | 00000004H | Current PSW value |
-| 3 | 00000008H | Current PC value |
+| Sequence | Address bus (A31 to A1) | Data bus (D31 to D0)                                                           |
+| -------- | ----------------------- | ------------------------------------------------------------------------------ |
+| 1        | 00000000H               | Cause code of fatal exception (logical sum of FFFF0000H and an exception code) |
+| 2        | 00000004H               | Current PSW value                                                              |
+| 3        | 00000008H               | Current PC value                                                               |
 
 ### Machine fault cycle bus contents — 16-bit bus fixed mode (Table 3-4, p.58)
 
-| Sequence | Address bus (A31 to A1) | Data bus (D15 to D0) |
-| --- | --- | --- |
-| 1 | 00000000H | Cause code of fatal exception (lower) |
-| 2 | 00000002H | Cause code of fatal exception (higher) (always FFFFH) |
-| 3 | 00000004H | Current PSW value (lower) |
-| 4 | 00000006H | Current PSW value (higher) |
-| 5 | 00000008H | Current PC value (lower) |
-| 6 | 0000000AH | Current PC value (higher) |
+| Sequence | Address bus (A31 to A1) | Data bus (D15 to D0)                                  |
+| -------- | ----------------------- | ----------------------------------------------------- |
+| 1        | 00000000H               | Cause code of fatal exception (lower)                 |
+| 2        | 00000002H               | Cause code of fatal exception (higher) (always FFFFH) |
+| 3        | 00000004H               | Current PSW value (lower)                             |
+| 4        | 00000006H               | Current PSW value (higher)                            |
+| 5        | 00000008H               | Current PC value (lower)                              |
+| 6        | 0000000AH               | Current PC value (higher)                             |
 
 ### Exception codes, handler addresses and restore PC (Table 4-1, p.65)
 
-| Exception and interrupt | Classification | Exception code | Handler address | Restore PC (Note 1) |
-| --- | --- | --- | --- | --- |
-| Reset | Interrupt | FFF0 | FFFFFFF0 | Note 2 |
-| NMI | Interrupt | FFD0 | FFFFFFD0 | next PC (Note 3) |
-| Duplexed exception | Exception | Note 4 | FFFFFFD0 | current PC |
-| Address trap | Exception | FFC0 | FFFFFFC0 | current PC |
-| Trap instruction (parameter is 0x1n) | Exception | FFBn | FFFFFFB0 | next PC |
-| Trap instruction (parameter is 0x0n) | Exception | FFAn | FFFFFFA0 | next PC |
-| Invalid instruction code | Exception | FF90 | FFFFFF90 | current PC |
-| Zero division | Exception | FF80 | FFFFFF80 | current PC |
-| FIV (floating-point invalid operation) | Exception | FF70 | FFFFFF60 | current PC |
-| FZD (floating-point zero division) | Exception | FF68 | FFFFFF60 | current PC |
-| FOV (floating-point overflow) | Exception | FF64 | FFFFFF60 | current PC |
-| FUD (floating-point underflow) | Exception (Note 5) | FF62 | FFFFFF60 | current PC |
-| FPR (floating-point precision degradation) | Exception (Note 5) | FF61 | FFFFFF60 | current PC |
-| FRO (floating-point reserved operand) | Exception | FF60 | FFFFFF60 | current PC |
-| INT level n (n = 0 to 15) | Interrupt | FEn0 | FFFFFEn0 | next PC (Note 3) |
+| Exception and interrupt                    | Classification     | Exception code | Handler address | Restore PC (Note 1) |
+| ------------------------------------------ | ------------------ | -------------- | --------------- | ------------------- |
+| Reset                                      | Interrupt          | FFF0           | FFFFFFF0        | Note 2              |
+| NMI                                        | Interrupt          | FFD0           | FFFFFFD0        | next PC (Note 3)    |
+| Duplexed exception                         | Exception          | Note 4         | FFFFFFD0        | current PC          |
+| Address trap                               | Exception          | FFC0           | FFFFFFC0        | current PC          |
+| Trap instruction (parameter is 0x1n)       | Exception          | FFBn           | FFFFFFB0        | next PC             |
+| Trap instruction (parameter is 0x0n)       | Exception          | FFAn           | FFFFFFA0        | next PC             |
+| Invalid instruction code                   | Exception          | FF90           | FFFFFF90        | current PC          |
+| Zero division                              | Exception          | FF80           | FFFFFF80        | current PC          |
+| FIV (floating-point invalid operation)     | Exception          | FF70           | FFFFFF60        | current PC          |
+| FZD (floating-point zero division)         | Exception          | FF68           | FFFFFF60        | current PC          |
+| FOV (floating-point overflow)              | Exception          | FF64           | FFFFFF60        | current PC          |
+| FUD (floating-point underflow)             | Exception (Note 5) | FF62           | FFFFFF60        | current PC          |
+| FPR (floating-point precision degradation) | Exception (Note 5) | FF61           | FFFFFF60        | current PC          |
+| FRO (floating-point reserved operand)      | Exception          | FF60           | FFFFFF60        | current PC          |
+| INT level n (n = 0 to 15)                  | Interrupt          | FEn0           | FFFFFEn0        | next PC (Note 3)    |
 
 The exception-code and handler-address columns are printed without a trailing "H"; elsewhere the manual writes the same values as FFFFFFF0H and FFFFFFD0H. Note 1: "PC to be saved to EIPC or FEPC." Note 2: "EIPC and FEPC are undefined." Note 3: "While an instruction whose execution is aborted by an interrupt (refer to Table 4-2) is executed, restore PC = current PC." Note 4: "The exception code of the exception that occurs for the first time is stored to the lower 16 bits of the ECR, and that of the second exception is stored in the higher 16 bits." Note 5: "In the V805 and V810, the floating-point underflow exception and floating-point precision degradation exception do not occur."
 
 ### State of each output pin after reset (Table 5-1, p.73)
 
-| Part | Output pins | Pin state |
-| --- | --- | --- |
-| V805 | A31 to A1, BE1, BE0, ST1, ST0, DA, MRQ, R/W, BCYST, ADRSERR, HLDAK (Note) | High-level |
-| V810 | A31 to A2, BE3 to BE0, ST1, ST0, DA, MRQ, R/W, BCYST, ADRSERR, HLDAK (Note) | High-level |
-| V810 | A1 in 16-bit bus mode | High-level |
-| V810 | A1 except 16-bit bus mode | Low-level |
-| V805, V810 | BLOCK | Low-level |
-| V805 | D15 to D0 | High-impedance |
-| V810 | D31 to D0 | High-impedance |
+| Part       | Output pins                                                                 | Pin state      |
+| ---------- | --------------------------------------------------------------------------- | -------------- |
+| V805       | A31 to A1, BE1, BE0, ST1, ST0, DA, MRQ, R/W, BCYST, ADRSERR, HLDAK (Note)   | High-level     |
+| V810       | A31 to A2, BE3 to BE0, ST1, ST0, DA, MRQ, R/W, BCYST, ADRSERR, HLDAK (Note) | High-level     |
+| V810       | A1 in 16-bit bus mode                                                       | High-level     |
+| V810       | A1 except 16-bit bus mode                                                   | Low-level      |
+| V805, V810 | BLOCK                                                                       | Low-level      |
+| V805       | D15 to D0                                                                   | High-impedance |
+| V810       | D31 to D0                                                                   | High-impedance |
 
 Note: "High-level in the states other than bus hold status".
 
 ### Initial value of each register (Table 5-2, p.74)
 
-| Register | Initial Value |
-| --- | --- |
-| r0 | 00000000H |
-| r1 to r31 | Undefined |
-| PC | FFFFFFFFH |
-| EIPC | Undefined |
-| EIPSW | Undefined |
-| FEPC | Undefined |
-| FEPSW | Undefined |
-| ECR | 0000FFF0H |
-| PSW | 00008000H |
-| TKCW | 000000E0H |
-| CHCW | 00000000H |
-| ADTRE | Undefined |
+| Register  | Initial Value |
+| --------- | ------------- |
+| r0        | 00000000H     |
+| r1 to r31 | Undefined     |
+| PC        | FFFFFFFFH     |
+| EIPC      | Undefined     |
+| EIPSW     | Undefined     |
+| FEPC      | Undefined     |
+| FEPSW     | Undefined     |
+| ECR       | 0000FFF0H     |
+| PSW       | 00008000H     |
+| TKCW      | 000000E0H     |
+| CHCW      | 00000000H     |
+| ADTRE     | Undefined     |
 
 ## Constraints and requirements
 

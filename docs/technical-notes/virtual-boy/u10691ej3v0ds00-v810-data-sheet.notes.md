@@ -252,13 +252,13 @@ The document explicitly defers detailed functional description elsewhere: it sta
 
 ### Ordering information (front page)
 
-| Part Number | Package | Max. operating freq. (MHz) |
-| --- | --- | --- |
-| µPD70732GD-16-LBB | 120-pin plastic QFP (28 x 28 mm) | 16 |
-| µPD70732GD-20-LBB | 120-pin plastic QFP (28 x 28 mm) | 20 |
-| µPD70732GD-25-LBB | 120-pin plastic QFP (28 x 28 mm) | 25 |
-| µPD70732GC-25-9EV | 120-pin plastic TQFP (Fine pitch) (14 x 14 mm) | 25 |
-| µPD70732R-25 | 176-pin ceramic PGA (Seam weld) | 25 |
+| Part Number       | Package                                        | Max. operating freq. (MHz) |
+| ----------------- | ---------------------------------------------- | -------------------------- |
+| µPD70732GD-16-LBB | 120-pin plastic QFP (28 x 28 mm)               | 16                         |
+| µPD70732GD-20-LBB | 120-pin plastic QFP (28 x 28 mm)               | 20                         |
+| µPD70732GD-25-LBB | 120-pin plastic QFP (28 x 28 mm)               | 25                         |
+| µPD70732GC-25-9EV | 120-pin plastic TQFP (Fine pitch) (14 x 14 mm) | 25                         |
+| µPD70732R-25      | 176-pin ceramic PGA (Seam weld)                | 25                         |
 
 [Ordering Information]
 
@@ -306,97 +306,97 @@ Row Q: Q1 IC2, Q2 A13, Q3 A14, Q4 A11, Q5 GND, Q6 A7, Q7 IC2, Q8 A4, Q9 IC2, Q10
 
 Flag columns are given in the order CY, OV, S, Z as printed in Table 9-1.
 
-| Instruction | Operand(s) | Format | CY | OV | S | Z | Function (as printed) |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| ADD | reg1, reg2 | I | * | * | * | * | Addition |
-| ADD | imm5, reg2 | II | * | * | * | * | Addition |
-| ADDF.S | reg1, reg2 | VII | * | 0 | * | * | Floating-point addition |
-| ADDI | imm16, reg1, reg2 | V | * | * | * | * | Addition |
-| AND | reg1, reg2 | I | – | 0 | * | * | AND |
-| ANDBSU | – | II | – | – | – | – | Transfer after ANDing bit strings |
-| ANDI | imm16, reg1, reg2 | V | – | 0 | 0 | * | AND |
-| ANDNBSU | – | II | – | – | – | – | Transfer after NOTting a bit string then ANDing it |
-| BC | disp9 | III | – | – | – | – | Conditional branch (if Carry) |
-| BE | disp9 | III | – | – | – | – | Conditional branch (if Equal) |
-| BGE | disp9 | III | – | – | – | – | Conditional branch (if Greater than or Equal) |
-| BGT | disp9 | III | – | – | – | – | Conditional branch (if Greater than) |
-| BH | disp9 | III | – | – | – | – | Conditional branch (if Higher) |
-| BL | disp9 | III | – | – | – | – | Conditional branch (if Lower) |
-| BLE | disp9 | III | – | – | – | – | Conditional branch (if Less than or Equal) |
-| BLT | disp9 | III | – | – | – | – | Conditional branch (if Less than) |
-| BN | disp9 | III | – | – | – | – | Conditional branch (if Negative) |
-| BNC | disp9 | III | – | – | – | – | Conditional branch (if Not Carry) |
-| BNE | disp9 | III | – | – | – | – | Conditional branch (if Not Equal) |
-| BNH | disp9 | III | – | – | – | – | Conditional branch (if Not Higher) |
-| BNL | disp9 | III | – | – | – | – | Conditional branch (if Not Lower) |
-| BNV | disp9 | III | – | – | – | – | Conditional branch (if Not Overflow) |
-| BNZ | disp9 | III | – | – | – | – | Conditional branch (if Not Zero) |
-| BP | disp9 | III | – | – | – | – | Conditional branch (if Positive) |
-| BR | disp9 | III | – | – | – | – | Unconditional branch |
-| BV | disp9 | III | – | – | – | – | Conditional branch (if Overflow) |
-| BZ | disp9 | III | – | – | – | – | Conditional branch (if Zero) |
-| CAXI | disp16 [reg1], reg2 | VI | * | * | * | * | Inter-processor synchronization in a multi-processor |
-| CMP | reg1, reg2 | I | * | * | * | * | Comparison |
-| CMP | imm5, reg2 | II | * | * | * | * | Comparison |
-| CMPF.S | reg1, reg2 | VII | * | 0 | * | * | Floating-point comparison |
-| CVT.SW | reg1, reg2 | VII | – | 0 | * | * | Data conversion from floating-point to integer |
-| CVT.WS | reg1, reg2 | VII | * | 0 | * | * | Data conversion from integer to floating-point |
-| DIV | reg1, reg2 | I | – | * | * | * | Signed division |
-| DIVF.S | reg1, reg2 | VII | * | 0 | * | * | Floating-point division |
-| DIVU | reg1, reg2 | I | – | 0 | * | * | Unsigned division |
-| HALT | – | II | – | – | – | – | Processor stop |
-| IN.B | disp16 [reg1], reg2 | VI | – | – | – | – | Port input |
-| IN.H | disp16 [reg1], reg2 | VI | – | – | – | – | Port input |
-| IN.W | disp16 [reg1], reg2 | VI | – | – | – | – | Port input |
-| JAL | disp26 | IV | – | – | – | – | Jump and link |
-| JMP | [reg1] | I | – | – | – | – | Register-indirect unconditional branch |
-| JR | disp26 | IV | – | – | – | – | Unconditional branch |
-| LD.B | disp16 [reg1], reg2 | VI | – | – | – | – | Byte load |
-| LD.H | disp16 [reg1], reg2 | VI | – | – | – | – | Halfword load |
-| LD.W | disp16 [reg1], reg2 | VI | – | – | – | – | Word load |
-| LDSR | reg2, regID | II | * | * | * | * | Loading system register |
-| MOV | reg1, reg2 | I | – | – | – | – | Transferring data |
-| MOV | imm5, reg2 | II | – | – | – | – | Transferring data |
-| MOVBSU | – | II | – | – | – | – | Transferring bit strings |
-| MOVEA | imm16, reg1, reg2 | V | – | – | – | – | Addition |
-| MOVHI | imm16, reg1, reg2 | V | – | – | – | – | Addition |
-| MUL | reg1, reg2 | I | – | * | * | * | Signed multiplication |
-| MULF.S | reg1, reg2 | VII | * | 0 | * | * | Floating-point multiplication |
-| MULU | reg1, reg2 | I | – | * | * | * | Unsigned multiplication |
-| NOP | – | III | – | – | – | – | No operation |
-| NOT | reg1, reg2 | I | – | 0 | * | * | Logical NOT |
-| NOTBSU | – | II | – | – | – | – | Transfer after NOTting a bit string |
-| OR | reg1, reg2 | I | – | 0 | * | * | OR |
-| ORBSU | – | II | – | – | – | – | Transfer after ORing bit strings |
-| ORI | imm16, reg1, reg2 | V | – | 0 | * | * | OR |
-| ORNBSU | – | II | – | – | – | – | Transfer after NOTting a bit string and ORing it |
-| OUT.B | reg2, disp16 [reg1] | VI | – | – | – | – | Port output |
-| OUT.H | reg2, disp16 [reg1] | VI | – | – | – | – | Port output |
-| OUT.W | reg2, disp16 [reg1] | VI | – | – | – | – | Port output |
-| RETI | – | II | * | * | * | * | Return from a trap or interrupt routine |
-| SAR | reg1, reg2 | I | * | 0 | * | * | Arithmetic right shift |
-| SAR | imm5, reg2 | II | * | 0 | * | * | Arithmetic right shift |
-| SCH0BSU | – | II | – | – | – | * | Searching 0s in a bit string |
-| SCH0BSD | – | II | – | – | – | * | Searches "0" bits in the source bit string, and loads r30 … |
-| SCH1BSU | – | II | – | – | – | – | Searching 1s in a bit string |
-| SCH1BSD | – | II | – | – | – | – | Searches 1s in the source bit string, and loads r30 and … |
-| SETF | imm5, reg2 | II | – | – | – | – | Flag condition setting |
-| SHL | reg1, reg2 | I | * | 0 | * | * | Logical left shift |
-| SHL | imm5, reg2 | II | * | 0 | * | * | Logical left shift |
-| SHR | reg1, reg2 | I | * | 0 | * | * | Logical right shift |
-| SHR | imm5, reg2 | II | * | 0 | * | * | Logical right shift |
-| ST.B | reg2, disp16 [reg1] | VI | – | – | – | – | Byte store |
-| ST.H | reg2, disp16 [reg1] | VI | – | – | – | – | Halfword store |
-| ST.W | reg2, disp16 [reg1] | VI | – | – | – | – | Word store |
-| STSR | regID, reg2 | II | – | – | – | – | Storing system register contents |
-| SUB | reg1, reg2 | I | * | * | * | * | Subtraction |
-| SUBF.S | reg1, reg2 | VII | * | 0 | * | * | Floating-point subtraction |
-| TRAP | vector | II | – | – | – | – | Software trap |
-| TRNC.SW | reg1, reg2 | VII | – | 0 | * | * | Conversion from floating-point data to integer |
-| XOR | reg1, reg2 | I | – | 0 | * | * | Exclusive OR |
-| XORBSU | – | II | – | – | – | – | Transfer of exclusive ORed bit string |
-| XORI | imm16, reg1, reg2 | V | – | 0 | * | * | Exclusive OR |
-| XORNBSU | – | II | – | – | – | – | Transfer after exclusive-ORing a NOTted bit string |
+| Instruction | Operand(s)          | Format | CY  | OV  | S   | Z   | Function (as printed)                                       |
+| ----------- | ------------------- | ------ | --- | --- | --- | --- | ----------------------------------------------------------- |
+| ADD         | reg1, reg2          | I      | *   | *   | *   | *   | Addition                                                    |
+| ADD         | imm5, reg2          | II     | *   | *   | *   | *   | Addition                                                    |
+| ADDF.S      | reg1, reg2          | VII    | *   | 0   | *   | *   | Floating-point addition                                     |
+| ADDI        | imm16, reg1, reg2   | V      | *   | *   | *   | *   | Addition                                                    |
+| AND         | reg1, reg2          | I      | –   | 0   | *   | *   | AND                                                         |
+| ANDBSU      | –                   | II     | –   | –   | –   | –   | Transfer after ANDing bit strings                           |
+| ANDI        | imm16, reg1, reg2   | V      | –   | 0   | 0   | *   | AND                                                         |
+| ANDNBSU     | –                   | II     | –   | –   | –   | –   | Transfer after NOTting a bit string then ANDing it          |
+| BC          | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Carry)                               |
+| BE          | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Equal)                               |
+| BGE         | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Greater than or Equal)               |
+| BGT         | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Greater than)                        |
+| BH          | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Higher)                              |
+| BL          | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Lower)                               |
+| BLE         | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Less than or Equal)                  |
+| BLT         | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Less than)                           |
+| BN          | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Negative)                            |
+| BNC         | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Not Carry)                           |
+| BNE         | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Not Equal)                           |
+| BNH         | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Not Higher)                          |
+| BNL         | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Not Lower)                           |
+| BNV         | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Not Overflow)                        |
+| BNZ         | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Not Zero)                            |
+| BP          | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Positive)                            |
+| BR          | disp9               | III    | –   | –   | –   | –   | Unconditional branch                                        |
+| BV          | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Overflow)                            |
+| BZ          | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Zero)                                |
+| CAXI        | disp16 [reg1], reg2 | VI     | *   | *   | *   | *   | Inter-processor synchronization in a multi-processor        |
+| CMP         | reg1, reg2          | I      | *   | *   | *   | *   | Comparison                                                  |
+| CMP         | imm5, reg2          | II     | *   | *   | *   | *   | Comparison                                                  |
+| CMPF.S      | reg1, reg2          | VII    | *   | 0   | *   | *   | Floating-point comparison                                   |
+| CVT.SW      | reg1, reg2          | VII    | –   | 0   | *   | *   | Data conversion from floating-point to integer              |
+| CVT.WS      | reg1, reg2          | VII    | *   | 0   | *   | *   | Data conversion from integer to floating-point              |
+| DIV         | reg1, reg2          | I      | –   | *   | *   | *   | Signed division                                             |
+| DIVF.S      | reg1, reg2          | VII    | *   | 0   | *   | *   | Floating-point division                                     |
+| DIVU        | reg1, reg2          | I      | –   | 0   | *   | *   | Unsigned division                                           |
+| HALT        | –                   | II     | –   | –   | –   | –   | Processor stop                                              |
+| IN.B        | disp16 [reg1], reg2 | VI     | –   | –   | –   | –   | Port input                                                  |
+| IN.H        | disp16 [reg1], reg2 | VI     | –   | –   | –   | –   | Port input                                                  |
+| IN.W        | disp16 [reg1], reg2 | VI     | –   | –   | –   | –   | Port input                                                  |
+| JAL         | disp26              | IV     | –   | –   | –   | –   | Jump and link                                               |
+| JMP         | [reg1]              | I      | –   | –   | –   | –   | Register-indirect unconditional branch                      |
+| JR          | disp26              | IV     | –   | –   | –   | –   | Unconditional branch                                        |
+| LD.B        | disp16 [reg1], reg2 | VI     | –   | –   | –   | –   | Byte load                                                   |
+| LD.H        | disp16 [reg1], reg2 | VI     | –   | –   | –   | –   | Halfword load                                               |
+| LD.W        | disp16 [reg1], reg2 | VI     | –   | –   | –   | –   | Word load                                                   |
+| LDSR        | reg2, regID         | II     | *   | *   | *   | *   | Loading system register                                     |
+| MOV         | reg1, reg2          | I      | –   | –   | –   | –   | Transferring data                                           |
+| MOV         | imm5, reg2          | II     | –   | –   | –   | –   | Transferring data                                           |
+| MOVBSU      | –                   | II     | –   | –   | –   | –   | Transferring bit strings                                    |
+| MOVEA       | imm16, reg1, reg2   | V      | –   | –   | –   | –   | Addition                                                    |
+| MOVHI       | imm16, reg1, reg2   | V      | –   | –   | –   | –   | Addition                                                    |
+| MUL         | reg1, reg2          | I      | –   | *   | *   | *   | Signed multiplication                                       |
+| MULF.S      | reg1, reg2          | VII    | *   | 0   | *   | *   | Floating-point multiplication                               |
+| MULU        | reg1, reg2          | I      | –   | *   | *   | *   | Unsigned multiplication                                     |
+| NOP         | –                   | III    | –   | –   | –   | –   | No operation                                                |
+| NOT         | reg1, reg2          | I      | –   | 0   | *   | *   | Logical NOT                                                 |
+| NOTBSU      | –                   | II     | –   | –   | –   | –   | Transfer after NOTting a bit string                         |
+| OR          | reg1, reg2          | I      | –   | 0   | *   | *   | OR                                                          |
+| ORBSU       | –                   | II     | –   | –   | –   | –   | Transfer after ORing bit strings                            |
+| ORI         | imm16, reg1, reg2   | V      | –   | 0   | *   | *   | OR                                                          |
+| ORNBSU      | –                   | II     | –   | –   | –   | –   | Transfer after NOTting a bit string and ORing it            |
+| OUT.B       | reg2, disp16 [reg1] | VI     | –   | –   | –   | –   | Port output                                                 |
+| OUT.H       | reg2, disp16 [reg1] | VI     | –   | –   | –   | –   | Port output                                                 |
+| OUT.W       | reg2, disp16 [reg1] | VI     | –   | –   | –   | –   | Port output                                                 |
+| RETI        | –                   | II     | *   | *   | *   | *   | Return from a trap or interrupt routine                     |
+| SAR         | reg1, reg2          | I      | *   | 0   | *   | *   | Arithmetic right shift                                      |
+| SAR         | imm5, reg2          | II     | *   | 0   | *   | *   | Arithmetic right shift                                      |
+| SCH0BSU     | –                   | II     | –   | –   | –   | *   | Searching 0s in a bit string                                |
+| SCH0BSD     | –                   | II     | –   | –   | –   | *   | Searches "0" bits in the source bit string, and loads r30 … |
+| SCH1BSU     | –                   | II     | –   | –   | –   | –   | Searching 1s in a bit string                                |
+| SCH1BSD     | –                   | II     | –   | –   | –   | –   | Searches 1s in the source bit string, and loads r30 and …   |
+| SETF        | imm5, reg2          | II     | –   | –   | –   | –   | Flag condition setting                                      |
+| SHL         | reg1, reg2          | I      | *   | 0   | *   | *   | Logical left shift                                          |
+| SHL         | imm5, reg2          | II     | *   | 0   | *   | *   | Logical left shift                                          |
+| SHR         | reg1, reg2          | I      | *   | 0   | *   | *   | Logical right shift                                         |
+| SHR         | imm5, reg2          | II     | *   | 0   | *   | *   | Logical right shift                                         |
+| ST.B        | reg2, disp16 [reg1] | VI     | –   | –   | –   | –   | Byte store                                                  |
+| ST.H        | reg2, disp16 [reg1] | VI     | –   | –   | –   | –   | Halfword store                                              |
+| ST.W        | reg2, disp16 [reg1] | VI     | –   | –   | –   | –   | Word store                                                  |
+| STSR        | regID, reg2         | II     | –   | –   | –   | –   | Storing system register contents                            |
+| SUB         | reg1, reg2          | I      | *   | *   | *   | *   | Subtraction                                                 |
+| SUBF.S      | reg1, reg2          | VII    | *   | 0   | *   | *   | Floating-point subtraction                                  |
+| TRAP        | vector              | II     | –   | –   | –   | –   | Software trap                                               |
+| TRNC.SW     | reg1, reg2          | VII    | –   | 0   | *   | *   | Conversion from floating-point data to integer              |
+| XOR         | reg1, reg2          | I      | –   | 0   | *   | *   | Exclusive OR                                                |
+| XORBSU      | –                   | II     | –   | –   | –   | –   | Transfer of exclusive ORed bit string                       |
+| XORI        | imm16, reg1, reg2   | V      | –   | 0   | *   | *   | Exclusive OR                                                |
+| XORNBSU     | –                   | II     | –   | –   | –   | –   | Transfer after exclusive-ORing a NOTted bit string          |
 
 [Table 9-1 (1/9) through (9/9)]
 
@@ -406,35 +406,35 @@ Flag columns are given in the order CY, OV, S, Z as printed in Table 9-1.
 
 Absolute Maximum Ratings (TA = 25°C):
 
-| Parameter | Symbol | Test Conditions | Rating | Unit |
-| --- | --- | --- | --- | --- |
-| Supply voltage | VDD | | –0.5 to +7.0 | V |
-| Input voltage | VI | VDD = +5 V ± 10% | –0.5 to VDD + 0.3 | V |
-| Clock Input voltage | VK | VDD = +5 V ± 10% | –0.5 to VDD + 0.3 | V |
-| Output voltage | VO | VDD = +5 V ± 10% | –0.5 to VDD + 0.3 | V |
-| Operating ambient temperature | TA | | –10 to +70 | °C |
-| Storage temperature | Tstg | | –65 to +150 | °C |
+| Parameter                     | Symbol | Test Conditions  | Rating            | Unit |
+| ----------------------------- | ------ | ---------------- | ----------------- | ---- |
+| Supply voltage                | VDD    |                  | –0.5 to +7.0      | V    |
+| Input voltage                 | VI     | VDD = +5 V ± 10% | –0.5 to VDD + 0.3 | V    |
+| Clock Input voltage           | VK     | VDD = +5 V ± 10% | –0.5 to VDD + 0.3 | V    |
+| Output voltage                | VO     | VDD = +5 V ± 10% | –0.5 to VDD + 0.3 | V    |
+| Operating ambient temperature | TA     |                  | –10 to +70        | °C   |
+| Storage temperature           | Tstg   |                  | –65 to +150       | °C   |
 
 [§10.1(1) Absolute Maximum Ratings]
 
 DC Characteristics (TA = –10 to +70°C, VDD = +5V ± 10%):
 
-| Parameter | Symbol | Test Conditions | MIN. | TYP. | MAX. | Unit |
-| --- | --- | --- | --- | --- | --- | --- |
-| Clock input voltage, high | VKH | | 4.0 | | VDD + 0.3 | V |
-| Clock input voltage, low | VKL | | –0.5 | | +0.6 | V |
-| Input voltage, high | VIH | | 2.2 | | VDD + 0.3 | V |
-| Input voltage, low | VIL | | –0.5 | | +0.8 | V |
-| Output voltage, high | VOH | IOH = –400 µA | 2.4 | | | V |
-| Output voltage, low | VOL | IOL = 3.2 mA | | | 0.45 | V |
-| Input leak current, high | ILIH | VIN = VDD | | | 10 | µA |
-| Input leak current, low | ILIL | VIN = 0 V | | | –10 | µA |
-| Output leak current, high | ILOH | VO = VDD | | | 10 | µA |
-| Output leak current, low | ILOL | VO = 0 V | | | –10 | µA |
-| Supply current | IDD | f = 16 MHz | | 64 (Note 2) | 160 | mA |
-| Supply current | IDD | f = 20 MHz | | 80 (Note 2) | 200 | mA |
-| Supply current | IDD | f = 25 MHz | | 100 (Note 2) | 240 | mA |
-| Supply current | IDD | Stopping clock (Note 1) | | 5 | | µA |
+| Parameter                 | Symbol | Test Conditions         | MIN. | TYP.         | MAX.      | Unit |
+| ------------------------- | ------ | ----------------------- | ---- | ------------ | --------- | ---- |
+| Clock input voltage, high | VKH    |                         | 4.0  |              | VDD + 0.3 | V    |
+| Clock input voltage, low  | VKL    |                         | –0.5 |              | +0.6      | V    |
+| Input voltage, high       | VIH    |                         | 2.2  |              | VDD + 0.3 | V    |
+| Input voltage, low        | VIL    |                         | –0.5 |              | +0.8      | V    |
+| Output voltage, high      | VOH    | IOH = –400 µA           | 2.4  |              |           | V    |
+| Output voltage, low       | VOL    | IOL = 3.2 mA            |      |              | 0.45      | V    |
+| Input leak current, high  | ILIH   | VIN = VDD               |      |              | 10        | µA   |
+| Input leak current, low   | ILIL   | VIN = 0 V               |      |              | –10       | µA   |
+| Output leak current, high | ILOH   | VO = VDD                |      |              | 10        | µA   |
+| Output leak current, low  | ILOL   | VO = 0 V                |      |              | –10       | µA   |
+| Supply current            | IDD    | f = 16 MHz              |      | 64 (Note 2)  | 160       | mA   |
+| Supply current            | IDD    | f = 20 MHz              |      | 80 (Note 2)  | 200       | mA   |
+| Supply current            | IDD    | f = 25 MHz              |      | 100 (Note 2) | 240       | mA   |
+| Supply current            | IDD    | Stopping clock (Note 1) |      | 5            |           | µA   |
 
 Note 1: VIL = 0 V, VIH = VDD applied. Note 2: In general benchmark test (Output pins are open.) [§10.1(1) DC Characteristics].
 
@@ -442,49 +442,49 @@ Capacitance (TA = 25°C, VDD = +5 V ± 10%): Input capacitance CI, fC = 1 MHz, M
 
 AC Characteristics, Clock Input (TA = –10 to +70°C, VDD = +5V ± 10%), values are MIN. unless the table gives a MAX.:
 
-| Parameter | Symbol | µPD70732-16 | µPD70732-20 | µPD70732-25 | Unit |
-| --- | --- | --- | --- | --- | --- |
-| Clock cycle | tCYK | 62.5 | 50 | 40 | ns |
-| Clock pulse high-level width | tKKH | 26 | 21 | 17 | ns |
-| Clock pulse low-level width | tKKL | 26 | 21 | 17 | ns |
-| Clock rise time | tKR | 5 | 4 | 3 | ns |
-| Clock fall time | tKF | 5 | 4 | 3 | ns |
+| Parameter                    | Symbol | µPD70732-16 | µPD70732-20 | µPD70732-25 | Unit |
+| ---------------------------- | ------ | ----------- | ----------- | ----------- | ---- |
+| Clock cycle                  | tCYK   | 62.5        | 50          | 40          | ns   |
+| Clock pulse high-level width | tKKH   | 26          | 21          | 17          | ns   |
+| Clock pulse low-level width  | tKKL   | 26          | 21          | 17          | ns   |
+| Clock rise time              | tKR    | 5           | 4           | 3           | ns   |
+| Clock fall time              | tKF    | 5           | 4           | 3           | ns   |
 
 [§10.1(1) AC Characteristics, Clock Input]
 
 AC Characteristics, Reset:
 
-| Parameter | Symbol | µPD70732-16 | µPD70732-20 | µPD70732-25 | Unit |
-| --- | --- | --- | --- | --- | --- |
-| RESET hold time (from VDD VALID) | tHVR | MIN. 1000 + 20 tCYKR | MIN. 1000 + 20 tCYKR | MIN. 1000 + 20 tCYKR | ns |
-| Clock cycle (at reset) | tCYKR | MIN. 62.5 / MAX. 1000 | MIN. 50 / MAX. 1000 | MIN. 40 / MAX. 1000 | ns |
-| Clock high-level time (at reset) | tKKHR | MIN. 26 | MIN. 21 | MIN. 17 | ns |
-| Clock low-level time (at reset) | tKKLR | MIN. 26 | MIN. 21 | MIN. 17 | ns |
-| RESET setup time (to CLK↓, active) | tSRKF | MIN. 10 | MIN. 10 | MIN. 10 | ns |
-| RESET setup time (to CLK↓, inactive) | tSRKR | MIN. 10 | MIN. 10 | MIN. 10 | ns |
-| RESET hold time (from CLK↓) | tHKR | MIN. 10 | MIN. 10 | MIN. 10 | ns |
-| RESET pulse low-level width (to CLK↓) | tWRL | MIN. 20 tCYKR | MIN. 20 tCYKR | MIN. 20 tCYKR | ns |
+| Parameter                             | Symbol | µPD70732-16           | µPD70732-20          | µPD70732-25          | Unit |
+| ------------------------------------- | ------ | --------------------- | -------------------- | -------------------- | ---- |
+| RESET hold time (from VDD VALID)      | tHVR   | MIN. 1000 + 20 tCYKR  | MIN. 1000 + 20 tCYKR | MIN. 1000 + 20 tCYKR | ns   |
+| Clock cycle (at reset)                | tCYKR  | MIN. 62.5 / MAX. 1000 | MIN. 50 / MAX. 1000  | MIN. 40 / MAX. 1000  | ns   |
+| Clock high-level time (at reset)      | tKKHR  | MIN. 26               | MIN. 21              | MIN. 17              | ns   |
+| Clock low-level time (at reset)       | tKKLR  | MIN. 26               | MIN. 21              | MIN. 17              | ns   |
+| RESET setup time (to CLK↓, active)    | tSRKF  | MIN. 10               | MIN. 10              | MIN. 10              | ns   |
+| RESET setup time (to CLK↓, inactive)  | tSRKR  | MIN. 10               | MIN. 10              | MIN. 10              | ns   |
+| RESET hold time (from CLK↓)           | tHKR   | MIN. 10               | MIN. 10              | MIN. 10              | ns   |
+| RESET pulse low-level width (to CLK↓) | tWRL   | MIN. 20 tCYKR         | MIN. 20 tCYKR        | MIN. 20 tCYKR        | ns   |
 
 [§10.1(1) AC Characteristics, Reset]
 
 AC Characteristics, Memory/I/O Access (MIN./MAX. pairs per part):
 
-| Parameter | Symbol | µPD70732-16 | µPD70732-20 | µPD70732-25 | Unit |
-| --- | --- | --- | --- | --- | --- |
-| Address, etc. output delay time (from CLK) | tDKA | 2 / 20 | 2 / 15 | 2 / 15 | ns |
-| Address, etc. output hold time (from CLK) | tHKA | 2 / 20 | 2 / 15 | 2 / 15 | ns |
-| BCYST output delay time (from CLK) | tDKBC | 2 / 20 | 2 / 15 | 2 / 15 | ns |
-| BCYST output hold time (from CLK) | tHKBC | 2 / 20 | 2 / 15 | 2 / 15 | ns |
-| DA output delay time (from CLK) | tDKDA | 2 / 20 | 2 / 15 | 2 / 15 | ns |
-| DA output hold time (from CLK) | tHKDA | 2 / 20 | 2 / 15 | 2 / 15 | ns |
-| READY setup time (to CLK) | tSRYK | 6 / — | 5 / — | 4 / — | ns |
-| READY hold time (from CLK) | tHKRY | 5 / — | 5 / — | 4 / — | ns |
-| Data setup time (to CLK) | tSDK | 6 / — | 5 / — | 4 / — | ns |
-| Data hold time (from CLK) | tHKD | 5 / — | 5 / — | 4 / — | ns |
-| Data output delay time (from active, from CLK) | tDKDT | 2 / 20 | 2 / 15 | 2 / 15 | ns |
-| Data output hold time (to active, from CLK) | tHKDT | 2 / 20 | 2 / 15 | 2 / 15 | ns |
-| Data output delay time (from float, from CLK) | tLZKDT | 5 / 25 | 5 / 20 | 5 / 20 | ns |
-| Data output hold time (to float, from CLK) | tHZKDT | 5 / 25 | 5 / 20 | 5 / 20 | ns |
+| Parameter                                      | Symbol | µPD70732-16 | µPD70732-20 | µPD70732-25 | Unit |
+| ---------------------------------------------- | ------ | ----------- | ----------- | ----------- | ---- |
+| Address, etc. output delay time (from CLK)     | tDKA   | 2 / 20      | 2 / 15      | 2 / 15      | ns   |
+| Address, etc. output hold time (from CLK)      | tHKA   | 2 / 20      | 2 / 15      | 2 / 15      | ns   |
+| BCYST output delay time (from CLK)             | tDKBC  | 2 / 20      | 2 / 15      | 2 / 15      | ns   |
+| BCYST output hold time (from CLK)              | tHKBC  | 2 / 20      | 2 / 15      | 2 / 15      | ns   |
+| DA output delay time (from CLK)                | tDKDA  | 2 / 20      | 2 / 15      | 2 / 15      | ns   |
+| DA output hold time (from CLK)                 | tHKDA  | 2 / 20      | 2 / 15      | 2 / 15      | ns   |
+| READY setup time (to CLK)                      | tSRYK  | 6 / —       | 5 / —       | 4 / —       | ns   |
+| READY hold time (from CLK)                     | tHKRY  | 5 / —       | 5 / —       | 4 / —       | ns   |
+| Data setup time (to CLK)                       | tSDK   | 6 / —       | 5 / —       | 4 / —       | ns   |
+| Data hold time (from CLK)                      | tHKD   | 5 / —       | 5 / —       | 4 / —       | ns   |
+| Data output delay time (from active, from CLK) | tDKDT  | 2 / 20      | 2 / 15      | 2 / 15      | ns   |
+| Data output hold time (to active, from CLK)    | tHKDT  | 2 / 20      | 2 / 15      | 2 / 15      | ns   |
+| Data output delay time (from float, from CLK)  | tLZKDT | 5 / 25      | 5 / 20      | 5 / 20      | ns   |
+| Data output hold time (to float, from CLK)     | tHZKDT | 5 / 25      | 5 / 20      | 5 / 20      | ns   |
 
 [§10.1(1) AC Characteristics, Memory, I/O Access]
 
@@ -494,20 +494,20 @@ AC Characteristics, Interrupt: NMI setup time (to CLK) tSNK MIN. 6 / 5 / 4 ns; N
 
 AC Characteristics, Bus Hold (MIN./MAX. per part, -16 / -20 / -25):
 
-| Parameter | Symbol | µPD70732-16 | µPD70732-20 | µPD70732-25 | Unit |
-| --- | --- | --- | --- | --- | --- |
-| HLDRQ setup time (to CLK) | tSHQK | 6 / — | 5 / — | 4 / — | ns |
-| HLDRQ hold time (from CLK) | tHKHQ | 5 / — | 5 / — | 4 / — | ns |
-| HLDAK output delay time (from CLK) | tDKHA | 2 / 20 | 2 / 15 | 2 / 15 | ns |
-| HLDAK output hold time (from CLK) | tHKHA | 2 / 20 | 2 / 15 | 2 / 15 | ns |
-| Address, etc. delay time (from active, from CLK) | tHZKA | 2 / 25 | 2 / 20 | 2 / 20 | ns |
-| Address, etc. delay time (from float, from CLK) | tLZKA | 2 / 25 | 2 / 20 | 2 / 20 | ns |
-| Data delay time (from active, from CLK) | tHZKD | 5 / 25 | 5 / 20 | 5 / 20 | ns |
-| Data delay time (from float, from CLK) | tLZKD | 5 / 25 | 5 / 20 | 5 / 20 | ns |
-| BCYST delay time (from active, from CLK) | tHZKBC | 2 / 25 | 2 / 20 | 2 / 20 | ns |
-| BCYST delay time (from float, from CLK) | tLZKBC | 2 / 25 | 2 / 20 | 2 / 20 | ns |
-| DA delay time (from active, from CLK) | tHZKDA | 2 / 25 | 2 / 20 | 2 / 20 | ns |
-| DA delay time (from float, from CLK) | tLZKDA | 2 / 25 | 2 / 20 | 2 / 20 | ns |
+| Parameter                                        | Symbol | µPD70732-16 | µPD70732-20 | µPD70732-25 | Unit |
+| ------------------------------------------------ | ------ | ----------- | ----------- | ----------- | ---- |
+| HLDRQ setup time (to CLK)                        | tSHQK  | 6 / —       | 5 / —       | 4 / —       | ns   |
+| HLDRQ hold time (from CLK)                       | tHKHQ  | 5 / —       | 5 / —       | 4 / —       | ns   |
+| HLDAK output delay time (from CLK)               | tDKHA  | 2 / 20      | 2 / 15      | 2 / 15      | ns   |
+| HLDAK output hold time (from CLK)                | tHKHA  | 2 / 20      | 2 / 15      | 2 / 15      | ns   |
+| Address, etc. delay time (from active, from CLK) | tHZKA  | 2 / 25      | 2 / 20      | 2 / 20      | ns   |
+| Address, etc. delay time (from float, from CLK)  | tLZKA  | 2 / 25      | 2 / 20      | 2 / 20      | ns   |
+| Data delay time (from active, from CLK)          | tHZKD  | 5 / 25      | 5 / 20      | 5 / 20      | ns   |
+| Data delay time (from float, from CLK)           | tLZKD  | 5 / 25      | 5 / 20      | 5 / 20      | ns   |
+| BCYST delay time (from active, from CLK)         | tHZKBC | 2 / 25      | 2 / 20      | 2 / 20      | ns   |
+| BCYST delay time (from float, from CLK)          | tLZKBC | 2 / 25      | 2 / 20      | 2 / 20      | ns   |
+| DA delay time (from active, from CLK)            | tHZKDA | 2 / 25      | 2 / 20      | 2 / 20      | ns   |
+| DA delay time (from float, from CLK)             | tLZKDA | 2 / 25      | 2 / 20      | 2 / 20      | ns   |
 
 [§10.1(1) Bus Hold]
 
@@ -569,48 +569,48 @@ AC Characteristics, Bus Hold (MIN./MAX. per part, -16 / -20 / -25):
 
 120-pin plastic QFP (28 x 28), package code P120GD-80-LBB, MBB-1:
 
-| ITEM | MILLIMETERS | INCHES |
-| --- | --- | --- |
-| A | 32.0±0.3 | 1.260±0.012 |
-| B | 28.0±0.2 | 1.102 +0.009 / –0.008 |
-| C | 28.0±0.2 | 1.102 +0.009 / –0.008 |
-| D | 32.0±0.3 | 1.260±0.012 |
-| F | 2.4 | 0.094 |
-| G | 2.4 | 0.094 |
-| H | 0.35±0.10 | 0.014 +0.004 / –0.005 |
-| I | 0.15 | 0.006 |
-| J | 0.8 (T.P.) | 0.031 (T.P.) |
-| K | 2.0±0.2 | 0.079 +0.009 / –0.008 |
-| L | 0.8±0.2 | 0.031 +0.009 / –0.008 |
-| M | 0.15 +0.10 / –0.05 | 0.006 +0.004 / –0.003 |
-| N | 0.1 | 0.004 |
-| P | 3.2 | 0.126 |
-| Q | 0.1±0.1 | 0.004±0.004 |
-| R | 5°±5° | 5°±5° |
-| S | 3.5 MAX. | 0.138 MAX. |
+| ITEM | MILLIMETERS        | INCHES                |
+| ---- | ------------------ | --------------------- |
+| A    | 32.0±0.3           | 1.260±0.012           |
+| B    | 28.0±0.2           | 1.102 +0.009 / –0.008 |
+| C    | 28.0±0.2           | 1.102 +0.009 / –0.008 |
+| D    | 32.0±0.3           | 1.260±0.012           |
+| F    | 2.4                | 0.094                 |
+| G    | 2.4                | 0.094                 |
+| H    | 0.35±0.10          | 0.014 +0.004 / –0.005 |
+| I    | 0.15               | 0.006                 |
+| J    | 0.8 (T.P.)         | 0.031 (T.P.)          |
+| K    | 2.0±0.2            | 0.079 +0.009 / –0.008 |
+| L    | 0.8±0.2            | 0.031 +0.009 / –0.008 |
+| M    | 0.15 +0.10 / –0.05 | 0.006 +0.004 / –0.003 |
+| N    | 0.1                | 0.004                 |
+| P    | 3.2                | 0.126                 |
+| Q    | 0.1±0.1            | 0.004±0.004           |
+| R    | 5°±5°              | 5°±5°                 |
+| S    | 3.5 MAX.           | 0.138 MAX.            |
 
 The QFP drawing carries the note that each lead centerline is located within 0.15 mm (0.006 inch) of its true position (T.P.) at maximum material condition [§11, 120-pin plastic QFP].
 
 120-pin plastic TQFP (Fine pitch) (14 x 14), package code S120GC-40-9EV:
 
-| ITEM | MILLIMETERS | INCHES |
-| --- | --- | --- |
-| A | 16.0±0.2 | 0.630±0.008 |
-| B | 14.0±0.2 | 0.551 +0.009 / –0.008 |
-| C | 14.0±0.2 | 0.551 +0.009 / –0.008 |
-| D | 16.0±0.2 | 0.630±0.008 |
-| F | 1.2 | 0.047 |
-| G | 1.2 | 0.047 |
-| H | 0.18±0.05 | 0.007±0.002 |
-| I | 0.09 | 0.004 |
-| J | 0.4 (T.P.) | 0.016 (T.P.) |
-| K | 1.0±0.2 | 0.039 +0.009 / –0.008 |
-| L | 0.5±0.2 | 0.020 +0.008 / –0.009 |
-| M | 0.145±0.05 | 0.006 +0.002 / –0.003 |
-| N | 0.08 | 0.003 |
-| P | 1.0±0.1 | 0.039 +0.005 / –0.004 |
-| Q | 0.1±0.05 | 0.004±0.002 |
-| S | 1.2 MAX. | 0.048 MAX. |
+| ITEM | MILLIMETERS | INCHES                |
+| ---- | ----------- | --------------------- |
+| A    | 16.0±0.2    | 0.630±0.008           |
+| B    | 14.0±0.2    | 0.551 +0.009 / –0.008 |
+| C    | 14.0±0.2    | 0.551 +0.009 / –0.008 |
+| D    | 16.0±0.2    | 0.630±0.008           |
+| F    | 1.2         | 0.047                 |
+| G    | 1.2         | 0.047                 |
+| H    | 0.18±0.05   | 0.007±0.002           |
+| I    | 0.09        | 0.004                 |
+| J    | 0.4 (T.P.)  | 0.016 (T.P.)          |
+| K    | 1.0±0.2     | 0.039 +0.009 / –0.008 |
+| L    | 0.5±0.2     | 0.020 +0.008 / –0.009 |
+| M    | 0.145±0.05  | 0.006 +0.002 / –0.003 |
+| N    | 0.08        | 0.003                 |
+| P    | 1.0±0.1     | 0.039 +0.005 / –0.004 |
+| Q    | 0.1±0.05    | 0.004±0.002           |
+| S    | 1.2 MAX.    | 0.048 MAX.            |
 
 The TQFP drawing carries the note that each lead centerline is located within 0.09 mm (0.004 inch) of its true position (T.P.) at maximum material condition [§11, 120-pin plastic TQFP].
 
@@ -620,22 +620,22 @@ The TQFP drawing carries the note that each lead centerline is located within 0.
 
 Table 12-1, surface mounting, (1) µPD70732GD-16-LBB / µPD70732GD-20-LBB / µPD70732GD-25-LBB, 120-pin plastic QFP (28 x 28 mm), headed "E specification model only":
 
-| Soldering Method | Soldering Conditions | Recommended condition symbol |
-| --- | --- | --- |
-| Infrared reflow | Package peak temperature 235°C, duration 30 sec. Max. (at 210°C or above), number of times: Twice Max., time limit 7 days (Note) | IR35-367-2 (thereafter 36 hours prebaking) |
-| VPS | Package peak temperature 215°C, duration 40 sec. Max. (at 200°C or above), number of times: Twice Max., time limit 7 days (Note) | VP15-367-2 (thereafter 36 hours prebaking) |
-| Wave soldering | Solder bath temperature 260°C Max., duration 10 sec. Max., number of times: Once, time limit 7 days (Note) | WS60-367-1 (thereafter 36 hours prebaking required) |
-| Partial heating | Pin temperature 300°C Max., duration 3 sec. Max. (per device side) | — |
+| Soldering Method | Soldering Conditions                                                                                                             | Recommended condition symbol                        |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| Infrared reflow  | Package peak temperature 235°C, duration 30 sec. Max. (at 210°C or above), number of times: Twice Max., time limit 7 days (Note) | IR35-367-2 (thereafter 36 hours prebaking)          |
+| VPS              | Package peak temperature 215°C, duration 40 sec. Max. (at 200°C or above), number of times: Twice Max., time limit 7 days (Note) | VP15-367-2 (thereafter 36 hours prebaking)          |
+| Wave soldering   | Solder bath temperature 260°C Max., duration 10 sec. Max., number of times: Once, time limit 7 days (Note)                       | WS60-367-1 (thereafter 36 hours prebaking required) |
+| Partial heating  | Pin temperature 300°C Max., duration 3 sec. Max. (per device side)                                                               | —                                                   |
 
 [Table 12-1(1)]
 
 Table 12-1, surface mounting, (2) µPD70732GC-25-9EV, 120-pin plastic TQFP (Fine pitch) (14 x 14 mm):
 
-| Soldering Method | Soldering Conditions | Recommended condition symbol |
-| --- | --- | --- |
-| Infrared reflow | Package peak temperature 235°C, duration 30 sec. Max. (at 210°C or above), number of times: Twice Max., time limit 7 days (Note) | IR35-107-2 (thereafter 10 hours prebaking) |
-| VPS | Package peak temperature 215°C, duration 40 sec. Max. (at 200°C or above), number of times: Twice Max., time limit 7 days (Note) | VP15-107-2 (thereafter 10 hours prebaking) |
-| Partial heating | Pin temperature 300°C Max., duration 3 sec. Max. (per device side) | — |
+| Soldering Method | Soldering Conditions                                                                                                             | Recommended condition symbol               |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| Infrared reflow  | Package peak temperature 235°C, duration 30 sec. Max. (at 210°C or above), number of times: Twice Max., time limit 7 days (Note) | IR35-107-2 (thereafter 10 hours prebaking) |
+| VPS              | Package peak temperature 215°C, duration 40 sec. Max. (at 200°C or above), number of times: Twice Max., time limit 7 days (Note) | VP15-107-2 (thereafter 10 hours prebaking) |
+| Partial heating  | Pin temperature 300°C Max., duration 3 sec. Max. (per device side)                                                               | —                                          |
 
 [Table 12-1(2)]
 

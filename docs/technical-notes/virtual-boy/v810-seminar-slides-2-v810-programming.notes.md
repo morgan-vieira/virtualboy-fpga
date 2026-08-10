@@ -37,21 +37,21 @@ The deck is written around short assembler listings and measured execution times
 
 Verbatim table. [slide 3]
 
-| Register | Name | Note |
-| --- | --- | --- |
-| r0 | Zero Register | Hardware Zero. |
-| r1 | Reserved for Assembler | Assembler, linker and System reserved. (depend on individual software tools) |
-| r2 | Handler Stack Pointer (hsp) | Assembler, linker and System reserved. (depend on individual software tools) |
-| r3 | Stack Pointer (sp) | Assembler, linker and System reserved. (depend on individual software tools) |
-| r4 | Global Pointer (gp) | Assembler, linker and System reserved. (depend on individual software tools) |
-| r5 | Text Pointer (tp) | Assembler, linker and System reserved. (depend on individual software tools) |
-| r6 ~ r25 | (no name given) | (no note given) |
-| r26 | String Destination Bit Offset | Parameters and work registers for Bit string Instructions. |
-| r27 | String Source Bit Offset | Parameters and work registers for Bit string Instructions. |
-| r28 | String Length | Parameters and work registers for Bit string Instructions. |
-| r29 | String Destination | Parameters and work registers for Bit string Instructions. |
-| r30 | String Source (\*) | Parameters and work registers for Bit string Instructions. |
-| r31 | Link Pointer (lp) | "Jal" saves return address. |
+| Register | Name                          | Note                                                                         |
+| -------- | ----------------------------- | ---------------------------------------------------------------------------- |
+| r0       | Zero Register                 | Hardware Zero.                                                               |
+| r1       | Reserved for Assembler        | Assembler, linker and System reserved. (depend on individual software tools) |
+| r2       | Handler Stack Pointer (hsp)   | Assembler, linker and System reserved. (depend on individual software tools) |
+| r3       | Stack Pointer (sp)            | Assembler, linker and System reserved. (depend on individual software tools) |
+| r4       | Global Pointer (gp)           | Assembler, linker and System reserved. (depend on individual software tools) |
+| r5       | Text Pointer (tp)             | Assembler, linker and System reserved. (depend on individual software tools) |
+| r6 ~ r25 | (no name given)               | (no note given)                                                              |
+| r26      | String Destination Bit Offset | Parameters and work registers for Bit string Instructions.                   |
+| r27      | String Source Bit Offset      | Parameters and work registers for Bit string Instructions.                   |
+| r28      | String Length                 | Parameters and work registers for Bit string Instructions.                   |
+| r29      | String Destination            | Parameters and work registers for Bit string Instructions.                   |
+| r30      | String Source (\*)            | Parameters and work registers for Bit string Instructions.                   |
+| r31      | Link Pointer (lp)             | "Jal" saves return address.                                                  |
 
 - Footnote: "(\*) r30 also used by 'caxi', 'mul', 'mulu', 'div' and 'divu'." [slide 3]
 

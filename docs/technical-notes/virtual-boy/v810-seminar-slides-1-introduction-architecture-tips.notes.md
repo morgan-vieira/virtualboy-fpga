@@ -81,17 +81,17 @@ Nine bullets, verbatim. [slide 10]
 
 Verbatim category/function table. [slide 15]
 
-| Category | Function |
-| --- | --- |
-| Data transfer | General reg ↔ General reg; General reg ↔ Memory |
-| I/O | Input, Output |
+| Category             | Function                                                                  |
+| -------------------- | ------------------------------------------------------------------------- |
+| Data transfer        | General reg ↔ General reg; General reg ↔ Memory                           |
+| I/O                  | Input, Output                                                             |
 | Arithmetic / Logical | Signed/ Unsigned add, sub, mul,, div; Compare; And, Or, Not, Exclusive-Or |
-| Shift | Logical shift, Arithmetic shift |
-| System | System Register load / store |
-| Bitstring | Move, And, Not, Or, Exclusive-Or, Search |
-| Floating | Add, Sub, Mul, Div, Compare, Convert |
-| Branch | Jump, Conditional branch, Jump and link |
-| Others | Trap; Return from interrupt; Nop; Halt; Compare and exchange |
+| Shift                | Logical shift, Arithmetic shift                                           |
+| System               | System Register load / store                                              |
+| Bitstring            | Move, And, Not, Or, Exclusive-Or, Search                                  |
+| Floating             | Add, Sub, Mul, Div, Compare, Convert                                      |
+| Branch               | Jump, Conditional branch, Jump and link                                   |
+| Others               | Trap; Return from interrupt; Nop; Halt; Compare and exchange              |
 
 ### Instruction Format (slide 17)
 
@@ -159,12 +159,12 @@ The interlock material occupies three slides; the transcription groups all of it
 
 ### Cache Implementation (slide 36)
 
-| Property | Value |
-| --- | --- |
-| Capacity | 1K bytes |
+| Property       | Value          |
+| -------------- | -------------- |
+| Capacity       | 1K bytes       |
 | Mapping method | Direct mapping |
-| Block size | 8 bytes |
-| Subblock size | 4 bytes |
+| Block size     | 8 bytes        |
+| Subblock size  | 4 bytes        |
 
 [slide 36]
 
@@ -187,27 +187,27 @@ The interlock material occupies three slides; the transcription groups all of it
 
 Verbatim, including the deck's footnote markers. [slide 16]
 
-| Group | Instruction | Clocks |
-| --- | --- | --- |
-| move | `mov`, `movea` | 1 |
-| load / store | `ld` \*\*\* | 2-5 |
-| load / store | `st` \*\*\* | 1-4 |
-| Integer/logical operation | `op reg, reg` | 1 |
-| Integer/logical operation | `op imm, reg` | 1 |
-| Integer/logical operation | `mul` | 13 |
-| Integer/logical operation | `div` | 38 |
-| Shift | `sha` | 1 |
-| Shift | `shl`, `shr` | 1 |
-| Floating operation | `addf.s` | 24 |
-| Floating operation | `subf.s` | 26 |
-| Floating operation | `mulf.s` | 27 |
-| Floating operation | `divf.s` | 44 |
-| branch \* | `jmp`, `jr` | 3 |
-| branch \* | `jal` | 3 |
-| branch \* | `Bcc` (taken) | 3 |
-| branch \* | `Bcc` (not taken) | 1 |
-| bitstring \*\* | `search` \*\*\* | 4 |
-| bitstring \*\* | `move`, \*\*\* `logical` | 12 |
+| Group                     | Instruction              | Clocks |
+| ------------------------- | ------------------------ | ------ |
+| move                      | `mov`, `movea`           | 1      |
+| load / store              | `ld` \*\*\*              | 2-5    |
+| load / store              | `st` \*\*\*              | 1-4    |
+| Integer/logical operation | `op reg, reg`            | 1      |
+| Integer/logical operation | `op imm, reg`            | 1      |
+| Integer/logical operation | `mul`                    | 13     |
+| Integer/logical operation | `div`                    | 38     |
+| Shift                     | `sha`                    | 1      |
+| Shift                     | `shl`, `shr`             | 1      |
+| Floating operation        | `addf.s`                 | 24     |
+| Floating operation        | `subf.s`                 | 26     |
+| Floating operation        | `mulf.s`                 | 27     |
+| Floating operation        | `divf.s`                 | 44     |
+| branch \*                 | `jmp`, `jr`              | 3      |
+| branch \*                 | `jal`                    | 3      |
+| branch \*                 | `Bcc` (taken)            | 3      |
+| branch \*                 | `Bcc` (not taken)        | 1      |
+| bitstring \*\*            | `search` \*\*\*          | 4      |
+| bitstring \*\*            | `move`, \*\*\* `logical` | 12     |
 
 Footnotes, verbatim. [slide 16]
 
@@ -220,14 +220,14 @@ Footnotes, verbatim. [slide 16]
 
 Columns are CY, OV, S, Z. Legend: "— : Not affected", "★: Affected", "0 : Cleared to 0". [slide 21]
 
-| Instructions | CY | OV | S | Z |
-| --- | --- | --- | --- | --- |
-| `mov`, `movea`, `movhi`, `ld`, `st`, `in`, `out` | — | — | — | — |
-| `add`, `addi`, `sub`, `cmp` | ★ | ★ | ★ | ★ |
-| `mul`, `div`, `mulu`, `divu` | — | ★ | ★ | ★ |
-| `and`, `or`, `xor`, `not`, `andi`, `ori`, `xori` | — | 0 | ★ | ★ |
-| `shl`, `shr`, `sar` | ★ | 0 | ★ | ★ |
-| `jmp`, `jr`, `jal`, `Bcond` | — | — | — | — |
+| Instructions                                     | CY  | OV  | S   | Z   |
+| ------------------------------------------------ | --- | --- | --- | --- |
+| `mov`, `movea`, `movhi`, `ld`, `st`, `in`, `out` | —   | —   | —   | —   |
+| `add`, `addi`, `sub`, `cmp`                      | ★   | ★   | ★   | ★   |
+| `mul`, `div`, `mulu`, `divu`                     | —   | ★   | ★   | ★   |
+| `and`, `or`, `xor`, `not`, `andi`, `ori`, `xori` | —   | 0   | ★   | ★   |
+| `shl`, `shr`, `sar`                              | ★   | 0   | ★   | ★   |
+| `jmp`, `jr`, `jal`, `Bcond`                      | —   | —   | —   | —   |
 
 ### Mnemonics named anywhere in the deck
 

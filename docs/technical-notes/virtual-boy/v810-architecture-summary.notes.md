@@ -49,18 +49,18 @@ The document does not describe pin-out, bus timing, package, electrical characte
 
 The document gives a two-column table of category and function. [Instruction Set:]
 
-| Category | Function (verbatim) |
-| --- | --- |
-| Data transfer | Register to register and register to or from memory |
-| I/O | Input and Output |
-| Arithmetic | Signed / unsigned add subtract, multiply and divide |
-| Logical | Compare, and, or, not, exclusive or |
-| Shift | Logical shift and arithmetic shift |
-| System | System register load and store |
-| Bit string | Move, and, or, exclusive or, search |
-| Floating Point | Add, subtract, multiply, divide, compare, convert |
-| Branch | Jump, conditional branch and jump and link |
-| Miscellaneous | Trap, RETI, Nop, Halt, and Compare and exchange |
+| Category       | Function (verbatim)                                 |
+| -------------- | --------------------------------------------------- |
+| Data transfer  | Register to register and register to or from memory |
+| I/O            | Input and Output                                    |
+| Arithmetic     | Signed / unsigned add subtract, multiply and divide |
+| Logical        | Compare, and, or, not, exclusive or                 |
+| Shift          | Logical shift and arithmetic shift                  |
+| System         | System register load and store                      |
+| Bit string     | Move, and, or, exclusive or, search                 |
+| Floating Point | Add, subtract, multiply, divide, compare, convert   |
+| Branch         | Jump, conditional branch and jump and link          |
+| Miscellaneous  | Trap, RETI, Nop, Halt, and Compare and exchange     |
 
 ### Instruction format
 
@@ -141,15 +141,15 @@ The document gives an ordered sequence. [Function Call (jal):]
 
 Verbatim table. [Instruction Execution Clock Cycles:]
 
-| Class | Clock cycles |
-| --- | --- |
-| Most instructions | 1 |
-| Load / store | 1 to 3 |
-| Integer / logical | 1 except multiply = 13 and divide = 38 |
-| Shift | 1 |
-| Floating point | 24 to 44 |
-| Branch / jump | 1 if branch not taken, 3 if branch taken |
-| Bit string | 3 to 12 |
+| Class             | Clock cycles                             |
+| ----------------- | ---------------------------------------- |
+| Most instructions | 1                                        |
+| Load / store      | 1 to 3                                   |
+| Integer / logical | 1 except multiply = 13 and divide = 38   |
+| Shift             | 1                                        |
+| Floating point    | 24 to 44                                 |
+| Branch / jump     | 1 if branch not taken, 3 if branch taken |
+| Bit string        | 3 to 12                                  |
 
 ### Floating point clock cycles
 
