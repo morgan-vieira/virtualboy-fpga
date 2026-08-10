@@ -1,6 +1,8 @@
-# virtualboy-fpga
+# Virtual Boy
 
-A Nintendo Virtual Boy core for the Analogue Pocket.
+A Nintendo Virtual Boy core for the Analogue Pocket, built on openFPGA. Verilog under `src/fpga` becomes a bitstream the Pocket loads; a small TypeScript toolchain in `scripts/` assembles the V810 test ROMs that core gets judged against.
+
+It's early. `src/fpga/core/` is still Analogue's template plus a PLL — there's no CPU, no VIP, no VSU yet. Most of this document is about how the first real module gets built and proven, because that's the work.
 
 ## A note from morgan-vieira
 
@@ -10,40 +12,80 @@ Channel both "measure twice, cut once" and "yagni". Fight scope creep. Try to ho
 
 The rest of this document is meant to help you navigate the codebase and make changes effectively. Think of these instructions less as "hard rules", more as "good defaults". The developer's preferences should be able to override anything here.
 
+Of note: you can't see the Pocket's screen, and neither can anything in this repo. Every claim about how the core behaves on hardware comes from a maintainer who watched it happen. Write as though someone will check.
+
 ## A small glossary
 
 We need to be on the same page with terminology. When communicating, use this language:
 
-- **you** means the agent reading this file and helping build the core.
-- **we, us, and maintainers** mean morgan-vieira and the people building this Virtual Boy core. These are who you are talking to now.
+- **you** means the agent reading this file and building the core.
+- **we, us, and maintainers** mean morgan-vieira and the people building this core. These are who you are talking to now.
 - **user** means the person using this core to play Virtual Boy ROMs on an Analogue Pocket.
-- **modules** mean the individual Verilog/SystemVerilog building blocks that make up the core (e.g. video timing module, CPU module, VIP module, VSU module). Each module has a clear interface (ports) and a single main responsibility.
-- **features** mean the capabilities a module needs in order to work. e.g., the VIP module needs to draw a background; the VSU module needs to produce a tone.
-- **sub-features** mean the capabilities a feature needs in order to work. Drawing a background needs character memory reads and world attribute decoding.
+- **module** means one Verilog block in `src/fpga/core/` with a clear port list and one job — video timing, CPU, VIP, VSU.
+- **APF** means the Analogue Pocket Framework, Analogue's scaffolding in `src/fpga/apf/`. Our core is what sits inside it.
+- **NVC** means the Virtual Boy's processor: a NEC V810 plus the on-chip peripherals around it.
+- **VIP** means the video image processor — worlds, backgrounds, characters, and one image per eye.
+- **VSU** means the sound unit — six channels off wavetable RAM.
+- **test ROM** means a `.vb` image built from `src/roms/`, written to exercise one module and fail in one way.
+- **the bitstream** means `output/bitstream.rbf_r`. Quartus emits a plain `.rbf`; APF only loads the bit-reversed one.
 
-Anything below a sub-feature is small enough to explain in a sentence, so explain it instead of naming it.
+## The three ways to hurt yourself
 
-## The slow route
+1. **Reporting what you didn't watch.** A clean simulation, a clean build, and a clean Mednafen run are status updates. None of them is a working core. Say what you ran and what it proved, then ask a maintainer to run the ROM on the Pocket — and name the ROM and the pass criterion when you do.
+2. **Editing generated files.** `src/fpga/output_files/` is Quartus output, `output/bitstream.rbf_r` is derived from it, and `.roms/` is built from `src/roms/`. Regenerate them, never hand-edit them. A hand-patched artifact passes review and fails on hardware.
+3. **Trusting your memory over `.repos/`.** Instruction encodings, ROM layout, and timing come from the vendored references — the V810 decoder in `.repos/beetle-vb-libretro/mednafen/hw_cpu/v810/`, the linker script in `.repos/vuengine-studio/`. Read them. Never edit them, never import from them. An assembler bug and a core bug look identical from the outside.
 
-Modules are where this core gets built, and modules are where we refuse to rush. A module that compiles is not a module that works, and a simulation that passes is not a Pocket that boots. Every module takes the slow route, in order, every time:
+## Prove it before it ships
 
-1. **Prove it in simulation first.** Write a testbench and run it under Icarus Verilog before the module goes anywhere near Quartus. Exercise the ports, the edge cases, and the timing you are least sure about. Synthesis checks that a module is legal, not that it is right.
-2. **Build the ROM that proves it.** Every module gets its own test ROM, built for that module's specific requirement — the video timing module gets a ROM that stresses sync and refresh, the VSU gets a ROM that plays known tones. A commercial game exercises everything at once and proves nothing in particular.
-3. **Name the ROM.** When you hand a module over for testing, say exactly which ROM to load and exactly what a pass looks like on the Pocket — what should show on screen, what should come out of the speaker, and what a failure looks like instead. "Load something and see" is not an instruction.
-4. **Ask for the hardware test, always.** You cannot see the Pocket's screen. Only the real bitstream on real hardware counts, and only a maintainer can watch it run. Ask for the test, wait for the verdict, and treat a clean simulation as a status update, not a conclusion. No module is done until a maintainer has watched it behave on the Pocket.
+A module that compiles isn't a module that works. Every module takes the same route:
 
-The same road, walked backwards, is how we diagnose. When a user reports a game misbehaving, resist the urge to patch the core and re-test the whole game. Isolate the symptom to a module, build or pick the test ROM that reproduces just that behavior, prove the fix in simulation, and ask for hardware again. A bug you can only reproduce inside a commercial game is a bug you have not yet found.
+- **Simulate first.** Exercise the ports, the edge cases, and the timing you're least sure about before the module goes near Quartus. Synthesis checks that a module is legal, not that it's right. Nothing is wired up for simulation yet — the first module that needs it brings Icarus Verilog with it.
+- **Build the ROM that proves it.** One ROM per module, written for that module's requirement. Video timing gets a ROM that stresses sync and refresh; the VSU gets one that plays known tones. A commercial game exercises everything at once and proves nothing in particular.
+- **Say what a pass looks like.** What shows on screen, what comes out of the speaker, what failure looks like instead. That's the `expectation` field in the ROM spec, and it gets written before the code. "Load it and see" is not an instruction.
+- **Ask for the hardware test.** Only a maintainer can watch the Pocket. Ask, wait for the verdict, and don't call the module done before it comes back.
+
+Diagnosis is the same road backwards. When a game misbehaves, don't patch the core and replay the game. Isolate the symptom to a module, pick or build the ROM that reproduces just it, fix it in simulation, ask for hardware again. A bug you can only reproduce inside a commercial game is a bug you haven't found yet.
+
+## Building
+
+Node 24 and pnpm 11, then `pnpm install`. There's no toolchain to install for ROMs — the V810 assembler and packer are in `scripts/lib/`.
+
+- `pnpm run build:roms` builds every ROM into `.roms/` and prints each one's pass criterion. `-- --rom halt` builds one.
+- `pnpm run test:roms` runs the assembler's own tests against the encodings.
+- `pnpm run format:md` and `pnpm run format:ts` format through VS Code, so they match what the editor does on save.
+- `pnpm run sync:repos` refreshes `.repos/`. Only when bumping a reference.
+- `quartus_sh --flow compile src/fpga/ap_core.qpf` compiles the bitstream, from the repo root. Don't chain a `cd` into that command — Quartus resolves against the changed directory and writes output somewhere else.
+
+Quartus is Prime Lite 21.1 on morgan-vieira's machine. The `package-core` skill covers the compile, the bit reversal, and the SD-card tree; `build-test-rom` covers ROM layout and the Mednafen check. Read the skill before doing either by hand.
+
+## Verifying
+
+- Smallest proof that the change works. Touch the assembler, run `pnpm run test:roms`. Touch a ROM, build that one ROM.
+- A new ROM gets checked under Mednafen before it's handed over. Mednafen parses the header with an implementation that isn't ours, which catches a mispacked image before it wastes a maintainer's afternoon.
+- Don't recompile the bitstream just to package one. Reuse it when the FPGA sources haven't moved.
+- There's no CI. The hardware test is the suite.
 
 ## Where code lives
 
-- `src/fpga` - the Quartus project (`ap_core.qpf`/`.qsf`). `core/` is the Virtual Boy logic — start at `core_top.v`. `apf/` is Analogue's framework scaffolding; rarely what you want to edit. `output_files/` is compile output, never hand-edited.
-- `src/roms/` - the source to the test ROMs, one directory per ROM. Build them with `pnpm run build:roms`; images land in the gitignored `.roms/`. The V810 assembler and ROM packer behind it live in `scripts/lib/`. Start at `src/roms/README.md`.
-- `core.json`, `video.json`, `audio.json`, `data.json`, `input.json`, `interact.json`, `variants.json`, `info.txt` - APF core definition files at the repo root. Schema lives in `docs/analogue-pocket/core-definition-files.md`.
-- `dist/` - the SD-card staging tree (platform metadata, assets, icon) that gets zipped with the bitstream into a release.
-- `output/` - `bitstream.rbf_r`, the bit-reversed bitstream the Pocket loads. Generated from `src/fpga/output_files/ap_core.rbf` — regenerate, don't edit.
-- `.claude/skills/` - one directory per skill, each a `SKILL.md`. Start at `.claude/skills/README.md`; it covers when a skill is worth adding and the voice they are written in.
-- `.repos/` - vendored read-only references. Prefer their patterns over invented ones. Never edit or import from them. Sync with `pnpm run sync:repos` when bumping the matching dependency.
+- `src/fpga` - the Quartus project (`ap_core.qpf`/`.qsf`). `core/` is the Virtual Boy logic — start at `core_top.v`. `apf/` is Analogue's scaffolding, rarely what you want to edit. `output_files/` is compile output.
+- `src/roms/` - one directory per test ROM, each a `rom.ts`. Start at `src/roms/README.md`; it covers the image layout and why the trailer sits at the end of the file.
+- `scripts/lib/` - the V810 assembler (`v810.ts`), its tests, and the ROM packer (`vb-rom.ts`).
+- `core.json`, `video.json`, `audio.json`, `data.json`, `input.json`, `interact.json`, `variants.json`, `info.txt` - APF core definition files. Schema in `docs/analogue/core-definition-files.md`.
+- `docs/analogue/` - Analogue's own APF documentation. `docs/technical-notes/` - notes on the V810 and Virtual Boy source documents, indexed in `INDEX.md`.
+- `dist/` - the SD-card staging tree. `output/` - the packaged release and `bitstream.rbf_r`.
+- `.claude/skills/` - one directory per skill, each a `SKILL.md`. `.agent/skills` and `AGENTS.md` are symlinks, so other agents read the same files.
+- `.repos/` - vendored read-only references. Prefer their patterns over invented ones.
 
-## Additional Tips
+## Taste
 
-- When writing comments, explain why we use this approach, not what the approach is. Keep every comment under ten words. Do not state the obvious.
+- Comments say why, not what. Under ten words. Don't annotate the obvious.
+- Name the module for what it does, not for the chip it emulates.
+- Hardware quirks are the spec, not a bug to smooth over. If the real hardware mirrors, wraps, or glitches, we do too — and the comment says which document says so.
+- One module per change. If a fix touches the CPU and the VIP, it's two changes or it's not understood yet.
+- If a rule here fights the task in front of you, say so loudly and get a maintainer's sign-off before breaking it.
+
+## Additional tips
+
+- Don't commit, push, or open a PR unless a maintainer asks.
+- Don't verify with browsers or computer use unless asked.
+- When a document and the code disagree, say so rather than picking one quietly. `docs/technical-notes/INDEX.md` already records where the sources contradict each other.
