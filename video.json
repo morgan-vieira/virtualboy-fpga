@@ -3,10 +3,10 @@
         "magic": "APF_VER_1",
         "scaler_modes": [
             {
-                "width": 320,
-                "height": 240,
-                "aspect_w": 4,
-                "aspect_h": 3,
+                "width": 384,
+                "height": 224,
+                "aspect_w": 12,
+                "aspect_h": 7,
                 "rotation": 0,
                 "mirror": 0
             }
