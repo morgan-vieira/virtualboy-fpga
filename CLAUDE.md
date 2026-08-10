@@ -36,4 +36,10 @@ The same road, walked backwards, is how we diagnose. When a user reports a game 
 
 ## Where code lives
 
-TBD
+- `src/fpga` - the Quartus project (`ap_core.qpf`/`.qsf`). `core/` is the Virtual Boy logic — start at `core_top.v`. `apf/` is Analogue's framework scaffolding; rarely what you want to edit. `output_files/` is compile output, never hand-edited.
+- `src/roms/` - the source to the test ROMs, one directory per ROM. Build them with `pnpm run build:roms`; images land in the gitignored `.roms/`. The V810 assembler and ROM packer behind it live in `scripts/lib/`. Start at `src/roms/README.md`.
+- `core.json`, `video.json`, `audio.json`, `data.json`, `input.json`, `interact.json`, `variants.json`, `info.txt` - APF core definition files at the repo root. Schema lives in `docs/analogue-pocket/core-definition-files.md`.
+- `dist/` - the SD-card staging tree (platform metadata, assets, icon) that gets zipped with the bitstream into a release.
+- `output/` - `bitstream.rbf_r`, the bit-reversed bitstream the Pocket loads. Generated from `src/fpga/output_files/ap_core.rbf` — regenerate, don't edit.
+- `.claude/skills/` - one directory per skill, each a `SKILL.md`. Start at `.claude/skills/README.md`; it covers when a skill is worth adding and the voice they are written in.
+- `.repos/` - vendored read-only references. Prefer their patterns over invented ones. Never edit or import from them. Sync with `pnpm run sync:repos` when bumping the matching dependency.

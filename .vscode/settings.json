@@ -21,5 +21,10 @@
         "source.fixAll.oxc": "always"
     },
     "oxc.unusedDisableDirectives": "warn",
-    "editor.formatOnSaveMode": "file"
+    "editor.formatOnSaveMode": "file",
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff"
+    },
+    // The venv transcribe-pdf.ps1 runs tools/pdf-probe.py with.
+    "python.defaultInterpreterPath": "${userHome}/marker-env/Scripts/python.exe"
 }
