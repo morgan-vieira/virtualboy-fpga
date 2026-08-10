@@ -3,6 +3,8 @@
 
 > [!NOTE]
 > Some parts of the documentation and technical notes have been omitted because of possible copyright concerns.
+>
+> We will not hand these out. You will have to find them yourself.
 
 # Virtual Boy
 
