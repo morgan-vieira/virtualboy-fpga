@@ -28,6 +28,10 @@ We need to be on the same page with terminology. When communicating, use this la
 - **VSU** means the sound unit — six channels off wavetable RAM.
 - **test ROM** means a `.vb` image built from `src/roms/`, written to exercise one module and fail in one way.
 - **the bitstream** means `output/bitstream.rbf_r`. Quartus emits a plain `.rbf`; APF only loads the bit-reversed one.
+- **features** mean the capabilities a module needs in order to work. e.g., the VIP needs to draw a background; the VSU needs to produce a tone.
+- **sub-features** mean the capabilities a feature needs in order to work. Drawing a background needs character memory reads and world attribute decoding.
+
+Anything below a sub-feature is small enough to explain in a sentence, so explain it instead of naming it.
 
 ## The three ways to hurt yourself
 
