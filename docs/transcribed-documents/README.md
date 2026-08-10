@@ -25,3 +25,4 @@
 | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
 | VUE Development System (Virtual Boy Technical Symposium ’95) | `docs/transcribed-documents/virtual-boy/licensed/virtual-boy-technical-symposium-95-vue-development-system` |
 | VUCC Compiler Manual                                         | `docs/transcribed-documents/virtual-boy/licensed/vucc-compiler`                                             |
+| VUE Development System Operation Manual                      | `docs\transcribed-documents\virtual-boy\licensed\vue-development-system-preliminary-operation-manual`       |
