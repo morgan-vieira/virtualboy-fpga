@@ -43,3 +43,7 @@ The same road, walked backwards, is how we diagnose. When a user reports a game 
 - `output/` - `bitstream.rbf_r`, the bit-reversed bitstream the Pocket loads. Generated from `src/fpga/output_files/ap_core.rbf` — regenerate, don't edit.
 - `.claude/skills/` - one directory per skill, each a `SKILL.md`. Start at `.claude/skills/README.md`; it covers when a skill is worth adding and the voice they are written in.
 - `.repos/` - vendored read-only references. Prefer their patterns over invented ones. Never edit or import from them. Sync with `pnpm run sync:repos` when bumping the matching dependency.
+
+## Additional Tips
+
+- When writing comments, explain why we use this approach, not what the approach is. Keep every comment under ten words. Do not state the obvious.
