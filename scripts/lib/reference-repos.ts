@@ -36,4 +36,13 @@ export const referenceRepos: ReadonlyArray<ReferenceRepo> = [
     packageVersionPath: ["vuengine-studio"],
     versionTagPrefix: "",
   },
+  {
+    id: "mister-virtualboy",
+    prefix: ".repos/mister-virtualboy",
+    repository: "https://github.com/MiSTer-devel/VirtualBoy_MiSTer.git",
+    latestRef: "main",
+    versionSourcePath: ".repos/versions.json",
+    packageVersionPath: ["mister-virtualboy"],
+    versionTagPrefix: "",
+  },
 ];
