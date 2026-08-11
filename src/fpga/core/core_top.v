@@ -499,13 +499,16 @@ core_bridge_cmd icb (
 // video generation
 // ~12,288,000 hz pixel clock
 //
-// we want our video mode of 320x240 @ 60hz, this results in 204800 clocks per frame
-// we need to add hblank and vblank times to this, so there will be a nondisplay area. 
-// it can be thought of as a border around the visible area.
-// to make numbers simple, we can have 400 total clocks per line, and 320 visible.
-// dividing 204800 by 400 results in 512 total lines per frame, and 240 visible.
-// this pixel clock is fairly high for the relatively low resolution, but that's fine.
-// PLL output has a minimum output frequency anyway.
+// the active area is the Virtual Boy's native 384x224, matching video.json. the
+// scaler captures exactly the width video.json declares, so a narrower data enable
+// leaves the rest of each line as whatever the line buffer still held.
+//
+// 480 clocks per line and 427 lines per frame is 204,960 clocks, or 59.95 hz. that
+// leaves 96 clocks of hblank and 203 lines of vblank, since APF documents no
+// minimum and generous blanking costs nothing here.
+//
+// the real machine runs a 20 ms frame, not 60 hz. that belongs to the video timing
+// module, along with moving this out of core_top.
 
 
 assign video_rgb_clock = clk_core_12288;
@@ -517,11 +520,11 @@ assign video_vs = vidout_vs;
 assign video_hs = vidout_hs;
 
     localparam  VID_V_BPORCH = 'd10;
-    localparam  VID_V_ACTIVE = 'd240;
-    localparam  VID_V_TOTAL = 'd512;
+    localparam  VID_V_ACTIVE = 'd224;
+    localparam  VID_V_TOTAL = 'd427;
     localparam  VID_H_BPORCH = 'd10;
-    localparam  VID_H_ACTIVE = 'd320;
-    localparam  VID_H_TOTAL = 'd400;
+    localparam  VID_H_ACTIVE = 'd384;
+    localparam  VID_H_TOTAL = 'd480;
 
     reg [15:0]  frame_count;
     

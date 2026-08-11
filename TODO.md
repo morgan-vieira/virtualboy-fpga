@@ -35,13 +35,25 @@ Where the two disagree, follow beetle-vb and say so in the comment.
 
 Not Virtual Boy hardware, and not a module. Needed before anything can be proven.
 
-- [ ] **A way to simulate.** Icarus Verilog is installed but nothing in the repo
-      references it. The first module brings a runner that compiles a module plus a
-      self-checking testbench, runs it, and fails the process on `$fatal` — build
-      products in the scratch directory, not in `src/`.
+- [x] **A way to simulate.** `pnpm run test:sim` (`scripts/run-testbenches.ts`)
+      compiles every `src/fpga/core/*_tb.v` against the modules beside it and runs it,
+      with `.vvp` programs and waveform dumps landing in the gitignored `.sim/`. It
+      fails the process on `$fatal`, on a compile error, on a bench that outlives its
+      timeout, and on `$error` — which Icarus reports but exits zero for, so the
+      output marker is the only signal. Proven against a throwaway tree covering all
+      five outcomes; no module has a testbench yet.
 - [ ] **A current Quartus source list.** `ap_core.qsf` names only `core_top.v`,
       `core_bridge_cmd.v`, the PLL and the constraints today. Every new module gets
-      added as it lands, and timing closure gets read rather than assumed.
+      added as it lands, and timing closure gets read rather than assumed. Nothing to
+      add until the first module exists, so this stays open through section 1.
+- [ ] **DECIDE: SignalTap is on in the template.** `ap_core.qsf` carries
+      `ENABLE_SIGNALTAP ON` with `core/stp1.stp` (lines 326, 327, 744), inherited from
+      Analogue rather than chosen. It costs nothing today — `stp1.stp` instruments no
+      signals, and the 21.1 fit report never mentions it — so this is not urgent. It
+      becomes a decision the first time someone assigns a signal to it, because the
+      logic analyzer's capture buffer comes out of the same block RAM that section 4
+      needs. Leave it on as a debugging aid, or turn it off so the cost can never
+      appear by accident.
 
 ---
 

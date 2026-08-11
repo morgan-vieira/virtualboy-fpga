@@ -43,7 +43,7 @@ Anything below a sub-feature is small enough to explain in a sentence, so explai
 
 A module that compiles isn't a module that works. Every module takes the same route:
 
-- **Simulate first.** Exercise the ports, the edge cases, and the timing you're least sure about before the module goes near Quartus. Synthesis checks that a module is legal, not that it's right. Nothing is wired up for simulation yet — the first module that needs it brings Icarus Verilog with it.
+- **Simulate first.** Exercise the ports, the edge cases, and the timing you're least sure about before the module goes near Quartus. Synthesis checks that a module is legal, not that it's right. A module's testbench is `src/fpga/core/<module>_tb.v`, it reports failure with `$fatal` or `$error`, and `pnpm run test:sim` runs it.
 - **Build the ROM that proves it.** One ROM per module, written for that module's requirement. Video timing gets a ROM that stresses sync and refresh; the VSU gets one that plays known tones. A commercial game exercises everything at once and proves nothing in particular.
 - **Say what a pass looks like.** What shows on screen, what comes out of the speaker, what failure looks like instead. That's the `expectation` field in the ROM spec, and it gets written before the code. "Load it and see" is not an instruction.
 - **Ask for the hardware test.** Only a maintainer can watch the Pocket. Ask, wait for the verdict, and don't call the module done before it comes back.
@@ -56,15 +56,16 @@ Node 24 and pnpm 11, then `pnpm install`. There's no toolchain to install for RO
 
 - `pnpm run build:roms` builds every ROM into `.roms/` and prints each one's pass criterion. `-- --rom halt` builds one.
 - `pnpm run test:roms` runs the assembler's own tests against the encodings.
+- `pnpm run test:sim` compiles and runs every `src/fpga/core/*_tb.v` testbench into `.sim/`. `-- --bench video_timing` runs one; `-- --timeout 5` shortens the per-bench kill.
 - `pnpm run format:md` and `pnpm run format:ts` format through VS Code, so they match what the editor does on save.
 - `pnpm run sync:repos` refreshes `.repos/`. Only when bumping a reference.
 - `quartus_sh --flow compile src/fpga/ap_core.qpf` compiles the bitstream, from the repo root. Don't chain a `cd` into that command — Quartus resolves against the changed directory and writes output somewhere else.
 
-Quartus is Prime Lite 21.1 on morgan-vieira's machine. The `package-core` skill covers the compile, the bit reversal, and the SD-card tree; `build-test-rom` covers ROM layout and the Mednafen check. Read the skill before doing either by hand.
+Quartus is Prime Lite 21.1 on morgan-vieira's machine, and Icarus Verilog 12.0 is at `C:\iverilog`. The `package-core` skill covers the compile, the bit reversal, and the SD-card tree; `build-test-rom` covers ROM layout and the Mednafen check. Read the skill before doing either by hand.
 
 ## Verifying
 
-- Smallest proof that the change works. Touch the assembler, run `pnpm run test:roms`. Touch a ROM, build that one ROM.
+- Smallest proof that the change works. Touch the assembler, run `pnpm run test:roms`. Touch a ROM, build that one ROM. Touch a module, run its testbench.
 - A new ROM gets checked under Mednafen before it's handed over. Mednafen parses the header with an implementation that isn't ours, which catches a mispacked image before it wastes a maintainer's afternoon.
 - Don't recompile the bitstream just to package one. Reuse it when the FPGA sources haven't moved.
 - There's no CI. The hardware test is the suite.
@@ -83,7 +84,7 @@ Quartus is Prime Lite 21.1 on morgan-vieira's machine. The `package-core` skill 
 ## Taste
 
 - Comments say why, not what. Under ten words. Don't annotate the obvious.
-- Name the module for what it does, not for the chip it emulates.
+- Name the module for what it does, not for the chip it emulates, and give the file that same name. The simulator resolves an instantiated module by looking for a file named after it.
 - Hardware quirks are the spec, not a bug to smooth over. If the real hardware mirrors, wraps, or glitches, we do too — and the comment says which document says so.
 - One module per change. If a fix touches the CPU and the VIP, it's two changes or it's not understood yet.
 - If a rule here fights the task in front of you, say so loudly and get a maintainer's sign-off before breaking it.

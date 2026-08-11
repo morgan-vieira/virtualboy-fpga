@@ -11,7 +11,8 @@
     "format:md": "node scripts/format-with-vscode.ts --language markdown",
     "format:ts": "node scripts/format-with-vscode.ts --language typescript",
     "sync:repos": "node scripts/sync-reference-repos.ts",
-    "test:roms": "node --test scripts/lib/v810.test.ts"
+    "test:roms": "node --test scripts/lib/v810.test.ts",
+    "test:sim": "node scripts/run-testbenches.ts"
   },
   "devDependencies": {
     "@effect/platform-node": "4.0.0-beta.102",
