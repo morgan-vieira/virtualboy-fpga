@@ -131,22 +131,31 @@ One 27-bit address space, seven devices, and the mirroring rules that games rely
 
 ### Feature: route an access to the right device
 
-- [ ] **Decode the seven regions.** VIP at `0x00xxxxxx`, VSU at `0x01xxxxxx`,
+- [~] **Decode the seven regions.** VIP at `0x00xxxxxx`, VSU at `0x01xxxxxx`,
       miscellaneous hardware at `0x02xxxxxx`, unmapped at `0x03xxxxxx`, cartridge
       expansion at `0x04xxxxxx`, work RAM at `0x05xxxxxx`, cartridge RAM at
-      `0x06xxxxxx`, cartridge ROM at `0x07xxxxxx`.
-- [ ] **Mask the address down to 27 bits.** Everything from `0x08000000` up is a
+      `0x06xxxxxx`, cartridge ROM at `0x07xxxxxx`. Now `core/mem_bus.v`: a
+      halfword bus, one-hot selects off `addr[26:24]`, matching both MiSTer's
+      `vb_vue_addr_decode` and beetle-vb's `switch(A >> 24)` (`libretro.cpp`).
+      Devices answer the cycle after their select, the shape block RAM gives.
+- [~] **Mask the address down to 27 bits.** Everything from `0x08000000` up is a
       mirror of the whole map, achieved by dropping the top five bits, which makes
-      `0x07FFFFFF` the highest address that can be expressed.
-- [ ] **Answer the unmapped region.** Writes into `0x03xxxxxx` do nothing and reads
-      return zero — a defined behavior, not a bus fault.
+      `0x07FFFFFF` the highest address that can be expressed. Structural in
+      `mem_bus`: the port is `addr[26:1]`, so the mask is the wire count, the same
+      way MiSTer's `vue.v` takes `a_i[26:1]`. Proven for real when the CPU's
+      address port connects.
+- [~] **Answer the unmapped region.** Writes into `0x03xxxxxx` do nothing and reads
+      return zero — a defined behavior, not a bus fault. `mem_bus` parks its answer
+      mux on this region at reset, so rdata is zero out of reset too.
 
 ### Feature: hold work RAM
 
-- [ ] **64 KiB of storage.** It occupies the first 64 KiB of its region and mirrors
-      through the rest by masking address bits 16 through 23.
-- [ ] **Leave it undefined at reset.** Real hardware powers up with garbage; filling
-      it with zeroes would hide bugs in any ROM that forgets to initialize.
+- [~] **64 KiB of storage.** It occupies the first 64 KiB of its region and mirrors
+      through the rest by masking address bits 16 through 23. In `mem_bus`, as two
+      byte arrays so byte-lane writes infer block RAM byte enables.
+- [~] **Leave it undefined at reset.** Real hardware powers up with garbage; filling
+      it with zeroes would hide bugs in any ROM that forgets to initialize. The
+      bench asserts an unwritten read is x, so initialization can't creep in.
 - [ ] ? Real WRAM is pseudostatic and needs a 200 µs wait plus eight dummy reads before
       first use, with undefined behavior otherwise. Emulating the misbehavior is
       almost certainly not worth it, but the requirement is recorded here so the
@@ -158,28 +167,55 @@ These differ per peripheral and are an easy source of bugs that only show up in 
 
 - [ ] **Miscellaneous hardware takes any width.** Its registers sit four bytes apart
       specifically so byte, halfword and word accesses all land correctly, even though
-      they're documented as byte-oriented.
+      they're documented as byte-oriented. Lands with the misc register block, not
+      the bus — the bus only routes the region.
 - [ ] **VIP registers mangle byte writes.** They expect halfwords. A byte write to an
       even address performs a halfword write using the low 16 bits of the source
       register; a byte write to an odd address performs one using the low 8 bits
-      shifted left by 8. Both are well-defined and both are wrong-looking.
+      shifted left by 8. Both are well-defined and both are wrong-looking. Lands in
+      the VIP: on this bus a byte write is a halfword access with one byte lane, so
+      the mangling is the VIP's reaction to lanes, not the bus's.
 - [ ] **VSU accepts byte writes only.** Wider writes are undefined and every read is
-      undefined, because its bus is 8 bits.
-- [ ] **Round unaligned accesses down.** A halfword access ignores address bit 0 and a
+      undefined, because its bus is 8 bits. `mem_bus` already answers VSU reads
+      with zero, following beetle-vb (`MemRead16` falls through); the write rule
+      lands in the VSU.
+- [~] **Round unaligned accesses down.** A halfword access ignores address bit 0 and a
       word access ignores bits 1 and 0. Nothing faults; the address just moves.
+      Structural: bit 0 never leaves the CPU (`addr[26:1]`), and a word access is
+      two halfword bus cycles, so the CPU's bus unit owns bit 1.
 
 ### Feature: insert cartridge wait states
 
 - [ ] **Two waits or one, per region.** A single control register carries one bit for
       the ROM region and one for the expansion region; a clear bit means two waits and
       a set bit means one. Both start clear at reset, so the slow case is the default.
+      Note beetle-vb reads WCR back as `WCR | 0xFC` — the unused bits read as ones.
 - [ ] **Feed the CPU's timing.** This is the only knob software has over memory speed,
       so it belongs in whatever the CPU uses to count bus cycles rather than sitting
-      off to one side as a register that nothing reads.
+      off to one side as a register that nothing reads. Deliberately absent from
+      `mem_bus` for that reason; MiSTer does the same, keeping waits in
+      `vb_vue_wait_control` beside the CPU's READY pin rather than in the decode.
 
 **ROM:** `busmap` — writes a distinct value per region, reads it back through both the
 direct address and a mirror, and checks the unmapped region reads zero.
 **Pass criterion:** halts on success, spins at a distinct address per failing region.
+**Blocked on:** section 3 — the ROM needs a CPU to run. Until then the proof is
+`src/tests/mem_bus.v`: selects one-hot per region at both region ends, every device
+answer routed back the cycle after its access, zero from VSU/unmapped/expansion
+reads, work RAM written and read back through mirrors and byte lanes, untouched by
+foreign-region traffic and by reads, and x before the first write. Reads drive live
+byte lanes and junk wdata so only `we` may gate a write, and a back-to-back run
+holds req across five consecutive accesses — a store loaded back the very next
+cycle, answers crossing three region switches — because a CPU fetching sequentially
+never idles the bus. Seven mutations were each caught before the bench was trusted,
+one of them (a write committing a cycle late) invisible to every check that idles
+between accesses.
+A standalone Quartus 21.1 synthesis of the module confirmed the intent rather than
+assuming it: both byte arrays inferred as `altsyncram` block RAM, 524,288 bits
+total, old-data collision mode, 70 logic cells for the decode and mux — and
+`addr[23:16]` reported as driving nothing, which is the work RAM mirror mask
+visible in synthesis. Fit and timing still belong to the first full compile that
+instantiates the module.
 
 ---
 
