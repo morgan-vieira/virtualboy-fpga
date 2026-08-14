@@ -45,8 +45,10 @@ Not Virtual Boy hardware, and not a module. Needed before anything can be proven
       five outcomes; no module has a testbench yet.
 - [ ] **A current Quartus source list.** `ap_core.qsf` names only `core_top.v`,
       `core_bridge_cmd.v`, the PLL and the constraints today. Every new module gets
-      added as it lands, and timing closure gets read rather than assumed. Nothing to
-      add until the first module exists, so this stays open through section 1.
+      added as it lands, and timing closure gets read rather than assumed.
+      `core/host_video_timing.v` is listed. Its compile closed with every slack
+      positive and TNS 0.000, at 433 ALMs and 2 RAM blocks. Stays open as a standing
+      obligation, not as a task with an end.
 - [ ] **DECIDE: SignalTap is on in the template.** `ap_core.qsf` carries
       `ENABLE_SIGNALTAP ON` with `core/stp1.stp` (lines 326, 327, 744), inherited from
       Analogue rather than chosen. It costs nothing today — `stp1.stp` instruments no
@@ -65,12 +67,28 @@ because it needs no CPU, so it can be watched failing.
 
 ### Feature: produce a 384×224 image per eye at 50 Hz
 
-- [ ] **Free-running pixel and line counters.** Nothing about this timing depends on
+- [x] **Free-running pixel and line counters.** Nothing about this timing depends on
       the VIP or the CPU, so the counters run on their own and everything else
-      eventually synchronizes to them.
-- [ ] **Hand off to APF's scaler.** Analogue's contract is a pixel clock plus RGB,
+      eventually synchronizes to them. Now `core/host_video_timing.v`, out of
+      `core_top`. Named for the host raster on purpose: the real machine scans a
+      mirror on the 20 ms schedule in section 5 and produces no raster at all, so
+      conflating the two would be a mistake the first time section 5 lands.
+      `src/tests/host_video_timing.v` checks the raster cycle by cycle: a 384×224 data
+      enable with x and y correct on every active clock, hs pulses exactly 480
+      clocks apart and never on vs's clock, one vs per frame with neither sync
+      inside the active window, and a measured vs-to-vs of exactly 245,760 clocks.
+      Nine mutations of the module were each caught before the bench was trusted,
+      three of them invisible to every per-frame count.
+- [x] **Hand off to APF's scaler.** Analogue's contract is a pixel clock plus RGB,
       data-enable, hsync and vsync. Getting the polarity or the enable window wrong
       shows as a rolling or torn image rather than as a build failure.
+- [x] **Settle the frame rate at exactly 50 Hz.** 12.288 MHz over 480×512 is 245,760
+      clocks, which is 20 ms to the clock, so the existing PLL needs no retuning. The
+      sources disagree and the disagreement is recorded rather than resolved: the
+      Sacred Tech Scroll gives a fixed 20 ms / 50 Hz [VIP > Drawing and Display
+      Procedures > Frame Types], beetle-vb ships `MEDNAFEN_CORE_TIMING_FPS 50.27`
+      (`libretro.cpp`). We follow the document, because it is exact at this pixel
+      clock and 50.27 is not. Revisit if section 8 finds audio sync cares.
 - [x] **Declare the native size.** `video.json` held Analogue's sample values (320×240
       at 4:3) rather than a considered choice. It now declares 384×224 at 12:7, matching
       beetle-vb's geometry in `libretro.cpp`. APF takes width and height as plain
@@ -91,8 +109,19 @@ because it needs no CPU, so it can be watched failing.
       intensity is not linear in the register values.
 
 **ROM:** none. The pattern drives itself.
-**Pass criterion:** a maintainer sees a stable, correctly proportioned pattern on the
-Pocket — not rolling, not torn, right aspect.
+**Pass criterion:** flat colour could not fail this test, so `core_top` draws a pattern
+built to fail visibly. A maintainer sees a one-pixel white border on all four edges,
+unbroken and never clipped; a red square outline in the middle that reads as square
+rather than as a rectangle; and grey bars scrolling steadily left to right with no
+break across them, no vertical roll, and no jitter. A missing or doubled border edge is
+a wrong data-enable window; a rectangular square is a wrong aspect; a break across the
+bars is a tear.
+**Watched and passed 2026-08-14** by morgan-vieira, on the bitstream built 2026-08-11.
+The Memories screenshot (`20260814_124048.png`) measured pixel-exact: 384×224 native,
+the full 1,212-pixel border white with zero defects, the red outline exactly 112×112
+at (136,56) with all four edges complete, and exactly four colors in the frame. The
+maintainer confirmed the bars scrolled steadily with no tear, roll or jitter, and the
+square read as a true square on the physical screen.
 
 ---
 

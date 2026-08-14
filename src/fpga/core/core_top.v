@@ -497,109 +497,87 @@ core_bridge_cmd icb (
 
 
 // video generation
-// ~12,288,000 hz pixel clock
 //
-// the active area is the Virtual Boy's native 384x224, matching video.json. the
-// scaler captures exactly the width video.json declares, so a narrower data enable
-// leaves the rest of each line as whatever the line buffer still held.
-//
-// 480 clocks per line and 427 lines per frame is 204,960 clocks, or 59.95 hz. that
-// leaves 96 clocks of hblank and 203 lines of vblank, since APF documents no
-// minimum and generous blanking costs nothing here.
-//
-// the real machine runs a 20 ms frame, not 60 hz. that belongs to the video timing
-// module, along with moving this out of core_top.
-
+// the raster belongs to host_video_timing; everything here only supplies colour.
+// that module carries the reasoning for 480x512 at 12.288 MHz being the machine's
+// 20 ms frame.
 
 assign video_rgb_clock = clk_core_12288;
 assign video_rgb_clock_90 = clk_core_12288_90deg;
 assign video_rgb = vidout_rgb;
 assign video_de = vidout_de;
-assign video_skip = vidout_skip;
+assign video_skip = 1'b0;
 assign video_vs = vidout_vs;
 assign video_hs = vidout_hs;
 
-    localparam  VID_V_BPORCH = 'd10;
-    localparam  VID_V_ACTIVE = 'd224;
-    localparam  VID_V_TOTAL = 'd427;
-    localparam  VID_H_BPORCH = 'd10;
     localparam  VID_H_ACTIVE = 'd384;
-    localparam  VID_H_TOTAL = 'd480;
+    localparam  VID_V_ACTIVE = 'd224;
 
-    reg [15:0]  frame_count;
-    
-    reg [9:0]   x_count;
-    reg [9:0]   y_count;
-    
-    wire [9:0]  visible_x = x_count - VID_H_BPORCH;
-    wire [9:0]  visible_y = y_count - VID_V_BPORCH;
+    wire        vidout_de;
+    wire        vidout_vs;
+    wire        vidout_hs;
+    wire [9:0]  vidout_x;
+    wire [9:0]  vidout_y;
 
-    reg [23:0]  vidout_rgb;
-    reg         vidout_de, vidout_de_1;
-    reg         vidout_skip;
-    reg         vidout_vs;
-    reg         vidout_hs, vidout_hs_1;
-    
-    reg [9:0]   square_x = 'd135;
-    reg [9:0]   square_y = 'd95;
+host_video_timing #(
+    .H_ACTIVE               ( VID_H_ACTIVE ),
+    .V_ACTIVE               ( VID_V_ACTIVE )
+) hvt (
+    .clk                    ( clk_core_12288 ),
+    .reset_n                ( reset_n ),
+
+    .de                     ( vidout_de ),
+    .hs                     ( vidout_hs ),
+    .vs                     ( vidout_vs ),
+    .x                      ( vidout_x ),
+    .y                      ( vidout_y )
+);
+
+
+// test pattern, until the VIP has pixels of its own
+//
+// a flat colour cannot show a clipped data enable window, a rolling frame or a tear,
+// which would make the hardware test unable to fail. so: the one-pixel border proves
+// the window is exactly 384x224, the square proves pixels come out square at 12:7,
+// and the bars scroll so a tear shows as a break across them.
+
+    localparam  SQUARE      = 'd112;
+    localparam  SQUARE_X    = (VID_H_ACTIVE - SQUARE) / 2;
+    localparam  SQUARE_Y    = (VID_V_ACTIVE - SQUARE) / 2;
+
+    reg [9:0]   frame_count;
 
 always @(posedge clk_core_12288 or negedge reset_n) begin
-
     if(~reset_n) begin
-    
-        x_count <= 0;
-        y_count <= 0;
-        
+        frame_count <= 0;
+    end else if(vidout_vs) begin
+        frame_count <= frame_count + 1'b1;
+    end
+end
+
+    wire        border = vidout_x == 0 || vidout_x == VID_H_ACTIVE-1 ||
+                         vidout_y == 0 || vidout_y == VID_V_ACTIVE-1;
+
+    wire        square_edge =
+                    vidout_x >= SQUARE_X && vidout_x < SQUARE_X+SQUARE &&
+                    vidout_y >= SQUARE_Y && vidout_y < SQUARE_Y+SQUARE &&
+                    (vidout_x == SQUARE_X || vidout_x == SQUARE_X+SQUARE-1 ||
+                     vidout_y == SQUARE_Y || vidout_y == SQUARE_Y+SQUARE-1);
+
+    wire [9:0]  bar = vidout_x + frame_count;
+
+    reg [23:0]  vidout_rgb;
+
+// combinational, so colour stays aligned with the registered de it is sampled against
+always @* begin
+    if(~vidout_de) begin
+        vidout_rgb = 24'h000000;
+    end else if(border) begin
+        vidout_rgb = 24'hFFFFFF;
+    end else if(square_edge) begin
+        vidout_rgb = 24'hFF0000;
     end else begin
-        vidout_de <= 0;
-        vidout_skip <= 0;
-        vidout_vs <= 0;
-        vidout_hs <= 0;
-        
-        vidout_hs_1 <= vidout_hs;
-        vidout_de_1 <= vidout_de;
-        
-        // x and y counters
-        x_count <= x_count + 1'b1;
-        if(x_count == VID_H_TOTAL-1) begin
-            x_count <= 0;
-            
-            y_count <= y_count + 1'b1;
-            if(y_count == VID_V_TOTAL-1) begin
-                y_count <= 0;
-            end
-        end
-        
-        // generate sync 
-        if(x_count == 0 && y_count == 0) begin
-            // sync signal in back porch
-            // new frame
-            vidout_vs <= 1;
-            frame_count <= frame_count + 1'b1;
-        end
-        
-        // we want HS to occur a bit after VS, not on the same cycle
-        if(x_count == 3) begin
-            // sync signal in back porch
-            // new line
-            vidout_hs <= 1;
-        end
-
-        // inactive screen areas are black
-        vidout_rgb <= 24'h0;
-        // generate active video
-        if(x_count >= VID_H_BPORCH && x_count < VID_H_ACTIVE+VID_H_BPORCH) begin
-
-            if(y_count >= VID_V_BPORCH && y_count < VID_V_ACTIVE+VID_V_BPORCH) begin
-                // data enable. this is the active region of the line
-                vidout_de <= 1;
-                
-                vidout_rgb[23:16] <= 8'd60;
-                vidout_rgb[15:8]  <= 8'd60;
-                vidout_rgb[7:0]   <= 8'd60;
-                
-            end 
-        end
+        vidout_rgb = bar[5] ? 24'h505050 : 24'h282828;
     end
 end
 
