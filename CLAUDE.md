@@ -43,7 +43,7 @@ Anything below a sub-feature is small enough to explain in a sentence, so explai
 
 A module that compiles isn't a module that works. Every module takes the same route:
 
-- **Simulate first.** Exercise the ports, the edge cases, and the timing you're least sure about before the module goes near Quartus. Synthesis checks that a module is legal, not that it's right. A module's testbench is `src/fpga/core/<module>_tb.v`, it reports failure with `$fatal` or `$error`, and `pnpm run test:sim` runs it.
+- **Simulate first.** Exercise the ports, the edge cases, and the timing you're least sure about before the module goes near Quartus. Synthesis checks that a module is legal, not that it's right. A module's testbench is `src/tests/<module>.v`, it reports failure with `$fatal` or `$error`, and `pnpm run test:sim` runs it.
 - **Build the ROM that proves it.** One ROM per module, written for that module's requirement. Video timing gets a ROM that stresses sync and refresh; the VSU gets one that plays known tones. A commercial game exercises everything at once and proves nothing in particular.
 - **Say what a pass looks like.** What shows on screen, what comes out of the speaker, what failure looks like instead. That's the `expectation` field in the ROM spec, and it gets written before the code. "Load it and see" is not an instruction.
 - **Ask for the hardware test.** Only a maintainer can watch the Pocket. Ask, wait for the verdict, and don't call the module done before it comes back.
@@ -56,7 +56,7 @@ Node 24 and pnpm 11, then `pnpm install`. There's no toolchain to install for RO
 
 - `pnpm run build:roms` builds every ROM into `.roms/` and prints each one's pass criterion. `-- --rom halt` builds one.
 - `pnpm run test:roms` runs the assembler's own tests against the encodings.
-- `pnpm run test:sim` compiles and runs every `src/fpga/core/*_tb.v` testbench into `.sim/`. `-- --bench video_timing` runs one; `-- --timeout 5` shortens the per-bench kill.
+- `pnpm run test:sim` compiles and runs every `src/tests/*.v` testbench into `.sim/`. `--bench host_video_timing` runs one; `--timeout 5` shortens the per-bench kill. No `--` separator — pnpm forwards it literally and the flags stop parsing.
 - `pnpm run format:md` and `pnpm run format:ts` format through VS Code, so they match what the editor does on save.
 - `pnpm run sync:repos` refreshes `.repos/`. Only when bumping a reference.
 - `quartus_sh --flow compile src/fpga/ap_core.qpf` compiles the bitstream, from the repo root. Don't chain a `cd` into that command — Quartus resolves against the changed directory and writes output somewhere else.
@@ -73,6 +73,7 @@ Quartus is Prime Lite 21.1 on morgan-vieira's machine, and Icarus Verilog 12.0 i
 ## Where code lives
 
 - `src/fpga` - the Quartus project (`ap_core.qpf`/`.qsf`). `core/` is the Virtual Boy logic — start at `core_top.v`. `apf/` is Analogue's scaffolding, rarely what you want to edit. `output_files/` is compile output.
+- `src/tests/` - one testbench per module, named for the module it exercises. Benches compile against the modules in `src/fpga/core/`.
 - `src/roms/` - one directory per test ROM, each a `rom.ts`. Start at `src/roms/README.md`; it covers the image layout and why the trailer sits at the end of the file.
 - `scripts/lib/` - the V810 assembler (`v810.ts`), its tests, and the ROM packer (`vb-rom.ts`).
 - `core.json`, `video.json`, `audio.json`, `data.json`, `input.json`, `interact.json`, `variants.json`, `info.txt` - APF core definition files. Schema in `docs/analogue/core-definition-files.md`.

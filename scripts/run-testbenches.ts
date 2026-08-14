@@ -13,11 +13,14 @@ import * as Stream from "effect/Stream";
 import { Command, Flag } from "effect/unstable/cli";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 
-// Testbenches sit beside the module they exercise; the compiled programs and any
-// waveform dumps are disposable and land in a gitignored directory at the root.
-export const testbenchSourceDirPath = ["src", "fpga", "core"] as const;
+// A module's testbench is src/tests/<module>.v, named for the module it
+// exercises and compiled against the synthesizable sources under src/fpga/core/.
+// The compiled programs and any waveform dumps are disposable and land in a
+// gitignored directory at the root.
+export const testbenchSourceDirPath = ["src", "tests"] as const;
+export const moduleLibraryDirPath = ["src", "fpga", "core"] as const;
 export const testbenchOutputDirName = ".sim";
-export const testbenchFileSuffix = "_tb.v";
+export const testbenchFileSuffix = ".v";
 
 // $fatal and $error only exist under a SystemVerilog generation, and they are how
 // a self-checking bench reports. Synthesizable sources carry no timescale of their
@@ -125,7 +128,11 @@ export type TestbenchRunError = typeof TestbenchRunError.Type;
 export const isTestbenchRunError = Schema.is(TestbenchRunError);
 
 export interface Testbench {
-  /** File base name, which is also the top module name: `video_timing_tb`. */
+  /**
+   * File base name, which is the name of the module under test:
+   * `host_video_timing`. The bench module inside carries a `_tb` suffix so it
+   * cannot collide with the module it instantiates.
+   */
   readonly name: string;
   readonly sourcePath: string;
 }
@@ -201,7 +208,7 @@ const runTool = Effect.fn("runTool")(function* (
  */
 export const runTestbench = Effect.fn("runTestbench")(function* (
   testbench: Testbench,
-  paths: { readonly sourceDir: string; readonly outputDir: string },
+  paths: { readonly moduleLibraryDir: string; readonly outputDir: string },
   timeout: Duration.Duration,
 ) {
   const path = yield* Path.Path;
@@ -209,7 +216,14 @@ export const runTestbench = Effect.fn("runTestbench")(function* (
 
   const compile = yield* runTool(
     "iverilog",
-    [...iverilogFlags, moduleLibraryFlag, paths.sourceDir, "-o", programPath, testbench.sourcePath],
+    [
+      ...iverilogFlags,
+      moduleLibraryFlag,
+      paths.moduleLibraryDir,
+      "-o",
+      programPath,
+      testbench.sourcePath,
+    ],
     { testbenchName: testbench.name, cwd: paths.outputDir },
   ).pipe(Effect.scoped);
 
@@ -265,6 +279,7 @@ export const runTestbenches = Effect.fn("runTestbenches")(function* (
 
   const rootDir = path.resolve(options.rootDir ?? process.cwd());
   const sourceDir = path.join(rootDir, ...testbenchSourceDirPath);
+  const moduleLibraryDir = path.join(rootDir, ...moduleLibraryDirPath);
   const outputDir = path.join(rootDir, testbenchOutputDirName);
   const timeout = Duration.seconds(options.timeoutSeconds ?? defaultTimeoutSeconds);
 
@@ -272,11 +287,7 @@ export const runTestbenches = Effect.fn("runTestbenches")(function* (
   const testbenches =
     options.testbenchName === undefined
       ? allTestbenches
-      : allTestbenches.filter(
-          (testbench) =>
-            testbench.name === options.testbenchName ||
-            testbench.name === `${options.testbenchName}_tb`,
-        );
+      : allTestbenches.filter((testbench) => testbench.name === options.testbenchName);
 
   if (options.testbenchName !== undefined && testbenches.length === 0) {
     return yield* new TestbenchSelectionError({
@@ -297,7 +308,7 @@ export const runTestbenches = Effect.fn("runTestbenches")(function* (
   const failedTestbenchNames: Array<string> = [];
 
   for (const testbench of testbenches) {
-    const outcome = yield* runTestbench(testbench, { sourceDir, outputDir }, timeout).pipe(
+    const outcome = yield* runTestbench(testbench, { moduleLibraryDir, outputDir }, timeout).pipe(
       Effect.result,
     );
 
@@ -334,13 +345,13 @@ export const runTestbenchesCommand = Command.make(
   {
     root: Flag.string("root").pipe(
       Flag.withDescription(
-        "Repository root holding src/fpga/core/. Defaults to the current directory.",
+        "Repository root holding src/tests/. Defaults to the current directory.",
       ),
       Flag.optional,
     ),
     bench: Flag.string("bench").pipe(
       Flag.withDescription(
-        "Run only this testbench, named with or without its _tb suffix. Defaults to all of them.",
+        "Run only this testbench, named for its module. Defaults to all of them.",
       ),
       Flag.optional,
     ),
@@ -357,7 +368,7 @@ export const runTestbenchesCommand = Command.make(
     }),
 ).pipe(
   Command.withDescription(
-    "Compile and run every Verilog testbench under src/fpga/core/ with Icarus Verilog.",
+    "Compile and run every Verilog testbench under src/tests/ with Icarus Verilog.",
   ),
 );
 

@@ -36,7 +36,8 @@ Where the two disagree, follow beetle-vb and say so in the comment.
 Not Virtual Boy hardware, and not a module. Needed before anything can be proven.
 
 - [x] **A way to simulate.** `pnpm run test:sim` (`scripts/run-testbenches.ts`)
-      compiles every `src/fpga/core/*_tb.v` against the modules beside it and runs it,
+      compiles every `src/tests/<module>.v` against the modules in
+      `src/fpga/core/` and runs it,
       with `.vvp` programs and waveform dumps landing in the gitignored `.sim/`. It
       fails the process on `$fatal`, on a compile error, on a bench that outlives its
       timeout, and on `$error` — which Icarus reports but exits zero for, so the
