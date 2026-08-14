@@ -8,7 +8,7 @@
 
 # Virtual Boy
 
-A Nintendo Virtual Boy core for the Analogue Pocket, built on openFPGA.
+A Nintendo Virtual Boy core for the Analogue Pocket.
 
 ## Legal
 
