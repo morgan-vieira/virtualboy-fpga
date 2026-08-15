@@ -67,9 +67,24 @@ Vectors the ROM does not name get a stub that halts and branches onto itself. A 
 
 ## The ROMs
 
-| ROM    | Module under test           | Pass looks like                                                                                                                                                                                                   |
-| ------ | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `halt` | none — the packaging itself | Loads in a reference emulator without being rejected, writes `0xDEADBEEF` to WRAM `0x05000000`, and sits in `HALT`. Not yet judgeable on the Pocket: the core has no CPU, so a black screen there proves nothing. |
+| ROM          | Module under test           | Pass looks like                                                                                                                                                                                                                                                                                        |
+| ------------ | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `halt`       | none — the packaging itself | Loads in a reference emulator without being rejected, writes `0xDEADBEEF` to WRAM `0x05000000`, and sits in `HALT`. On the Pocket: the halt square fills and the status cells read `0xBEEF`.                                                                                                           |
+| `cpu-alu`    | `cpu`                       | Status cells read `0x600D` with the halt square filled. A failure spins with the failing check's number on the cells: arithmetic, flags, multiply/divide r30 ordering, shifts, load/store widths.                                                                                                      |
+| `cpu-branch` | `cpu`                       | Status cells read `0x600D` with the halt square filled. All sixteen conditions both ways, `JMP`/`JR`/`JAL`, the `r31` link, and target bit-0 masking.                                                                                                                                                  |
+| `cpu-except` | `cpu`                       | Status cells read `0x600D` with the halt square filled. Trap through both vectors, RETI restoring flags, illegal opcode and zero divide resumed by handler, the duplexed escalation, sysreg fixed values, WCR readback.                                                                                |
+| `busmap`     | `mem_bus`                   | Status cells read `0x600D` with the halt square filled. A value per region, mirrors both by region masking and by the 27-bit space, zero from unmapped/VSU/expansion, byte lanes.                                                                                                                      |
+| `timer`      | `timer`                     | Status cells count up by one each second — `0x003C` after a timed minute — and the halt square never fills. A frozen small number is that check failing. Mednafen freezes at `0x0003` by design: beetle-vb defers the reload write the scroll documents as immediate, and the core follows the scroll. |
+
+The CPU-era ROMs share a status convention: the ROM writes a running check
+number to WRAM `0x05000000` before each check, `core_top` latches writes to that
+address onto a row of on-screen cells, success writes `0x600D` and halts, and
+each failure spins with its own number showing. The failing check is then read
+straight off the screen.
+
+On the Pocket, built `.vb` images go in `Assets/virtualboy/common/` on the SD
+card; the core prompts for one at launch and can reload from the Interact menu.
+The cartridge slot tops out at 64KB until cartridge memory moves off-chip.
 
 ## Where the format came from
 

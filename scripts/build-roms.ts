@@ -136,6 +136,17 @@ export const loadRomSpec = Effect.fn("loadRomSpec")(function* (source: RomSource
 const formatSize = (bytes: number): string =>
   bytes >= 1024 * 1024 ? `${bytes / 1024 / 1024}MB` : `${bytes / 1024}KB`;
 
+// $readmemh image: one 16-bit little-endian halfword per line, matching the
+// bus width. Consumed by cart_rom.v at synthesis and by src/tests/cpu.v.
+const toHexImage = (bytes: Uint8Array): string => {
+  const lines: Array<string> = [];
+  for (let offset = 0; offset < bytes.length; offset += 2) {
+    const halfword = (bytes[offset + 1]! << 8) | bytes[offset]!;
+    lines.push(halfword.toString(16).padStart(4, "0"));
+  }
+  return `${lines.join("\n")}\n`;
+};
+
 export const buildRoms = Effect.fn("buildRoms")(function* (options: RomBuildOptions = {}) {
   const fileSystem = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -175,6 +186,11 @@ export const buildRoms = Effect.fn("buildRoms")(function* (options: RomBuildOpti
     yield* fileSystem
       .writeFile(outputPath, rom.bytes)
       .pipe(Effect.mapError((cause) => new RomWriteError({ outputPath, cause })));
+
+    const hexPath = path.join(outputDir, `${rom.name}.hex`);
+    yield* fileSystem
+      .writeFileString(hexPath, toHexImage(rom.bytes))
+      .pipe(Effect.mapError((cause) => new RomWriteError({ outputPath: hexPath, cause })));
 
     yield* Console.log(
       `${rom.name}.vb  ${formatSize(rom.sizeBytes)}  ` +

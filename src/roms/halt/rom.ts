@@ -5,11 +5,12 @@ export default defineRom({
   name: "halt",
   header: { gameTitle: "OPENFPGA HALT", makerCode: "OF", gameCode: "VHLT", revision: 0 },
   expectation:
-    "In Mednafen: the image loads without being rejected, the log reports the title " +
-    "OPENFPGA HALT and a 1KiB ROM, and the emulator sits idle with a black screen. " +
-    "Not yet judgeable on the Pocket — the core has no CPU, so a black screen there " +
-    "proves nothing either way. Failure is Mednafen refusing the image, or reporting " +
-    "a different title, code or size.",
+    "On the Pocket: the centre square fills solid red (CPU halted) and the top row " +
+    "of 16 status cells reads 0xBEEF (1011 1110 1110 1111) — the low halfword of " +
+    "the 0xDEADBEEF the ROM stores to 0x05000000. In Mednafen: the image loads " +
+    "without being rejected, the log reports the title OPENFPGA HALT and a 1KiB " +
+    "ROM. Failure is a hollow square, different cells, or Mednafen refusing the " +
+    "image.",
   program: (asm) => {
     asm.label("start");
     // Masks interrupts, which would otherwise wake the CPU out of the halt
