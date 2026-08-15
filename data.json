@@ -1,6 +1,19 @@
 {
     "data": {
         "magic": "APF_VER_1",
-        "data_slots": []
+        "data_slots": [
+            {
+                "name": "Cartridge",
+                "id": 0,
+                "required": true,
+                "parameters": "0x49",
+                "extensions": [
+                    "vb"
+                ],
+                "size_exact": 0,
+                "size_maximum": 65536,
+                "address": "0x00000000"
+            }
+        ]
     }
 }
