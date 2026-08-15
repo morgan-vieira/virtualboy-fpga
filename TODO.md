@@ -49,6 +49,31 @@ Not Virtual Boy hardware, and not a module. Needed before anything can be proven
       `core/host_video_timing.v` is listed. Its compile closed with every slack
       positive and TNS 0.000, at 433 ALMs and 2 RAM blocks. Stays open as a standing
       obligation, not as a task with an end.
+      `core/mem_bus.v`, `core/cpu.v`, `core/cart_rom.v`,
+      `core/cpu_clock_enable.v` and `core/timer.v` are listed too — the
+      SystemVerilog ones as `SYSTEMVERILOG_FILE`, new RTL being SystemVerilog
+      by Morgan's call (2026-08-14). The full-core compile closes with every slack positive and
+      TNS 0.000 in all corners: 3,006 ALMs (16%), 130 RAM blocks (42%), 3 DSPs,
+      with the CPU domain at 133.12 MHz. The 0.4.0 compile (timer landed,
+      `SEED 2` after 3/4/5 each failed setup by 0.3–0.6 ns) closes at 3,207
+      ALMs (17%), 130 RAM blocks, worst-case setup slack +0.020 ns with TNS
+      0.000 in all corners — the seed lottery that motivated the per-CE
+      rebuild decided in section 3. The 0.5.0 compile (the rebuild: CPU
+      domain at 39.936 MHz, qsf back to `OPTIMIZATION_MODE BALANCED` and
+      `SEED 1`) closes at 3,121 ALMs (17%), 130 RAM blocks, 3 DSPs, with
+      every category's worst-case slack positive in all corners — setup
+      +2.280 ns, hold +0.161, recovery +17.045, removal +1.304 — on the
+      first and only seed. The lesson still baked into the code: a compile
+      once hit 16.6k ALMs and a silent miscompile from per-call-site
+      register-file access and Quartus 21.1 dropping module-scope reads
+      inside automatic functions; `cpu.v` keeps every function pure and the
+      register file at one read site and one write port, and the map report
+      gets grepped for "assigned a value but never read" after every
+      compile (0.5.0: only Analogue's template scratch registers). The
+      other 133 MHz-era lesson — that closing that domain took predecode
+      stages, a two-stage shifter, and registered bus command and answer —
+      is history the rebuild deleted; cpu.v's header says why those stages
+      must not come back.
 - [ ] **DECIDE: SignalTap is on in the template.** `ap_core.qsf` carries
       `ENABLE_SIGNALTAP ON` with `core/stp1.stp` (lines 326, 327, 744), inherited from
       Analogue rather than chosen. It costs nothing today — `stp1.stp` instruments no
@@ -131,26 +156,26 @@ One 27-bit address space, seven devices, and the mirroring rules that games rely
 
 ### Feature: route an access to the right device
 
-- [~] **Decode the seven regions.** VIP at `0x00xxxxxx`, VSU at `0x01xxxxxx`,
+- [x] **Decode the seven regions.** VIP at `0x00xxxxxx`, VSU at `0x01xxxxxx`,
       miscellaneous hardware at `0x02xxxxxx`, unmapped at `0x03xxxxxx`, cartridge
       expansion at `0x04xxxxxx`, work RAM at `0x05xxxxxx`, cartridge RAM at
       `0x06xxxxxx`, cartridge ROM at `0x07xxxxxx`. Now `core/mem_bus.v`: a
       halfword bus, one-hot selects off `addr[26:24]`, matching both MiSTer's
       `vb_vue_addr_decode` and beetle-vb's `switch(A >> 24)` (`libretro.cpp`).
       Devices answer the cycle after their select, the shape block RAM gives.
-- [~] **Mask the address down to 27 bits.** Everything from `0x08000000` up is a
+- [x] **Mask the address down to 27 bits.** Everything from `0x08000000` up is a
       mirror of the whole map, achieved by dropping the top five bits, which makes
       `0x07FFFFFF` the highest address that can be expressed. Structural in
       `mem_bus`: the port is `addr[26:1]`, so the mask is the wire count, the same
       way MiSTer's `vue.v` takes `a_i[26:1]`. Proven for real when the CPU's
       address port connects.
-- [~] **Answer the unmapped region.** Writes into `0x03xxxxxx` do nothing and reads
+- [x] **Answer the unmapped region.** Writes into `0x03xxxxxx` do nothing and reads
       return zero — a defined behavior, not a bus fault. `mem_bus` parks its answer
       mux on this region at reset, so rdata is zero out of reset too.
 
 ### Feature: hold work RAM
 
-- [~] **64 KiB of storage.** It occupies the first 64 KiB of its region and mirrors
+- [x] **64 KiB of storage.** It occupies the first 64 KiB of its region and mirrors
       through the rest by masking address bits 16 through 23. In `mem_bus`, as two
       byte arrays so byte-lane writes infer block RAM byte enables.
 - [~] **Leave it undefined at reset.** Real hardware powers up with garbage; filling
@@ -165,10 +190,13 @@ One 27-bit address space, seven devices, and the mirroring rules that games rely
 
 These differ per peripheral and are an easy source of bugs that only show up in one game.
 
-- [ ] **Miscellaneous hardware takes any width.** Its registers sit four bytes apart
+- [~] **Miscellaneous hardware takes any width.** Its registers sit four bytes apart
       specifically so byte, halfword and word accesses all land correctly, even though
       they're documented as byte-oriented. Lands with the misc register block, not
-      the bus — the bus only routes the region.
+      the bus — the bus only routes the region. In `core/timer.v` for its three
+      registers (byte lane 0 carries the register, the block mirroring every 0x100
+      the way beetle-vb decodes `A & 0xFF`), watched per width by the `timer` ROM's
+      check 4; the keypad registers extend the same shape when they land.
 - [ ] **VIP registers mangle byte writes.** They expect halfwords. A byte write to an
       even address performs a halfword write using the low 16 bits of the source
       register; a byte write to an odd address performs one using the low 8 bits
@@ -179,27 +207,41 @@ These differ per peripheral and are an easy source of bugs that only show up in 
       undefined, because its bus is 8 bits. `mem_bus` already answers VSU reads
       with zero, following beetle-vb (`MemRead16` falls through); the write rule
       lands in the VSU.
-- [~] **Round unaligned accesses down.** A halfword access ignores address bit 0 and a
+- [x] **Round unaligned accesses down.** A halfword access ignores address bit 0 and a
       word access ignores bits 1 and 0. Nothing faults; the address just moves.
       Structural: bit 0 never leaves the CPU (`addr[26:1]`), and a word access is
       two halfword bus cycles, so the CPU's bus unit owns bit 1.
 
 ### Feature: insert cartridge wait states
 
-- [ ] **Two waits or one, per region.** A single control register carries one bit for
+- [~] **Two waits or one, per region.** A single control register carries one bit for
       the ROM region and one for the expansion region; a clear bit means two waits and
       a set bit means one. Both start clear at reset, so the slow case is the default.
       Note beetle-vb reads WCR back as `WCR | 0xFC` — the unused bits read as ones.
-- [ ] **Feed the CPU's timing.** This is the only knob software has over memory speed,
+      Now in `cpu.v` (writes to `0x02000024` snooped, reads intercepted with the
+      `| 0xFC` readback), proven in simulation by the bench's WCR timing span;
+      the readback watched both ways via `cpu-except` (2026-08-14). The wait
+      counts themselves stay sim-proven until a timebase exists.
+- [~] **Feed the CPU's timing.** This is the only knob software has over memory speed,
       so it belongs in whatever the CPU uses to count bus cycles rather than sitting
       off to one side as a register that nothing reads. Deliberately absent from
       `mem_bus` for that reason; MiSTer does the same, keeping waits in
       `vb_vue_wait_control` beside the CPU's READY pin rather than in the decode.
+      `region_wait` in `cpu.v` is exactly that: waits charged into the cycle
+      budget, per fetch halfword and per data access.
 
 **ROM:** `busmap` — writes a distinct value per region, reads it back through both the
-direct address and a mirror, and checks the unmapped region reads zero.
-**Pass criterion:** halts on success, spins at a distinct address per failing region.
-**Blocked on:** section 3 — the ROM needs a CPU to run. Until then the proof is
+region mirror and the 27-bit-space mirror, checks unmapped/VSU/expansion read zero,
+and walks the byte lanes. Built, checked under Mednafen, and passing in simulation
+against the CPU (`src/tests/cpu.v` runs the image to its success halt). Reports
+through the status convention in `src/roms/README.md`.
+**Pass criterion:** the on-screen status cells read `0x600D` with the halt square
+filled; a failure shows the failing check's number instead.
+**Watched and passed 2026-08-14** by morgan-vieira on the 0.2.1 bitstream
+(screenshot `20260814_153229.png`): status `0x600D`, square filled, and the PC
+row reading exactly `busmap`'s computed halt address `0x07000144`. The
+access-width and wait-state features stay open — they belong to devices and
+CPU timing that don't exist yet. Simulation-side proof is
 `src/tests/mem_bus.v`: selects one-hot per region at both region ends, every device
 answer routed back the cycle after its access, zero from VSU/unmapped/expansion
 reads, work RAM written and read back through mirrors and byte lanes, untouched by
@@ -224,36 +266,118 @@ instantiates the module.
 The CPU: a 20 MHz V810 with Nintendo's additions, a 16-bit external bus and a
 32-bit word.
 
+**Slice 1 landed as `core/cpu.v`**: a multicycle machine over `mem_bus` — no
+pipeline, no cache, no prefetch, no cycle accuracy (its `ce` port is where the
+20 MHz-average enable lands when that feature does; tied high until then).
+Proven by `src/tests/cpu.v` — nine directed scenarios on hand-encoded programs
+generated by the repo's assembler, plus the `cpu-alu`, `cpu-branch` and
+`busmap` images run to their success halts — and by eight deliberate mutations
+of the module (flag polarity, r30 write order, branch base PC, load sign
+extension, interrupt level compare, ANDI extension, RETI pair choice, shift-
+by-zero carry), each caught by a distinct check before the bench was trusted.
+**Watched and passed 2026-08-14** by morgan-vieira on the 0.2.1 bitstream:
+`cpu-alu`, `cpu-branch` and `busmap` each showed the filled halt square with
+status `0x600D` (screenshots `20260814_153152/153206/153229.png`), and each
+PC row matched its ROM's computed halt address exactly — `0x07000806`,
+`0x070002F0`, `0x07000144` — so the screens are authenticated, not just
+plausible. **Re-watched and passed 2026-08-14** on the 0.3.0 bitstream — the
+cycle-accurate rework in the 133 MHz domain — alongside `cpu-except`
+(screenshots `20260814_201316/201329/201350/201414.png`), every PC row again
+matching its computed halt address, `cpu-except`'s being `0x070001E0`.
+Interrupts wait on the first source, the timer; the cycle counts wait on a
+timebase.
+
+**DECIDED (morgan-vieira, 2026-08-14): slice 3 is a per-CE rebuild.** The
+133 MHz multicycle domain closes timing by seed lottery — landing the timer's
+irq materialized the CPU's interrupt-accept cone, previously constant-folded
+away behind the tied-low port, and three seeds left the exception-restore
+paths 0.3–0.6 ns short. MiSTer proves the whole machine in one ~40 MHz domain
+with a 20 MHz clock enable and a per-CE pin-level V810
+(`rtl/NECv810/NECv810.sv`), trading CPU complexity for triple the timing
+budget — and its microstructure is *more* faithful than our budget-charging
+approximation, not less. The rebuild reimplements that shape (pattern, never
+code) after the timer ships on the current domain: core domain moves to a
+same-VCO ~40 MHz output (the drift-free video lock holds at any same-VCO
+ratio; 39.936 MHz gives a 625/1248 enable), `timer.v` carries over untouched
+since it counts ce ticks, and the existing bench suite plus all five ROMs are
+the acceptance bar. This lands before the VIP, so the VIP is designed for the
+domain it will live in.
+
+**Slice 3 landed 2026-08-15 as the 0.5.0 rebuild of `cpu.v`.** The domain is
+the PLL's C2 output re-solved to 39.936 MHz (the fit chose VCO 638.976 with
+C0=52, C2=16 — a 13:4 ratio against video, so the 625/1248 enable is exact),
+and the machine the same architecture minus every 133 MHz retiming
+stage: no predecode pipeline, no two-stage shifter, no registered bus answer
+or command — decode, register read, execute and writeback close
+combinationally in the 25 ns cycle, and the walk between executes shrank to
+at most five clocks. The budget ledger carried over unchanged (`owed`,
+charged at execute, drained per tick, execute barred until empty) because
+the bench's eleven measured spans are the spec; one deviation from the
+decision as written, recorded in `cpu.v`'s header: bus requests ride the
+fast clock rather than the ticks, because a strictly tick-gated two-request
+fetch cannot fit a charge-2 instruction followed by a 32-bit one — the
+accumulator is what keeps the spans exact, and the walk-inside-drain margins
+that make it sound are derived there, including the two adjacent-clock
+enables per 1248 the new ratio brings. `timer.v`, `mem_bus.v` and
+`cart_rom.v` carried over untouched as decided; `ap_core.qsf` dropped
+HIGH PERFORMANCE EFFORT and the seed back to defaults, since closing without
+them is the point. Proven by the full bench suite at the new ratio, with the
+`cpu` bench additionally swept across six enable phases (both adjacency
+positions included) and every timing span exact at each.
+
+**Watched and passed 2026-08-15** by morgan-vieira on the 0.5.0 bitstream,
+all six ROMs (screenshots `20260815_094942`–`095104.png`), every frame
+measured pixel-exact at 384×224 native with four colours and an intact
+border. The five halting ROMs each showed the filled square with the PC
+row matching its image's computed halt address: `halt` status `0xBEEF` at
+`0x07000014` (derived from its 22-byte layout, now on record), `busmap`
+`0x600D` at `0x07000144`, `cpu-alu` `0x600D` at `0x07000806`, `cpu-except`
+`0x600D` at `0x070001E0`, and `cpu-branch` `0x600D` at `0x070002DC` — a
+different address than the `0x070002F0` in the earlier record because the
+ROM's bytes have shifted since that build: in today's hex the `0x600D`
+immediate sits at `0x2D4` and the success halt at `0x2DA`, so the screen
+matches today's image exactly. The `timer` frame showed the hollow square,
+the PC row inside the display loop at `0x07000210`, and status `0x000B` —
+eleven seconds after its boot, consistent with the session's screenshot
+timeline. The once-per-second cadence — the one claim a still image
+cannot carry — was watched and confirmed by morgan-vieira (2026-08-15),
+which closes the whole 0.5.0 acceptance bar: the engine swap is done, and
+the VIP gets built directly in this domain.
+
 ### Feature: execute the integer instruction set
 
-- [ ] **Decode all seven instruction formats.** Instructions arrive as halfwords and
+- [~] **Decode all seven instruction formats.** Instructions arrive as halfwords and
       are 16 or 32 bits long, with the opcode in the top bits of the first halfword
       deciding both the format and whether a second halfword follows. In a 32-bit
       instruction the first halfword supplies the *upper* half of the word, which is
-      the opposite of what reading the bytes in order suggests.
-- [ ] **Provide the register file.** Thirty-two general registers with `r0` hardwired
+      the opposite of what reading the bytes in order suggests. Format VII decodes
+      only as far as the illegal-opcode stand-in below.
+- [~] **Provide the register file.** Thirty-two general registers with `r0` hardwired
       to zero, plus a program counter whose lowest bit is always clear. Several
       registers carry meaning to specific instructions rather than by convention:
       multiply's high word and divide's remainder land in `r30`, `JAL`'s return address
       in `r31`, and the bit string instructions take five of their operands from
-      `r26` through `r30`.
-- [ ] **Compute arithmetic and set flags correctly.** Multiply writes its high 32 bits
+      `r26` through `r30`. Flops, undefined at reset like the real part; the
+      bit-string roles of `r26`–`r29` wait for that feature.
+- [x] **Compute arithmetic and set flags correctly.** Multiply writes its high 32 bits
       to `r30` before writing the low half to the destination, and divide writes its
       remainder first — order matters when the destination *is* `r30`. Divide rounds
       toward zero, the remainder takes the dividend's sign, dividing by zero raises an
       exception, and dividing `0x80000000` by −1 sets overflow. Carry is left alone by
-      both multiply and divide.
-- [ ] **Compute bitwise and shift operations.** All of them clear overflow. Carry
+      both multiply and divide. Multiply is the `*` operator (the Pocket's DSP
+      blocks sit unused; no reason to dodge them), divide a 32-step restoring loop.
+- [x] **Compute bitwise and shift operations.** All of them clear overflow. Carry
       after a shift is the last bit shifted out, or cleared when the shift amount was
       zero. `ANDI` is the odd one: it sets zero but *clears* sign rather than computing
-      it.
-- [ ] **Load and store.** Loads sign-extend and inputs zero-extend, which is the only
+      it — which falls out of the zero-extended operand, and `cpu.v` says so.
+- [x] **Load and store.** Loads sign-extend and inputs zero-extend, which is the only
       difference between them since the I/O bus is mapped onto the memory bus. Stores
       and outputs are identical in function; the byte and halfword forms write only the
       low bits of the source register.
-- [ ] **Branch and jump.** Sixteen condition codes are shared with `SETF`, one of which
+- [x] **Branch and jump.** Sixteen condition codes are shared with `SETF`, one of which
       always branches and one of which never does. Every target masks its lowest bit,
-      because the program counter can't hold an odd address.
+      because the program counter can't hold an odd address. The branch base is the
+      branch's own address, which one bench mutation specifically pinned.
 
 ### Feature: execute the floating-point instructions
 
@@ -287,9 +411,10 @@ The CPU: a 20 MHz V810 with Nintendo's additions, a 16-bit external bus and a
 
 ### Feature: execute Nintendo's added instructions
 
-- [ ] **Two standalone instructions.** Clear and set the interrupt-disable flag, each
+- [~] **Two standalone instructions.** Clear and set the interrupt-disable flag, each
       taking 12 cycles. They occupy the same opcodes NEC later gave to `EI` and `DI` on
-      the V830, where the same operations take only 2 cycles.
+      the V830, where the same operations take only 2 cycles. The flag behavior is in;
+      the 12 cycles belong to the timing feature below.
 - [ ] **Four extended instructions.** Multiply-halfword, bit reverse, byte exchange and
       halfword exchange. Multiply-halfword sign-extends the low *17* bits of its
       operand, not 16.
@@ -299,27 +424,41 @@ The CPU: a 20 MHz V810 with Nintendo's additions, a 16-bit external bus and a
 
 ### Feature: handle exceptions and interrupts
 
-- [ ] **Three tiers that escalate.** A normal exception saves state to one register
+- [x] **Three tiers that escalate.** A normal exception saves state to one register
       pair and sets a pending flag; an exception raised while that flag is set becomes
       a duplexed exception using a second register pair; an exception during *that*
       is fatal — the CPU writes the cause, status word and program counter to the
-      first three words of memory and halts until reset.
-- [ ] **Choose the right return address.** Some exceptions resume at the instruction
+      first three words of memory and halts until reset. Regular and duplexed
+      watched via `cpu-except` (2026-08-14); the fatal tier stays bench-proven
+      only — its screen state is indistinguishable from a pass-halt, so no ROM
+      can show it.
+- [x] **Choose the right return address.** Some exceptions resume at the instruction
       that faulted and some at the one after it. `TRAP` and ordinary interrupts use the
       next instruction; faults, address traps, and any interrupt taken during a bit
-      string instruction use the current one.
-- [ ] **Accept interrupts under four conditions at once.** Interrupts are disabled by
+      string instruction use the current one. Watched via `cpu-except`: traps
+      resume after, faults at the faulting instruction. The bit-string case
+      waits for bit strings.
+- [~] **Accept interrupts under four conditions at once.** Interrupts are disabled by
       one flag, blocked by either pending-exception flag, and masked by level. Five
       hardware sources exist, ranked with the VIP highest and the game pad lowest, and
-      accepting one raises the mask to that level plus one.
-- [ ] **Check between instructions, not during.** This is why an interrupt can never
+      accepting one raises the mask to that level plus one. The timer now drives the
+      port at level 1 from `core_top`, exercised end to end by the `timer` ROM in
+      `src/tests/cpu.v` and **watched on hardware 2026-08-15** — interrupts
+      accepted, acknowledged and RETI'd through 0xFE10 on the Pocket; the
+      priority encoder proper waits for a second source.
+- [~] **Check between instructions, not during.** This is why an interrupt can never
       coincide with an instruction exception, and why a pending interrupt waits for the
-      current instruction — or a cache dump or restore — to finish.
-- [ ] **Halt until something happens.** `HALT` stops the CPU until an interrupt is
+      current instruction — or a cache dump or restore — to finish. Note the V810
+      manual (Table 6-2) claims DIV/DIVU are abortable mid-flight with restore at
+      current PC; the scroll says between instructions only. We follow the scroll —
+      the VB-specific source — and `cpu.v` says so. Revisit if a game cares about
+      1.9 µs of interrupt latency through a divide.
+- [~] **Halt until something happens.** `HALT` stops the CPU until an interrupt is
       accepted. With everything masked it never resumes, and that's correct behavior
-      rather than a hang to guard against.
+      rather than a hang to guard against. Benched both ways.
 - [ ] **Trap on an address.** With a breakpoint register loaded and a flag set, the CPU
       raises an exception when the program counter matches, checked before the fetch.
+      `ADTRE` stores; the compare is deliberately not wired yet.
 
 ### Feature: cache instructions
 
@@ -337,59 +476,103 @@ The CPU: a 20 MHz V810 with Nintendo's additions, a 16-bit external bus and a
 
 ### Feature: expose the system registers
 
-- [ ] **Thirteen registers reachable only through two instructions.** They configure
+- [x] **Thirteen registers reachable only through two instructions.** They configure
       the CPU rather than holding program data. Several are read-only with fixed values
       — the processor ID, the task control word, and one whose purpose nobody knows —
-      and writes to them are silently ignored rather than faulting.
-- [ ] **Three registers the V810 manual doesn't document.** Nintendo appears to have
+      and writes to them are silently ignored rather than faulting. `CHCW` stores only
+      its enable bit; the clear/dump/restore commands wait for the cache feature.
+- [x] **Three registers the V810 manual doesn't document.** Nintendo appears to have
       added them. Two have unknown significance; the third returns the absolute value of
       whatever was last written to it, which is strange enough that it's worth
-      implementing exactly rather than rationalizing.
+      implementing exactly rather than rationalizing. All three benched, and the
+      fixed values plus the absolute-value read watched via `cpu-except`.
 
 ### Feature: spend the right number of cycles
 
 This is where cycle accuracy is won or lost, and where the documents run out.
 
-- [ ] **The documented per-instruction counts.** Most instructions have a fixed figure,
-      and a conditional branch costs 1 cycle untaken against 3 taken.
-- [ ] **Load and store are context-dependent.** A load costs 5 cycles in isolation, 4
+**The model, landed 2026-08-14, rehosted 2026-08-15:** the CPU's state
+machine runs on a 39.936 MHz clock from the video PLL's own VCO (133.12 MHz
+until the slice-3 rebuild), and `cpu_clock_enable` ticks architectural time
+at 625 enables per 1248 clocks — exactly 20 MHz average and exactly 400,000
+CPU cycles per 20 ms frame, drift-free against video by construction. Each
+instruction charges max(documented base, fetch halfwords × (1 + region wait))
+plus a region wait per data access; the next instruction fetches during the
+drain and executes when it ends, which is the pipeline-overlap approximation.
+Proven by `src/tests/cpu.v`'s marker scenario — eleven measured spans, each
+matching a hand-derived cost, with two timing mutations caught — and by
+`src/tests/cpu_clock_enable.v` pinning the enable ratio. **First hardware
+confirmation 2026-08-15:** the timer ROM's seconds display — 10,000 × 100 µs
+per interrupt, counted off this enable — advanced at one per second on the
+Pocket by a maintainer's watch, which checks the whole 20 MHz-average chain
+at eyeball precision; the exact ratio stays pinned by the benches. Note the
+fetch model also means peripherals see bus writes a few fast clocks before
+their architectural instant — the timer landed as the first timed peripheral
+and nothing software-visible can resolve the skew (its module header says
+why); revisit if a later peripheral can.
+
+- [~] **The documented per-instruction counts.** Most instructions have a fixed figure,
+      and a conditional branch costs 1 cycle untaken against 3 taken. All of the
+      scroll's integer figures are charged, MUL through a pipelined multiplier
+      whose 13-cycle budget hides its three fast-clock latency.
+- [~] **Load and store are context-dependent.** A load costs 5 cycles in isolation, 4
       immediately after another load, and 1 when it follows a long instruction it
       doesn't conflict with. A store costs 1 for the first two consecutive stores and 4
-      for every consecutive store after that.
-- [ ] ? **Memory latency per device is not documented.** The reference says plainly
-      that "the exact latencies for reads needs to be researched," and the same for
-      writes. Instruction costs are known; what a load against VIP memory versus work
-      RAM versus ROM actually costs is not. This is the single largest obstacle to
-      calling the core cycle-accurate.
-- [ ] ? Input and output instruction costs "may be identical to" load and store costs,
-      unconfirmed.
-- [ ] ? The cost of entering an exception — "research is needed."
+      for every consecutive store after that. Implemented; "long instruction" means
+      the multiply/divide family, beetle-vb's `lastop` choice. The third-store
+      base of 4 is currently masked by the 4-cycle fetch floor of a 32-bit
+      instruction — it becomes observable, and testable, once the icache lands.
+- [~] ? **Memory latency per device.** The scroll says it needs research, but the
+      Development Manual's Table 4-4-3 documents wait states per region, and that is
+      what `region_wait` in `cpu.v` charges — ROM and expansion 2 (1 with the WCR
+      bit), everything else 1, VIP pinned at its documented minimum of 2 until the
+      VIP's variable handshake exists. What stays unresearched is the exact
+      fetch/execute interleave; our max() model is the approximation.
+- [~] ? Input and output instruction costs "may be identical to" load and store costs,
+      unconfirmed. Adopted as identical, per that sentence.
+- [~] ? The cost of entering an exception — "research is needed." Charged as zero,
+      following beetle-vb's explicit "exception overhead is unknown".
 - [ ] ? Floating-point instructions have documented *ranges* with no rule for which
       case costs what. A separate document gives point values that fall inside those
       ranges but contradicts itself elsewhere; see `INDEX.md`.
 - [ ] ? Bit string timing exists as a table in the V810 manual that was never carried
       into the reference.
-- [ ] ? Whether a conditional branch whose displacement points at the next instruction
-      still costs the full 3 cycles.
+- [~] ? Whether a conditional branch whose displacement points at the next instruction
+      still costs the full 3 cycles. Charged the full 3, the documented figure; the
+      bench's branch span pins it.
 
 ### Feature: come up in the documented reset state
 
-- [ ] **Three registers defined, everything else undefined.** The cause register, the
+- [~] **Three registers defined, everything else undefined.** The cause register, the
       program counter and the status word have known values; every other system
       register and every program register except `r0` does not. Initializing them
-      anyway would mask ROMs that depend on setting them.
+      anyway would mask ROMs that depend on setting them. The bench pins all three
+      values and that the first fetch is 0xFFFFFFF0 through the 27-bit mask.
+      (Deviates from beetle-vb, which zeroes r1–r31 at reset; the documents and
+      MiSTer both leave them undefined, and we follow them.)
 - [ ] ? One table in the hardware manual gives a different reset program counter than
       the other three documents and than its own text. `INDEX.md` records it; use the
       value the majority give.
 
-**ROMs:** `cpu-alu` (arithmetic and bitwise against known results, flags included),
-`cpu-branch` (all sixteen conditions both ways), `cpu-except` (trap, illegal opcode,
-zero divide, duplexed, return), `cpu-cache` (enable, clear, dump, verify the spilled
-layout), `cpu-bitstring` (bitwise and search, including wrap and overlap).
-**Pass criterion:** each halts on success and spins at a distinct address per failure,
-readable off the screen by a maintainer.
-**Blocked on:** the assembler doesn't yet encode bit strings, floating point or
-compare-and-exchange. See the assembler section below.
+**ROMs:** `cpu-alu` (arithmetic and bitwise against known results, flags included)
+and `cpu-branch` (all sixteen conditions both ways, the jumps, the `r31` link and
+bit-0 masking) are built, Mednafen-checked, and passing in simulation. `cpu-except`
+(trap through both vectors, RETI flag restore, illegal opcode and zero divide
+resumed from their handlers, the duplexed escalation, the fixed system
+registers and the WCR readback) **watched and passed 2026-08-14** on 0.3.0.
+Still to write: `cpu-cache` (enable, clear, dump, verify the spilled layout),
+`cpu-bitstring` (bitwise and search, including wrap and overlap).
+**Pass criterion:** the on-screen status cells read `0x600D` with the halt square
+filled; a failure shows the failing check's number instead (the status convention
+in `src/roms/README.md`).
+**Awaiting:** the hardware run for `cpu-alu` and `cpu-branch`; for the rest, the
+assembler doesn't yet encode bit strings, floating point or compare-and-exchange.
+See the assembler section below.
+**Delivery:** through the APF dataslot loader (section 9's first feature, landed
+same day at Morgan's request): `.vb` files in `Assets/virtualboy/common/`, picked
+at core launch, reloadable from the Interact menu. One bitstream serves every ROM.
+The baked-BRAM variants from the first packaging survive in `output/` as a
+bisection tool if the loader itself is ever the suspect.
 
 ---
 
@@ -555,38 +738,88 @@ sees a stable image at the right brightness on the Pocket.
 
 ## 6. Timer
 
+**Landed as `core/timer.v` (2026-08-14)**: the misc region's first device, on
+`mem_bus`'s misc select with its answer for 0x18/0x1C/0x20 and its irq into the
+CPU at level 1 (0xFE10). 20 µs is 400 ticks of `cpu_clock_enable`'s architectural
+time, so the timer cannot drift against video. Where the scroll runs out MiSTer's
+`vue.v` decides (the free-running base, the reload-pending restart, the
+rate-change decrement while disabled), each choice commented in the module;
+where beetle-vb contradicts the scroll (deferred reload loads, reload resetting
+to 0xFFFF, status dying with Tim-Z-Int) the scroll wins, and the `timer` ROM's
+expectation says so — Mednafen freezes that ROM at check 3 by design.
+Proven by `src/tests/timer.v` — the 400/2000-ce grids held across disables,
+every Z-Stat-Clr rule, both acknowledge paths, the interval restart, both
+rate-change cases, the reset disagreement — with ten deliberate mutations each
+caught, one bench gap (disable-and-clear masked by the faulty clear at counter
+zero) found and closed by the sweep. `src/tests/cpu.v` runs the built ROM's
+whole check phase through the real CPU, timer and 0xFE10 vector to its pass
+sentinel, three interrupts serviced.
+
+**Watched and passed 2026-08-15** by morgan-vieira on the 0.4.0 bitstream.
+The ROM first ran on the still-installed 0.3.0 core and froze exactly as a
+timer-less core must — status `0x0001`, PC row reading `0x0700003A`, which is
+check 1's computed fail-spin — authenticating the failure reporting on
+hardware before the real run. On 0.4.0 (screenshot `20260815_020122.png`) the
+cells read `0x0040` with the PC row inside the display loop at
+`0x0700021x`, the back-computed boot time matching the install timeline, and
+the maintainer watched the cells advance once per second. All ten checks
+passed on hardware, including check 10's write-induced zero while disabled.
+The rate-change decrement stays bench-proven only; the ROM doesn't exercise
+that corner.
+
 ### Feature: count down at a selectable rate
 
-- [ ] **Tick every 20 µs, always.** An internal counter advances modulo 5 whether or not
+- [x] **Tick every 20 µs, always.** An internal counter advances modulo 5 whether or not
       the timer is enabled. One control bit decides whether the user-visible counter
       decrements on every tick or only when that internal counter wraps, giving 20 µs
-      or 100 µs.
-- [ ] **Reload on write, not just on zero.** Writing either half of the counter sets
+      or 100 µs. The bench pins both grids and that they free-run through disables.
+- [x] **Reload on write, not just on zero.** Writing either half of the counter sets
       the reload value, loads the whole 16-bit value into the counter *and* restarts the
       current tick interval. Reads return the live counter, which is why software is
-      told to stop the timer before reading it.
-- [ ] **Decrement on a rate change.** Switching from the slow rate to the fast one while
+      told to stop the timer before reading it. The restart rides `reload_pending` on
+      the free-running base (MiSTer's shape): the next count tick reloads instead of
+      decrementing, so the first decrement lands one to two tick intervals after the
+      write, never sooner.
+- [~] **Decrement on a rate change.** Switching from the slow rate to the fast one while
       the internal counter is non-zero decrements immediately, which can itself fire the
-      interrupt.
-- [ ] ? The hardware may actually initialize its internal counter to 4 and count down
-      rather than up.
+      interrupt. Benched both ways; follows MiSTer in decrementing whether or not the
+      timer is enabled, which only MiSTer models.
+- [~] ? The hardware may actually initialize its internal counter to 4 and count down
+      rather than up. Resolved per MiSTer: up from zero. The wrap lands on the same
+      tick either way, so nothing software-visible separates the two.
 
 ### Feature: raise the zero interrupt
 
-- [ ] **Fire on the transition, not the state.** Any change from non-zero to zero
+- [x] **Fire on the transition, not the state.** Any change from non-zero to zero
       qualifies, including one caused by a write to the reload registers — but the timer
-      loading a reload value of zero does not.
-- [ ] **Acknowledge through two paths that interact.** A status bit stays set while the
+      loading a reload value of zero does not. The irq is a latch set at transitions
+      (so a write-induced zero fires even disabled, MiSTer's reading), while Z-Stat is
+      a sticky level on enabled-at-zero (so enabling at zero shows status without
+      replaying an acknowledged interrupt — beetle-vb's tick behavior, the scroll's
+      wording). The bench separates the two.
+- [x] **Acknowledge through two paths that interact.** A status bit stays set while the
       counter is zero and the timer is enabled. Clearing it acknowledges the interrupt,
       except that disabling the timer and clearing in the same write disables it without
-      clearing the status.
-- [ ] **Start with the counter and reload disagreeing.** Reset leaves the counter at
+      clearing the status — nor acknowledging the interrupt, which is where we part
+      from beetle-vb's status shadow and follow the scroll's parenthetical.
+- [x] **Start with the counter and reload disagreeing.** Reset leaves the counter at
       `0xFFFF` and the reload at zero — the only moment the two can differ, since any
-      write to either makes them equal.
+      write to either makes them equal. Both references reset the reload to `0xFFFF`
+      instead; we follow the document, and the ROM's check 3 puts the difference on
+      screen.
 
-**ROM:** `timer` — a known interval counted against the VIP's 50 Hz frame.
-**Pass criterion:** an on-screen counter advances at the expected rate relative to
-display frames.
+**ROM:** `timer` — built, Mednafen header-checked, check phase passing in
+`src/tests/cpu.v`. Ten checks (reset state, the reload disagreement, any-width
+access, counting to zero, the faulty clear, disable-then-clear, three interrupt
+paths), then a display phase: one interrupt per second from reload 10000 at
+100 µs, the count on the status cells. The TODO's original sketch counted
+against the VIP frame; no VIP exists yet, so a stopwatch is the reference — the
+50 Hz raster and the timer share the PLL, so the check subsumes it.
+**Pass criterion:** the status cells count up by one each second and read
+`0x003C` after a timed minute; the halt square never fills. A frozen small
+number is that check failing; check 10 alone failing means real hardware does
+not raise a write-induced zero while disabled, which would itself be a finding.
+**Awaiting:** the hardware run.
 
 ---
 
@@ -725,12 +958,23 @@ stated ear. Silence and wrong-pitch are distinguishable failures.
 
 ### Feature: serve cartridge ROM
 
-- [ ] **Take the image from the APF dataslot.** The Pocket hands the core a `.vb` file;
-      the core has to present it as a memory region.
-- [ ] **Mirror by masking.** Every commercial cart is a power of two in size, and
+- [x] **Take the image from the APF dataslot.** The Pocket hands the core a `.vb` file;
+      the core has to present it as a memory region. Now `core/cart_rom.v`: slot 0
+      in `data.json` at bridge `0x00000000`, required so the Pocket spawns the file
+      browser, user-reloadable, read-only, and with "reset core while loading" set
+      so APF holds `reset_n` through every load; the CPU is additionally gated on
+      `dataslot_allcomplete`. Capped at 64KB of block RAM — plenty for test ROMs,
+      revisited when cartridge memory moves off-chip for commercial sizes (open
+      decision 1). Bridge byte order (file byte 0 in bits 31:24) is pinned by
+      `src/tests/cart_rom.v` and was confirmed on hardware 2026-08-14: three
+      images of two sizes picked from the Pocket's browser each booted through
+      the reset vector and ran to its success halt.
+- [x] **Mirror by masking.** Every commercial cart is a power of two in size, and
       addresses past the end have their upper bits masked, which is exactly why the
       header and vectors sit at the very top of the address space and land correctly for
-      any ROM size.
+      any ROM size. The mask is recovered from the load itself — highest word
+      address written — and the bench proves the reset vector's top-of-space view
+      lands on the image's own trailer, and that a reload shrinks the mask.
 
 ### Feature: serve save RAM
 

@@ -496,6 +496,162 @@ core_bridge_cmd icb (
 
 
 
+// the CPU and its bus
+//
+// everything Virtual Boy computes in the clk_cpu domain: the CPU's state
+// machine, mem_bus, work RAM and the cartridge's read side run on the
+// 39.936 MHz clock, and cpu_clock_enable ticks architectural 20 MHz time
+// into the CPU -- 625 enables per 1248 clocks, which against the same-VCO
+// video clock is exactly 400,000 CPU cycles per 20 ms frame. the constants
+// are checked against the fit report's PLL counters (cpu_clock_enable.v
+// says how). the CPU advances per tick, so the clock only needs to carry
+// bus answers between ticks (cpu.v says why that closes timing). the
+// cartridge loads over the APF bridge (see cart_rom.v): data.json's slot 0
+// lands at bridge 0x00000000, and its "reset core while loading" bit means
+// reset_n is low for the whole load. the CPU is gated on
+// dataslot_allcomplete besides, so it cannot boot before the first image is
+// in. devices that don't exist yet answer zero, matching mem_bus's unmapped
+// rule.
+
+    wire cart_load_wr = bridge_wr && bridge_addr[31:16] == 16'h0000;
+
+    wire dataslot_allcomplete_s;
+synch_3 s_dsac(dataslot_allcomplete, dataslot_allcomplete_s, clk_cpu);
+
+    wire cpu_ce;
+
+cpu_clock_enable ce_gen (
+    .clk                    ( clk_cpu ),
+    .reset_n                ( reset_n ),
+    .ce                     ( cpu_ce )
+);
+
+    wire        cpu_req;
+    wire [26:1] cpu_addr;
+    wire        cpu_we;
+    wire [1:0]  cpu_be;
+    wire [15:0] cpu_wdata;
+    wire [15:0] cpu_rdata;
+    wire [31:0] cpu_dbg_pc;
+    wire        cpu_dbg_halted;
+
+    wire        cart_rom_sel;
+    wire [15:0] cart_rom_rdata;
+
+    wire        misc_sel;
+    wire [15:0] misc_rdata;
+    wire        timer_irq;
+
+cpu vb_cpu (
+    .clk                    ( clk_cpu ),
+    .ce                     ( cpu_ce ),
+    .reset_n                ( reset_n && dataslot_allcomplete_s ),
+
+    .req                    ( cpu_req ),
+    .addr                   ( cpu_addr ),
+    .we                     ( cpu_we ),
+    .be                     ( cpu_be ),
+    .wdata                  ( cpu_wdata ),
+    .rdata                  ( cpu_rdata ),
+
+    // the timer is the first of the five sources, at level 1 (0xFE10);
+    // the priority encoder over all five grows here as the rest land
+    .irq_valid              ( timer_irq ),
+    .irq_level              ( 4'd1 ),
+
+    .dbg_pc                 ( cpu_dbg_pc ),
+    .dbg_halted             ( cpu_dbg_halted )
+);
+
+mem_bus vb_bus (
+    .clk                    ( clk_cpu ),
+    .reset_n                ( reset_n ),
+
+    .req                    ( cpu_req ),
+    .addr                   ( cpu_addr ),
+    .we                     ( cpu_we ),
+    .be                     ( cpu_be ),
+    .wdata                  ( cpu_wdata ),
+    .rdata                  ( cpu_rdata ),
+
+    .vip_sel                ( ),
+    .vsu_sel                ( ),
+    .misc_sel               ( misc_sel ),
+    .exp_sel                ( ),
+    .cart_ram_sel           ( ),
+    .cart_rom_sel           ( cart_rom_sel ),
+
+    .vip_rdata              ( 16'd0 ),
+    .misc_rdata             ( misc_rdata ),
+    .cart_ram_rdata         ( 16'd0 ),
+    .cart_rom_rdata         ( cart_rom_rdata )
+);
+
+// the timer answers the misc region's registers at 0x18/0x1C/0x20; the
+// WCR at 0x24 stays inside cpu.v, which intercepts those reads before the
+// bus answer lands. resets with the CPU so architectural time and the
+// 20 us grid start together on every cartridge load.
+timer vb_timer (
+    .clk                    ( clk_cpu ),
+    .reset_n                ( reset_n && dataslot_allcomplete_s ),
+    .ce                     ( cpu_ce ),
+
+    .sel                    ( misc_sel ),
+    .addr                   ( cpu_addr ),
+    .we                     ( cpu_we ),
+    .be                     ( cpu_be ),
+    .wdata                  ( cpu_wdata ),
+    .rdata                  ( misc_rdata ),
+
+    .irq                    ( timer_irq )
+);
+
+cart_rom vb_cart (
+    .load_clk               ( clk_74a ),
+    .load_begin             ( dataslot_requestwrite ),
+    .load_wr                ( cart_load_wr ),
+    .load_addr              ( bridge_addr ),
+    .load_data              ( bridge_wr_data ),
+
+    .clk                    ( clk_cpu ),
+    .sel                    ( cart_rom_sel ),
+    .addr                   ( cpu_addr ),
+    .rdata                  ( cart_rom_rdata )
+);
+
+// the test-ROM status convention (src/roms/README.md): ROMs report through
+// the halfword at WRAM 0x05000000. this latch only observes the bus, so it
+// is host-side presentation, not Virtual Boy hardware.
+
+    reg [15:0]  rom_status;
+
+always @(posedge clk_cpu or negedge reset_n) begin
+    if(~reset_n) begin
+        rom_status <= 16'h0000;
+    end else if(cpu_req && cpu_we && cpu_addr == 26'h2800000) begin
+        if(cpu_be[0]) rom_status[7:0]  <= cpu_wdata[7:0];
+        if(cpu_be[1]) rom_status[15:8] <= cpu_wdata[15:8];
+    end
+end
+
+// into the video domain for the display. two flops per bundle, no handshake:
+// the values only need to read correctly once they hold still, which is when
+// a maintainer reads them.
+    reg [15:0]  disp_status_m, disp_status;
+    reg [15:0]  disp_pc_m, disp_pc;
+    reg         disp_halted_m, disp_halted;
+
+always @(posedge clk_core_12288) begin
+    disp_status_m <= rom_status;
+    disp_status   <= disp_status_m;
+    disp_pc_m     <= cpu_dbg_pc[16:1];
+    disp_pc       <= disp_pc_m;
+    disp_halted_m <= cpu_dbg_halted;
+    disp_halted   <= disp_halted_m;
+end
+
+
+
 // video generation
 //
 // the raster belongs to host_video_timing; everything here only supplies colour.
@@ -534,37 +690,45 @@ host_video_timing #(
 );
 
 
-// test pattern, until the VIP has pixels of its own
+// CPU state display, until the VIP has pixels of its own
 //
-// a flat colour cannot show a clipped data enable window, a rolling frame or a tear,
-// which would make the hardware test unable to fail. so: the one-pixel border proves
-// the window is exactly 384x224, the square proves pixels come out square at 12:7,
-// and the bars scroll so a tear shows as a break across them.
+// what the test ROMs' pass criteria read: the one-pixel border stays as the
+// liveness frame (already watched and passed 2026-08-14), the centre square
+// fills solid red when the CPU halts, and two rows of sixteen cells show the
+// ROM status halfword (top, MSB left) and PC bits 16-1 (bottom). a maintainer
+// reads the failing check number straight off the top row.
 
     localparam  SQUARE      = 'd112;
     localparam  SQUARE_X    = (VID_H_ACTIVE - SQUARE) / 2;
     localparam  SQUARE_Y    = (VID_V_ACTIVE - SQUARE) / 2;
 
-    reg [9:0]   frame_count;
-
-always @(posedge clk_core_12288 or negedge reset_n) begin
-    if(~reset_n) begin
-        frame_count <= 0;
-    end else if(vidout_vs) begin
-        frame_count <= frame_count + 1'b1;
-    end
-end
+    localparam  CELLS_X     = (VID_H_ACTIVE - 16*16) / 2;
+    localparam  STATUS_Y    = 'd24;
+    localparam  PC_Y        = 'd184;
+    localparam  CELL_H      = 'd16;
 
     wire        border = vidout_x == 0 || vidout_x == VID_H_ACTIVE-1 ||
                          vidout_y == 0 || vidout_y == VID_V_ACTIVE-1;
 
-    wire        square_edge =
+    wire        in_square =
                     vidout_x >= SQUARE_X && vidout_x < SQUARE_X+SQUARE &&
-                    vidout_y >= SQUARE_Y && vidout_y < SQUARE_Y+SQUARE &&
+                    vidout_y >= SQUARE_Y && vidout_y < SQUARE_Y+SQUARE;
+
+    wire        square_edge = in_square &&
                     (vidout_x == SQUARE_X || vidout_x == SQUARE_X+SQUARE-1 ||
                      vidout_y == SQUARE_Y || vidout_y == SQUARE_Y+SQUARE-1);
 
-    wire [9:0]  bar = vidout_x + frame_count;
+    wire [9:0]  cell_x    = vidout_x - CELLS_X;
+    wire [3:0]  cell_idx  = cell_x[7:4];
+    wire        in_cells  = vidout_x >= CELLS_X && vidout_x < CELLS_X + 16*16 &&
+                            cell_x[3:0] < 14;   // 2px gap marks positions
+    wire        status_row = in_cells && vidout_y >= STATUS_Y &&
+                             vidout_y < STATUS_Y + CELL_H;
+    wire        pc_row     = in_cells && vidout_y >= PC_Y &&
+                             vidout_y < PC_Y + CELL_H;
+
+    wire        status_bit = disp_status[4'd15 - cell_idx];
+    wire        pc_bit     = disp_pc[4'd15 - cell_idx];
 
     reg [23:0]  vidout_rgb;
 
@@ -574,10 +738,14 @@ always @* begin
         vidout_rgb = 24'h000000;
     end else if(border) begin
         vidout_rgb = 24'hFFFFFF;
-    end else if(square_edge) begin
+    end else if(square_edge || (in_square && disp_halted)) begin
         vidout_rgb = 24'hFF0000;
+    end else if(status_row) begin
+        vidout_rgb = status_bit ? 24'hFFFFFF : 24'h282828;
+    end else if(pc_row) begin
+        vidout_rgb = pc_bit ? 24'hFFFFFF : 24'h282828;
     end else begin
-        vidout_rgb = bar[5] ? 24'h505050 : 24'h282828;
+        vidout_rgb = 24'h000000;
     end
 end
 
@@ -635,6 +803,7 @@ end
 
 
     wire    clk_core_12288;
+    wire    clk_cpu;
     wire    clk_core_12288_90deg;
     
     wire    pll_core_locked;
@@ -644,10 +813,12 @@ synch_3 s01(pll_core_locked, pll_core_locked_s, clk_74a);
 mf_pllbase mp1 (
     .refclk         ( clk_74a ),
     .rst            ( 0 ),
-    
+
     .outclk_0       ( clk_core_12288 ),
     .outclk_1       ( clk_core_12288_90deg ),
-    
+    // the CPU domain: same VCO as the video clock, so the two never drift
+    .outclk_2       ( clk_cpu ),
+
     .locked         ( pll_core_locked )
 );
 
