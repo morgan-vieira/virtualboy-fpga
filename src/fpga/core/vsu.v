@@ -26,12 +26,15 @@ module vsu (
     logic [3:0]  right_level [0:CHANNEL_COUNT - 1];
     logic [10:0] frequency [0:CHANNEL_COUNT - 1];
     logic [15:0] envelope_control [0:CHANNEL_COUNT - 1];
+    logic [3:0]  envelope_level [0:CHANNEL_COUNT - 1];
     logic [3:0]  wave_bank [0:CHANNEL_COUNT - 1];
 
     logic [11:0] frequency_counter [0:CHANNEL_COUNT - 1];
     logic [4:0]  wave_position [0:CHANNEL_COUNT - 1];
     logic [5:0]  interval_counter [0:CHANNEL_COUNT - 1];
     logic [14:0] interval_divider [0:CHANNEL_COUNT - 1];
+    logic [3:0]  envelope_counter [0:CHANNEL_COUNT - 1];
+    logic [18:0] envelope_divider [0:CHANNEL_COUNT - 1];
 
     logic [10:0] offset;
     logic        aligned_write;
@@ -66,11 +69,14 @@ module vsu (
                 right_level[channel_index] <= 4'd0;
                 frequency[channel_index] <= 11'd0;
                 envelope_control[channel_index] <= 16'd0;
+                envelope_level[channel_index] <= 4'd0;
                 wave_bank[channel_index] <= 4'd0;
                 frequency_counter[channel_index] <= 12'd0;
                 wave_position[channel_index] <= 5'd0;
                 interval_counter[channel_index] <= 6'd0;
                 interval_divider[channel_index] <= 15'd0;
+                envelope_counter[channel_index] <= 4'd1;
+                envelope_divider[channel_index] <= 19'd307200;
             end
         end else begin
             if (aligned_write && offset < 11'h280)
@@ -105,6 +111,37 @@ module vsu (
                             interval_divider[channel_index] <=
                                 interval_divider[channel_index] - 15'd1;
                         end
+
+                        if (envelope_divider[channel_index] <= 19'd1) begin
+                            envelope_divider[channel_index] <= 19'd307200;
+                            if (envelope_counter[channel_index] <= 4'd1) begin
+                                envelope_counter[channel_index] <=
+                                    {1'b0, envelope_control[channel_index][2:0]} + 4'd1;
+                                if (envelope_control[channel_index][8]) begin
+                                    if (envelope_control[channel_index][3]) begin
+                                        if (envelope_level[channel_index] < 4'd15)
+                                            envelope_level[channel_index] <=
+                                                envelope_level[channel_index] + 4'd1;
+                                        else if (envelope_control[channel_index][9])
+                                            envelope_level[channel_index] <=
+                                                envelope_control[channel_index][7:4];
+                                    end else begin
+                                        if (envelope_level[channel_index] > 4'd0)
+                                            envelope_level[channel_index] <=
+                                                envelope_level[channel_index] - 4'd1;
+                                        else if (envelope_control[channel_index][9])
+                                            envelope_level[channel_index] <=
+                                                envelope_control[channel_index][7:4];
+                                    end
+                                end
+                            end else begin
+                                envelope_counter[channel_index] <=
+                                    envelope_counter[channel_index] - 4'd1;
+                            end
+                        end else begin
+                            envelope_divider[channel_index] <=
+                                envelope_divider[channel_index] - 19'd1;
+                        end
                     end
                 end
             end
@@ -120,6 +157,9 @@ module vsu (
                             interval_counter[write_channel] <=
                                 {1'b0, write_byte[4:0]} + 6'd1;
                             interval_divider[write_channel] <= 15'd19200;
+                            envelope_counter[write_channel] <=
+                                {1'b0, envelope_control[write_channel][2:0]} + 4'd1;
+                            envelope_divider[write_channel] <= 19'd307200;
                         end
                     end
                     4'h1: begin
@@ -130,7 +170,7 @@ module vsu (
                     4'h3: frequency[write_channel][10:8] <= write_byte[2:0];
                     4'h4: begin
                         envelope_control[write_channel][7:0] <= write_byte;
-                        envelope_control[write_channel][15:12] <= write_byte[7:4];
+                        envelope_level[write_channel] <= write_byte[7:4];
                     end
                     4'h5: envelope_control[write_channel][9:8] <= write_byte[1:0];
                     4'h6: wave_bank[write_channel] <= write_byte[3:0];
@@ -173,9 +213,9 @@ module vsu (
         mix_wave_sample = wave_bank[mix_index] < 5 ?
             wave_ram[{wave_bank[mix_index][2:0], wave_position[mix_index]}] : 6'd0;
         mix_left_gain = channel_gain(
-            envelope_control[mix_index][15:12], left_level[mix_index]);
+            envelope_level[mix_index], left_level[mix_index]);
         mix_right_gain = channel_gain(
-            envelope_control[mix_index][15:12], right_level[mix_index]);
+            envelope_level[mix_index], right_level[mix_index]);
         mix_centered_sample = $signed({1'b0, mix_wave_sample}) - 7'sd32;
         mix_left_product = mix_centered_sample * $signed({1'b0, mix_left_gain});
         mix_right_product = mix_centered_sample * $signed({1'b0, mix_right_gain});

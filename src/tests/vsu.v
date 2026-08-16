@@ -60,6 +60,16 @@ module vsu_tb;
         end
     endtask
 
+    task automatic step_envelope;
+        @(negedge clk);
+        dut.envelope_counter[0] = 4'd1;
+        dut.envelope_divider[0] = 19'd1;
+        ce = 1'b1;
+        @(posedge clk);
+        @(negedge clk);
+        ce = 1'b0;
+    endtask
+
     initial begin
         repeat (4) @(negedge clk);
         reset_n = 1'b1;
@@ -114,6 +124,28 @@ module vsu_tb;
         @(negedge clk);
         ce = 1'b0;
         expect_samples(0, 0, "interval expiry");
+
+        write8(11'h410, 8'hf0);
+        write8(11'h414, 8'h01);
+        write8(11'h400, 8'h80);
+        expect_samples(-3712, 0, "decay starts at the written level");
+        step_envelope();
+        expect_samples(-3456, 0, "decay lowers the envelope");
+
+        write8(11'h410, 8'h08);
+        write8(11'h414, 8'h01);
+        write8(11'h400, 8'h80);
+        expect_samples(0, 0, "growth starts at the written level");
+        step_envelope();
+        expect_samples(-256, 0, "growth raises the envelope");
+
+        write8(11'h410, 8'h10);
+        write8(11'h414, 8'h03);
+        write8(11'h400, 8'h80);
+        step_envelope();
+        expect_samples(0, 0, "repeating decay reaches zero");
+        step_envelope();
+        expect_samples(-256, 0, "repeat reloads the written level");
 
         $finish;
     end
