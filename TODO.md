@@ -847,7 +847,7 @@ the expected timer-less sentinel, authenticating the ROM's failure path.
 
 **Landed as `core/game_pad.v` (2026-08-16)**: the misc region's second device,
 answering `SDLR`/`SDHR`/`SCR` at 0x10/0x14/0x28 beside the timer and
-interrupting the CPU at level 0 (0xFE00) — which turns `core_top`'s two-source
+interrupting the CPU at level 0 (0xFE00). That turns `core_top`'s two-source
 special case into the priority encoder section 3 was waiting on. One shift
 register serves both read paths, because the hardware has one serial port:
 a hardware read clocks it 640 architectural cycles a bit, and a software
@@ -855,7 +855,7 @@ read clocks it by hand. `core/host_pad_map.v` is the host side, keeping
 APF's controller out of the machine's module.
 Proven by `src/tests/game_pad.v` and by twenty-one deliberate mutations of
 the two modules, each caught by a distinct check before the bench was
-trusted — one of them (the software clock's polarity) invisible until the
+trusted. One of them, the software clock's polarity, stayed invisible until the
 bench stopped clocking in balanced pairs and counted the scroll's thirty-three
 writes instead. `src/tests/cpu.v` runs the built `pad` image through the real
 CPU, bus and pad to its self-test pass sentinel and then follows a changing
@@ -867,7 +867,7 @@ buttons are the right pad in the diamond arrangement the hardware already
 draws (X up, A right, B down, Y left), and L and R are the machine's A and
 B. Twelve Pocket inputs cannot reach fourteen machine buttons, so the
 default leaves the machine's own Select and Start unreachable, standing L
-and R in their place — and the note asked for the swap to be available, so
+and R in their place. The note asked for the swap to be available, so
 `interact.json` carries two switches: which pad the D-pad drives, and
 whether Select and Start report as themselves or as L and R. Every
 documented bit is reachable in some setting, which is what lets the ROM's
@@ -881,14 +881,14 @@ pass criterion cover all sixteen.
       from the table rather than from intuition. The scroll's register numbering is the
       one implemented, and beetle-vb's `input.c` reproduces it bit for bit; the wiki
       article numbers the same sixteen the other way round, which `INDEX.md` now records
-      as a numbering difference rather than a disagreement — it counts shift positions,
+      as a numbering difference rather than a disagreement: it counts shift positions,
       and the report goes out MSB first. Fifteen of the sixteen carry live state; the
       sixteenth is below.
 - [~] **The low-battery bit.** `PWR`, bit 0, reports 1 when the pad's batteries are
-      low. It is hardwired to 0 in `host_pad_map.v`, which is not the behavior — it is
+      low. It is hardwired to 0 in `host_pad_map.v`, which is not the behavior but
       the absence of it. **Blocked on the host, not on difficulty:** APF hands the core
       no battery signal at all. `core_top`'s port list carries no such input, and
-      nothing in `docs/analogue/` exposes charge state to a core — the only mention of
+      nothing in `docs/analogue/` exposes charge state to a core. The only mention of
       a battery in the whole of APF's documentation is a warning not to remove the
       Pocket's own. The `pad` ROM covers this as far as it can: cell 16 is bit 0, and
       the criterion is that it stays dark with every button held, which is what a
@@ -906,19 +906,19 @@ pass criterion cover all sixteen.
       lands in the write, following the scroll's "immediately" and beetle-vb; MiSTer
       defers it to a serial clock phase, and the module says so.
 - [x] **A software read that's faster.** Software latches, then toggles a clock bit
-      itself — and the bit it writes is inverted on the way to the pad. beetle-vb never
+      itself, and the bit it writes is inverted on the way to the pad. beetle-vb never
       implements this path at all (its instant-read hack answers with live pad state),
       so MiSTer's `vue.v` decides it: the report advances on the written bit's falling
       edge, which is the pad's own rising edge once the inversion is applied.
 - [x] ? The reference describes the software read as both "16 times" and "33 writes" and
       doesn't reconcile them. **Resolved: they describe the same procedure.** One write
       raises the bit, then sixteen fall-and-raise pairs follow, the last raise clocking
-      nothing — 33 writes carrying 16 advancing edges. The bench asserts both readings
+      nothing: 33 writes carrying 16 advancing edges. The bench asserts both readings
       at once by stopping on a raised bit and requiring the report to still be short.
 - [x] ? Real hardware returns unstable data if software clocks too fast in humid
       conditions, which games worked around with a dummy multiply between bits.
       **Resolved by construction, not by emulation:** the instability is the physical
-      cable and the pad's own logic, and this core has neither — the report is already
+      cable and the pad's own logic, and this core has neither. The report is already
       inside the FPGA and is sampled at the latch. A game's dummy multiply costs it
       nothing here.
 
@@ -931,10 +931,10 @@ pass criterion cover all sixteen.
       the references split and the document wins: beetle-vb raises on every completed
       hardware read and never checks the condition, while the scroll states it outright
       and MiSTer agrees with the scroll. Writing the inhibit bit is the acknowledge
-      path, which both references do agree on, and a software read raises nothing —
-      the scroll conditions the interrupt on a hardware read.
+      path, which both references do agree on, and a software read raises nothing,
+      because the scroll conditions the interrupt on a hardware read.
 
-**ROM:** `pad` — the raw sixteen-bit word twice, one row per read path, plus a
+**ROM:** `pad`, the raw sixteen-bit word twice, one row per read path, plus a
 startup self-test. The two rows cannot prove each other on their own, because
 both reads land in the same registers and a dead software read leaves the
 hardware read's value standing; the reset state is what separates them, so the
@@ -1127,7 +1127,7 @@ Collected from above, split by whether a reference can answer them.
 ### Settled
 
 
-2. **Controller mapping** for two D-pads — decided by morgan-vieira on 2026-08-16 and
+2. **Controller mapping** for two D-pads. Decided by morgan-vieira on 2026-08-16 and
    recorded in section 7. Not answered from the implementations in the end: APF's
    `input.json` is read-only and cannot remap, so the mapping lives in
    `host_pad_map.v` with two `interact.json` switches over it. Twelve Pocket inputs
