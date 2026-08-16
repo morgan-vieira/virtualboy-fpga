@@ -80,3 +80,7 @@ build/
 
 # Compiled testbenches and waveform dumps (rebuilt by pnpm run test:sim)
 .sim/
+
+# Output files that aren't really needed.
+output/sd-*/
+output/.stage-*/
