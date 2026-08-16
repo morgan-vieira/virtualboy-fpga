@@ -845,37 +845,96 @@ the expected timer-less sentinel, authenticating the ROM's failure path.
 
 ## 7. Game pad
 
+**Landed as `core/game_pad.v` (2026-08-16)**: the misc region's second device,
+answering `SDLR`/`SDHR`/`SCR` at 0x10/0x14/0x28 beside the timer and
+interrupting the CPU at level 0 (0xFE00) — which turns `core_top`'s two-source
+special case into the priority encoder section 3 was waiting on. One shift
+register serves both read paths, because the hardware has one serial port:
+a hardware read clocks it 640 architectural cycles a bit, and a software
+read clocks it by hand. `core/host_pad_map.v` is the host side, keeping
+APF's controller out of the machine's module.
+Proven by `src/tests/game_pad.v` and by twenty-one deliberate mutations of
+the two modules, each caught by a distinct check before the bench was
+trusted — one of them (the software clock's polarity) invisible until the
+bench stopped clocking in balanced pairs and counted the scroll's thirty-three
+writes instead. `src/tests/cpu.v` runs the built `pad` image through the real
+CPU, bus and pad to its self-test pass sentinel and then follows a changing
+report, with three further mutations each caught by their own sentinel.
+
+**DECIDED (morgan-vieira, 2026-08-16): the controller mapping**, which
+settles open decision 2. The Pocket's D-pad is the left pad, its face
+buttons are the right pad in the diamond arrangement the hardware already
+draws (X up, A right, B down, Y left), and L and R are the machine's A and
+B. Twelve Pocket inputs cannot reach fourteen machine buttons, so the
+default leaves the machine's own Select and Start unreachable, standing L
+and R in their place — and the note asked for the swap to be available, so
+`interact.json` carries two switches: which pad the D-pad drives, and
+whether Select and Start report as themselves or as L and R. Every
+documented bit is reachable in some setting, which is what lets the ROM's
+pass criterion cover all sixteen.
+
 ### Feature: report button state
 
-- [ ] **Sixteen bits in a documented order.** Two four-way pads, six buttons, select and
+- [x] **Sixteen bits in a documented order.** Two four-way pads, six buttons, select and
       start, plus a signature bit that a standard controller always sets and a
       low-battery bit. The bit order is not the order anyone would guess, so it comes
-      from the table rather than from intuition.
-- [ ] **DECIDE: controller mapping.** The Virtual Boy has two D-pads; the Pocket has one
-      plus a face-button cluster. `input.json` needs a mapping and it changes how games
-      play. Maintainer's call.
+      from the table rather than from intuition. The scroll's register numbering is the
+      one implemented, and beetle-vb's `input.c` reproduces it bit for bit; the wiki
+      article numbers the same sixteen the other way round, which `INDEX.md` now records
+      as a numbering difference rather than a disagreement — it counts shift positions,
+      and the report goes out MSB first.
+- [x] **DECIDE: controller mapping.** Decided above; `host_pad_map.v` implements it and
+      `input.json` labels the default in the Controls menu. APF's `input.json` is
+      read-only, so it describes the default rather than following the switches.
 
 ### Feature: clock the state out
 
-- [ ] **A hardware read that takes 512 µs.** Started by one bit, it clocks buttons at
+- [x] **A hardware read that takes 512 µs.** Started by one bit, it clocks buttons at
       31.25 kHz, reports busy while running, and can be aborted mid-flight by another
-      bit.
-- [ ] **A software read that's faster.** Software latches, then toggles a clock bit
-      itself — and the bit it writes is inverted on the way to the pad.
-- [ ] ? The reference describes the software read as both "16 times" and "33 writes" and
-      doesn't reconcile them.
-- [ ] ? Real hardware returns unstable data if software clocks too fast in humid
+      bit. 640 ce a bit, 10,240 for the report, pinned exactly by the bench. The abort
+      lands in the write, following the scroll's "immediately" and beetle-vb; MiSTer
+      defers it to a serial clock phase, and the module says so.
+- [x] **A software read that's faster.** Software latches, then toggles a clock bit
+      itself — and the bit it writes is inverted on the way to the pad. beetle-vb never
+      implements this path at all (its instant-read hack answers with live pad state),
+      so MiSTer's `vue.v` decides it: the report advances on the written bit's falling
+      edge, which is the pad's own rising edge once the inversion is applied.
+- [x] ? The reference describes the software read as both "16 times" and "33 writes" and
+      doesn't reconcile them. **Resolved: they describe the same procedure.** One write
+      raises the bit, then sixteen fall-and-raise pairs follow, the last raise clocking
+      nothing — 33 writes carrying 16 advancing edges. The bench asserts both readings
+      at once by stopping on a raised bit and requiring the report to still be short.
+- [x] ? Real hardware returns unstable data if software clocks too fast in humid
       conditions, which games worked around with a dummy multiply between bits.
+      **Resolved by construction, not by emulation:** the instability is the physical
+      cable and the pad's own logic, and this core has neither — the report is already
+      inside the FPGA and is sampled at the latch. A game's dummy multiply costs it
+      nothing here.
 
 ### Feature: raise the key interrupt
 
-- [ ] **A condition a standard controller can never satisfy.** It fires if any of the
+- [x] **A condition a standard controller can never satisfy.** It fires if any of the
       top twelve bits is set, but is suppressed if any of three low bits is set — and
-      the signature bit sits in that suppressing range and is always set. Implement the
-      rule as written; a non-standard controller could still trigger it.
+      the signature bit sits in that suppressing range and is always set. Implemented as
+      written; a non-standard controller could still trigger it. This is the one place
+      the references split and the document wins: beetle-vb raises on every completed
+      hardware read and never checks the condition, while the scroll states it outright
+      and MiSTer agrees with the scroll. Writing the inhibit bit is the acknowledge
+      path, which both references do agree on, and a software read raises nothing —
+      the scroll conditions the interrupt on a hardware read.
 
-**ROM:** `pad` — display the raw 16-bit word.
-**Pass criterion:** each physical button toggles exactly its documented bit and no others.
+**ROM:** `pad` — the raw sixteen-bit word twice, one row per read path, plus a
+startup self-test. The two rows cannot prove each other on their own, because
+both reads land in the same registers and a dead software read leaves the
+hardware read's value standing; the reset state is what separates them, so the
+self-test reads the registers zero, then does a software read alone before any
+hardware read has run. Built, Mednafen header-checked, and passing in
+`src/tests/cpu.v` against the real pad.
+**Pass criterion:** each physical button toggles exactly its documented bit and no
+others, in both rows, with the failure bar black throughout. The full wording,
+including the per-button cell numbers and each self-test sentinel, is the ROM's
+`expectation`.
+**Not yet watched on hardware.**
 
 ---
 
@@ -1053,11 +1112,16 @@ Collected from above, split by whether a reference can answer them.
    relying on M10K collision mode, which only makes sense for block RAM) and pushes
    cartridge ROM out to SDRAM and DDR (`rtl/Mem/vb_cart_sdram.sv`, `rtl/Mem/ddram.sv`).
    The Pocket's budget allows the same split, but not with much room — see below.
-2. **Controller mapping** for two D-pads. MiSTer already maps a Virtual Boy pad onto
-   a conventional controller; take its layout as the default and let `input.json`
-   remap. Blocks section 7.
 
 ### Settled
+
+
+2. **Controller mapping** for two D-pads — decided by morgan-vieira on 2026-08-16 and
+   recorded in section 7. Not answered from the implementations in the end: APF's
+   `input.json` is read-only and cannot remap, so the mapping lives in
+   `host_pad_map.v` with two `interact.json` switches over it. Twelve Pocket inputs
+   cannot cover fourteen machine buttons, and choosing which two go missing is a
+   player's call per game rather than a constant.
 
 3. **Stereo presentation** — left eye only, red on black, matching beetle-vb's shipped
    default. Recorded in section 1.
