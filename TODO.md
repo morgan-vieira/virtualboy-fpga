@@ -127,7 +127,7 @@ because it needs no CPU, so it can be watched failing.
       A black right eye contributes nothing, making the shipped default a single red
       image. Anaglyph and side-by-side stay possible later through `interact.json`, the
       way both references expose them, but nothing depends on them now.
-- [ ] **Turn emission duration into intensity.** The Virtual Boy's LEDs cannot vary
+- [~] **Turn emission duration into intensity.** The Virtual Boy's LEDs cannot vary
       brightness; a pixel looks brighter because it emits for longer. Four shades exist
       — black plus levels A, B and C — and level C's duration is the sum of all three
       brightness registers rather than an independent value, so the mapping to LCD
@@ -197,7 +197,7 @@ These differ per peripheral and are an easy source of bugs that only show up in 
       registers (byte lane 0 carries the register, the block mirroring every 0x100
       the way beetle-vb decodes `A & 0xFF`), watched per width by the `timer` ROM's
       check 4; the keypad registers extend the same shape when they land.
-- [ ] **VIP registers mangle byte writes.** They expect halfwords. A byte write to an
+- [~] **VIP registers mangle byte writes.** They expect halfwords. A byte write to an
       even address performs a halfword write using the low 16 bits of the source
       register; a byte write to an odd address performs one using the low 8 bits
       shifted left by 8. Both are well-defined and both are wrong-looking. Lands in
@@ -583,32 +583,32 @@ concurrently against the same memory and have separate control registers.
 
 ### Feature: draw a background world
 
-- [ ] **Decode a world's attributes.** Thirty-two worlds of 32 bytes each, processed
+- [~] **Decode a world's attributes.** Thirty-two worlds of 32 bytes each, processed
       from 31 down to 0 so that lower indexes draw in front. Each carries per-eye
       enables, a type, a destination rectangle, a source position and a parallax offset
       that is subtracted for the left eye and added for the right.
-- [ ] **Assemble a background from maps.** A background is 1 to 8 maps of 64×64
+- [~] **Assemble a background from maps.** A background is 1 to 8 maps of 64×64
       characters, arranged left to right then top to bottom, with width and height
       given as powers of two. The base map index rounds *down* to a multiple of the
       total map count. Asking for more than 8 maps is documented as unintended but
       well-defined, and games can rely on it, so it gets implemented rather than
       rejected.
-- [ ] **Read characters.** Each is 8×8 pixels at 2 bits per pixel packed into 16 bytes,
+- [~] **Read characters.** Each is 8×8 pixels at 2 bits per pixel packed into 16 bytes,
       spread across four tables that sit in the gaps between frame buffers. A
       contiguous mirror exists specifically so software can address all 2,048 as one
       run, and the address arithmetic goes through that mirror.
-- [ ] **Apply palettes and transparency.** Pixel value 0 in a character is transparent
+- [~] **Apply palettes and transparency.** Pixel value 0 in a character is transparent
       and leaves the frame buffer untouched, which is why the palettes only have three
       entries. Background and object uses draw from separate palette sets even for the
       same character.
-- [ ] **Handle running off the edge.** A background either repeats indefinitely or
+- [~] **Handle running off the edge.** A background either repeats indefinitely or
       substitutes a designated character outside its bounds, selected by one bit.
 - [ ] ? That designated character may have restrictions on which characters it can
       reach; the reference says some experimentation is in order.
 
 ### Feature: draw an h-bias world
 
-- [ ] **Shift each row independently.** One 4-byte parameter per pixel row supplies a
+- [~] **Shift each row independently.** One 4-byte parameter per pixel row supplies a
       separate horizontal offset for each eye, added to that eye's source position.
 - [ ] ? The right eye's offset appears to be addressed by OR-ing 2 into the left one's
       address rather than adding. If the parameter base isn't divisible by 4, the left
@@ -616,27 +616,27 @@ concurrently against the same memory and have separate control registers.
 
 ### Feature: draw an affine world
 
-- [ ] **Walk a source vector per row.** One 16-byte parameter per row gives a starting
+- [~] **Walk a source vector per row.** One 16-byte parameter per row gives a starting
       source coordinate in 13.3 fixed point and a per-column delta in 7.9, which is
       what makes rotation, scaling and cheap perspective possible.
-- [ ] **Apply parallax to one eye only.** The sign decides which: negative applies to
+- [~] **Apply parallax to one eye only.** The sign decides which: negative applies to
       the left eye, non-negative to the right. It shifts which column's output is
       produced rather than shifting the result.
-- [ ] **Require 16-byte alignment.** The VIP appears to compute some field addresses by
+- [~] **Require 16-byte alignment.** The VIP appears to compute some field addresses by
       OR-ing and others by adding, so a misaligned parameter base corrupts the
       following parameters. The reference marks this IMPORTANT.
 - [ ] ? Which bits of parameter memory the VIP uses as scratch, and how.
 
 ### Feature: draw objects
 
-- [ ] **Place a character anywhere.** Each of 1,024 objects is 8 bytes: a signed
+- [~] **Place a character anywhere.** Each of 1,024 objects is 8 bytes: a signed
       horizontal position, a parallax offset applied per eye, a vertical position,
       per-eye enables, both flips, a palette selector and a character number.
-- [ ] **Serve objects in groups.** Four registers give each group's *end* index; a
+- [~] **Serve objects in groups.** Four registers give each group's *end* index; a
       group's start is one past the previous group's end, and group 0 starts at zero.
       Objects draw in reverse from end to start, and if end is below start the walk
       wraps through object 1,023 rather than drawing nothing.
-- [ ] **Cycle groups within a frame.** An internal counter starts at 3, decrements
+- [~] **Cycle groups within a frame.** An internal counter starts at 3, decrements
       after each object world drawn, and wraps back to 3, so the same group can be
       drawn more than once per frame. A world with both eye enables clear is skipped
       *without* consuming a group.
@@ -645,15 +645,15 @@ concurrently against the same memory and have separate control registers.
 
 ### Feature: compose the frame buffer
 
-- [ ] **Fill one 1×8 strip at a time.** Frame buffer memory is column-major at 2 bits
+- [~] **Fill one 1×8 strip at a time.** Frame buffer memory is column-major at 2 bits
       per pixel, so one halfword is eight vertically-stacked pixels. Each strip is
       initialized to the background color, then every world from 31 down to 0 draws
       into it, then it's stored — and each location is written exactly once per frame.
-- [ ] **Stop early on a control world.** A world with its end flag set terminates the
+- [~] **Stop early on a control world.** A world with its end flag set terminates the
       walk, and every lower-indexed world is skipped.
-- [ ] **Delay background-color changes.** A write doesn't take effect until after the
+- [~] **Delay background-color changes.** A write doesn't take effect until after the
       first eight rows of the *next* frame are drawn.
-- [ ] **Alternate frame buffers.** Drawing swaps between buffer 0 and 1 each pass so
+- [~] **Alternate frame buffers.** Drawing swaps between buffer 0 and 1 each pass so
       one can be displayed while the other is filled. Only the top 224 of the 256 stored
       rows are ever drawn or shown; the rest is functional memory the VIP never touches.
 - [ ] ? Exactly when the active buffer toggles is unknown — "it may occur when the frame
@@ -662,9 +662,9 @@ concurrently against the same memory and have separate control registers.
 
 ### Feature: report drawing status and raise interrupts
 
-- [ ] **Expose progress in eight-row groups.** Software can read which group is being
+- [~] **Expose progress in eight-row groups.** Software can read which group is being
       drawn and ask for an interrupt when a chosen group starts.
-- [ ] **Report overrun.** If the previous pass is still running when the next should
+- [~] **Report overrun.** If the previous pass is still running when the next should
       start, an overtime flag sets and a separate interrupt condition fires.
 - [ ] ? The flag marking the start of a row group is documented as clearing after 56 µs
       but measured persisting up to 120 µs, overrunning into the next group. The
@@ -678,8 +678,10 @@ concurrently against the same memory and have separate control registers.
 **ROMs:** `vip-bg` (one normal world, known character and palette), `vip-obj` (objects
 across a group boundary, both flips, parallax), `vip-affine` (rotation and scale against
 a reference frame), `vip-int` (each interrupt condition raised and acknowledged alone).
-**Pass criterion:** written into each ROM's `expectation` before its code is.
-**Blocked on:** the on-chip versus SDRAM decision below.
+All four are built, and their paths pass `vip_draw` or `vip_registers` simulation.
+`vip-affine-diag` isolates affine completion from coordinate errors.
+**Pass criterion:** recorded per ROM in `src/roms/README.md`.
+**Awaiting:** the hardware runs.
 
 ---
 
@@ -689,27 +691,27 @@ Ships finished frame buffers to the screen. Fixed timing, unlike drawing.
 
 ### Feature: display a frame on the 20 ms timeline
 
-- [ ] **Follow the fixed schedule.** Every frame is 20 ms: the frame clock rises at 0,
+- [~] **Follow the fixed schedule.** Every frame is 20 ms: the frame clock rises at 0,
       the left buffer displays from 3 to 8 ms, the clock falls at 10, and the right
       buffer displays from 13 to 18. This is the timing games actually synchronize
       against, and unlike drawing it's specified exactly.
-- [ ] **Require both enables.** Two separate bits must be set before anything appears,
+- [~] **Require both enables.** Two separate bits must be set before anything appears,
       and one of them also gates sync signals to the display servo.
-- [ ] **Report which buffer is busy.** Four status bits, one per buffer, that software
+- [~] **Report which buffer is busy.** Four status bits, one per buffer, that software
       polls to work out what double-buffering is doing.
 - [ ] ? There's no software-visible way to choose which buffer displays; the only
       documented handle on double buffering is to use the drawing engine.
 
 ### Feature: shape emission per column
 
-- [ ] **Walk the column table.** Each eye has 256 entries, one consumed per four
+- [~] **Walk the column table.** Each eye has 256 entries, one consumed per four
       columns of pixels, walking from higher addresses to lower — lower addresses are
       further *right*. A lock bit freezes the pointer, which is the only way software
       can hold a column configuration still.
-- [ ] **Give each column a duration and a repeat count.** Emission time is in 200 ns
+- [~] **Give each column a duration and a repeat count.** Emission time is in 200 ns
       units and the repeat count multiplies it, so apparent brightness is the product of
       the two. Past roughly 128 the user can't see any further increase.
-- [ ] **Cut a column short when it overruns.** If the configured brightness plus idle
+- [~] **Cut a column short when it overruns.** If the configured brightness plus idle
       time exceeds the column's allotted window, emission stops and moves on rather
       than stretching the frame.
 - [ ] ? Which entries the servo actually uses shifts frame to frame; the VIP prefers the
@@ -717,22 +719,25 @@ Ships finished frame buffers to the screen. Fixed timing, unlike drawing.
 
 ### Feature: set brightness
 
-- [ ] **Three registers for four shades.** Levels A and B are durations in 5 ns units
+- [~] **Three registers for four shades.** Levels A and B are durations in 5 ns units
       set directly; level C's real duration is A plus B plus C, so writing C alone does
       not do what it looks like. A fourth register sets the idle time between pixels.
 
 ### Feature: raise display interrupts
 
-- [ ] **Six display-side conditions.** Frame start, game start, left and right buffer
+- [~] **Six display-side conditions.** Frame start, game start, left and right buffer
       finished, mirrors-unstable, and the drawing-overran condition shared with the
       drawing engine. All of them, and the drawing-side ones, deliver the same interrupt
       code, so the handler always has to read the pending register to find out why.
-- [ ] **Latch pending regardless of enable.** A condition sets its pending bit whether
+- [~] **Latch pending regardless of enable.** A condition sets its pending bit whether
       or not it's enabled; the interrupt only fires when both the enable and the pending
       bit are set. Software acknowledges through a separate write-only register.
 
-**Pass criterion:** with the CPU halted and a hand-filled frame buffer, a maintainer
-sees a stable image at the right brightness on the Pocket.
+**ROM:** `vip-display` — built; its brightness path passes `vip_display` simulation.
+**Pass criterion:** alternating four-pixel-wide dim and medium red vertical stripes
+fill the 384×224 field. Black, flat brightness, incorrectly sized stripes, or
+horizontal breaks fail.
+**Awaiting:** the hardware run.
 
 ---
 
