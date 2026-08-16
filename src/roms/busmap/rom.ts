@@ -36,7 +36,8 @@ export default defineRom({
   header: { gameTitle: "OPENFPGA BUSMAP", makerCode: "OF", gameCode: "VBUS", revision: 0 },
   sizeBytes: SIZE,
   expectation:
-    "On the Pocket: the centre square fills solid red (CPU halted) and the top row of " +
+    "On the Pocket, with Core Settings > Diagnostic Overlay set to On: the centre " +
+    "square fills solid red (CPU halted) and the top row of " +
     "16 status cells reads 0x600D (0110 0000 0000 1101, lit = 1). Failure: the square " +
     "stays hollow and the status cells show the number of the failing check, counted " +
     "in program order in rom.ts; the bottom row shows the PC of the failure spin. In " +

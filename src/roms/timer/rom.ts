@@ -74,7 +74,8 @@ export default defineRom({
   name: "timer",
   header: { gameTitle: "OPENFPGA TIMER", makerCode: "OF", gameCode: "VTMR", revision: 0 },
   expectation:
-    "On the Pocket: the top row of 16 status cells counts up by one each second -- " +
+    "On the Pocket, with Core Settings > Diagnostic Overlay set to On: the top row " +
+    "of 16 status cells counts up by one each second -- " +
     "0x0001, 0x0002, ... -- and after a timed minute reads 0x003C; the centre square " +
     "never fills. Counting at the wrong rate is a prescaler bug. Cells frozen show " +
     "the failure: a small number N is check N (counted in program order in rom.ts), " +

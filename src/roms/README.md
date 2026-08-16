@@ -96,15 +96,16 @@ The CPU-era ROMs share a status convention: the ROM writes a running check
 number to WRAM `0x05000000` before each check, success writes `0x600D` and halts,
 and each failure spins with its own number showing.
 
-**The on-screen half of that convention is currently gone.** `core_top` used to
-latch writes to `0x05000000` onto a row of cells and draw them itself; the
-overlay went out with the VIP video path (`f707e5c5`), which took the screen
-over. The status word is still what `src/tests/cpu.v` judges by, so the
-convention holds in simulation, but a ROM that wants to be read on hardware has
-to draw through the VIP like any game — `pad` does, and its self-test failures
-show up as both a status word and a lit bar for that reason. The `halt`,
-`busmap`, `cpu-*` and `timer` expectations above still describe the old cells
-and have not been re-watched since the overlay left.
+`core_top` draws that word: the halt square, a top row of sixteen cells for the
+status halfword and a bottom row for PC bits 16-1. The overlay is **off by
+default** and turned on with Core Settings > Diagnostic Overlay, because the
+VIP owns this screen now. Left on, it would be drawn over every `vip-*` image,
+over `pad`, and over a game. Every expectation that reads the cells says to
+turn it on.
+
+A ROM can also draw its own picture through the VIP instead, which is what
+`pad` does; that needs no overlay and no toggle. Prefer it for anything whose
+verdict is a picture rather than a number.
 
 On the Pocket, built `.vb` images go in `Assets/virtualboy/common/` on the SD
 card; the core prompts for one at launch and can reload from the Interact menu.
