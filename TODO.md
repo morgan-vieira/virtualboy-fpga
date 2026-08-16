@@ -882,7 +882,18 @@ pass criterion cover all sixteen.
       one implemented, and beetle-vb's `input.c` reproduces it bit for bit; the wiki
       article numbers the same sixteen the other way round, which `INDEX.md` now records
       as a numbering difference rather than a disagreement — it counts shift positions,
-      and the report goes out MSB first.
+      and the report goes out MSB first. Fifteen of the sixteen carry live state; the
+      sixteenth is below.
+- [~] **The low-battery bit.** `PWR`, bit 0, reports 1 when the pad's batteries are
+      low. It is hardwired to 0 in `host_pad_map.v`, which is not the behavior — it is
+      the absence of it. **Blocked on the host, not on difficulty:** APF hands the core
+      no battery signal at all. `core_top`'s port list carries no such input, and
+      nothing in `docs/analogue/` exposes charge state to a core — the only mention of
+      a battery in the whole of APF's documentation is a warning not to remove the
+      Pocket's own. The `pad` ROM covers this as far as it can: cell 16 is bit 0, and
+      the criterion is that it stays dark with every button held, which is what a
+      wired-through bit reading "not low" would also do. Return to it if a future APF
+      revision exposes charge state; there is nothing to implement until then.
 - [x] **DECIDE: controller mapping.** Decided above; `host_pad_map.v` implements it and
       `input.json` labels the default in the Controls menu. APF's `input.json` is
       read-only, so it describes the default rather than following the switches.

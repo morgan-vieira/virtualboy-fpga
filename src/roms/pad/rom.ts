@@ -99,8 +99,10 @@ export default defineRom({
     "then lights exactly one further cell in both rows and no other -- B cell 1, Y " +
     "cell 2, Up cell 5, Down cell 6, Left cell 7, Right cell 8, A cell 9, X cell 10, " +
     "Select cell 11, Start cell 12, R cell 13, L cell 14 -- and releasing it puts " +
-    "that cell out again. Cells 3, 4 and 16 stay dark with every button held at " +
-    "once, because nothing reaches them in the default mapping. In Core Settings, " +
+    "that cell out again. Cells 3 and 4 stay dark with every button held at once, " +
+    "because nothing reaches them in the default mapping; cell 16 stays dark in " +
+    "every setting, because it is the low-battery bit and APF gives the core no " +
+    "battery signal to drive it with. In Core Settings, " +
     "switching 'Select and Start' to 'Select and Start' moves Select to cell 3 and " +
     "Start to cell 4 and leaves 11 and 12 dark; switching 'D-Pad' to 'Right Pad' " +
     "swaps the D-pad and the face buttons, so Up becomes cell 10 and X becomes cell " +
