@@ -1,7 +1,10 @@
 > [!NOTE]
-> This core was developed with Claude Opus 5 (1M context) in Claude Code.
+> This core was developed with the following AI models:
+>
+> Claude Opus 5 (1M context) in Claude Code.<br>
+> GPT 5.6 Sol in Codex.
 
-> [!NOTE]
+> [!WARNING]
 > Some parts of the documentation and technical notes have been omitted because of possible copyright concerns.
 >
 > We will not hand these out. You will have to find them yourself.

@@ -7,6 +7,7 @@
     "#roms/*": "./src/roms/*.ts"
   },
   "scripts": {
+    "analyze:wav": "node scripts/analyze-wav.ts",
     "build:roms": "node scripts/build-roms.ts",
     "format:md": "node scripts/format-with-vscode.ts --language markdown",
     "format:ts": "node scripts/format-with-vscode.ts --language typescript",
@@ -17,6 +18,7 @@
   "devDependencies": {
     "@effect/platform-node": "4.0.0-beta.102",
     "@types/node": "24.12.4",
+    "@typescript/native-preview": "7.0.0-dev.20260707.2",
     "@vscode/test-electron": "^3.1.0",
     "effect": "4.0.0-beta.102",
     "oxfmt": "^0.61.0",

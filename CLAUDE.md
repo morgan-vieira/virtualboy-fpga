@@ -57,6 +57,7 @@ Node 24 and pnpm 11, then `pnpm install`. There's no toolchain to install for RO
 - `pnpm run build:roms` builds every ROM into `.roms/` and prints each one's pass criterion. `-- --rom halt` builds one.
 - `pnpm run test:roms` runs the assembler's own tests against the encodings.
 - `pnpm run test:sim` compiles and runs every `src/tests/*.v` testbench into `.sim/`. `--bench host_video_timing` runs one; `--timeout 5` shortens the per-bench kill. No `--` separator — pnpm forwards it literally and the flags stop parsing.
+- `pnpm run analyze:wav <file.wav>` reports a WAV's per-channel levels and dominant frequencies. The `read-wav` skill covers recording one from Mednafen.
 - `pnpm run format:md` and `pnpm run format:ts` format through VS Code, so they match what the editor does on save.
 - `pnpm run sync:repos` refreshes `.repos/`. Only when bumping a reference.
 - `quartus_sh --flow compile src/fpga/ap_core.qpf` compiles the bitstream, from the repo root. Don't chain a `cd` into that command — Quartus resolves against the changed directory and writes output somewhere else.
@@ -79,7 +80,7 @@ Quartus is Prime Lite 21.1 on morgan-vieira's machine, and Icarus Verilog 12.0 i
 - `core.json`, `video.json`, `audio.json`, `data.json`, `input.json`, `interact.json`, `variants.json`, `info.txt` - APF core definition files. Schema in `docs/analogue/core-definition-files.md`.
 - `docs/analogue/` - Analogue's own APF documentation. `docs/technical-notes/` - notes on the V810 and Virtual Boy source documents, indexed in `INDEX.md`.
 - `dist/` - the SD-card staging tree. `output/` - the packaged release and `bitstream.rbf_r`.
-- `.claude/skills/` - one directory per skill, each a `SKILL.md`. `.agent/skills` and `AGENTS.md` are symlinks, so other agents read the same files.
+- `.claude/skills/` - one directory per skill, each a `SKILL.md` plus an `agents/openai.yaml` with Codex UI metadata. `.agents/skills` and `AGENTS.md` are symlinks, so Codex and other agents read the same files.
 - `.repos/` - vendored read-only references. Prefer their patterns over invented ones.
 
 ## Taste
