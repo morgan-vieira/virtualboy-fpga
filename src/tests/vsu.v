@@ -71,6 +71,18 @@ module vsu_tb;
         ce = 1'b0;
     endtask
 
+    task automatic step_sweep;
+        @(negedge clk);
+        dut.base_clock_divider = 2'd3;
+        dut.sweep_interval_counter = 3'd1;
+        dut.sweep_clock_divider = 16'd1;
+        ce = 1'b1;
+        @(posedge clk);
+        #1;
+        @(negedge clk);
+        ce = 1'b0;
+    endtask
+
     initial begin
         repeat (4) @(negedge clk);
         reset_n = 1'b1;
@@ -156,6 +168,43 @@ module vsu_tb;
         expect_samples(0, 0, "repeating decay reaches zero");
         step_envelope();
         expect_samples(-256, 0, "repeat reloads the written level");
+
+        write8(11'h508, 8'h00);
+        write8(11'h50c, 8'h04);
+        write8(11'h514, 8'h40);
+        write8(11'h51c, 8'h13);
+        write8(11'h500, 8'h80);
+        step_sweep();
+        if (dut.effective_frequency[4] !== 11'd896)
+            $fatal(1, "downward sweep produced %0d", dut.effective_frequency[4]);
+
+        write8(11'h508, 8'h00);
+        write8(11'h50c, 8'h04);
+        write8(11'h51c, 8'h1b);
+        write8(11'h500, 8'h80);
+        step_sweep();
+        if (dut.effective_frequency[4] !== 11'd1152)
+            $fatal(1, "upward sweep produced %0d", dut.effective_frequency[4]);
+
+        write8(11'h508, 8'hf8);
+        write8(11'h50c, 8'h07);
+        write8(11'h500, 8'h80);
+        if (dut.interval_control[4][7] !== 1'b0)
+            $fatal(1, "sweep overflow did not stop channel five");
+
+        write8(11'h508, 8'he8);
+        write8(11'h50c, 8'h03);
+        write8(11'h514, 8'h00);
+        write8(11'h500, 8'h80);
+        step_sweep();
+        if (dut.effective_frequency[4] !== 11'd1000)
+            $fatal(1, "disabled sweep changed the frequency");
+
+        write8(11'h508, 8'hf8);
+        write8(11'h50c, 8'h07);
+        write8(11'h500, 8'h80);
+        if (dut.interval_control[4][7] !== 1'b0)
+            $fatal(1, "disabled sweep overflow did not stop channel five");
 
         $finish;
     end

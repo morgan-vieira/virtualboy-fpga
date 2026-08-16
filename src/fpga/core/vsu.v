@@ -24,6 +24,7 @@ module vsu (
     logic [3:0]  left_level [0:CHANNEL_COUNT - 1];
     logic [3:0]  right_level [0:CHANNEL_COUNT - 1];
     logic [10:0] frequency [0:CHANNEL_COUNT - 1];
+    logic [10:0] effective_frequency [0:CHANNEL_COUNT - 1];
     logic [15:0] envelope_control [0:CHANNEL_COUNT - 1];
     logic [3:0]  envelope_level [0:CHANNEL_COUNT - 1];
     logic [3:0]  wave_bank [0:CHANNEL_COUNT - 1];
@@ -34,6 +35,14 @@ module vsu (
     logic [14:0] interval_divider [0:CHANNEL_COUNT - 1];
     logic [3:0]  envelope_counter [0:CHANNEL_COUNT - 1];
     logic [18:0] envelope_divider [0:CHANNEL_COUNT - 1];
+    logic [7:0]  sweep_control;
+    logic [2:0]  sweep_interval_counter;
+    logic [15:0] sweep_clock_divider;
+    logic [11:0] sweep_delta;
+    logic [11:0] sweep_next_frequency;
+    logic [11:0] sweep_pending_frequency;
+    logic [11:0] sweep_pending_delta;
+    logic [11:0] sweep_following_frequency;
 
     logic [10:0] offset;
     logic        aligned_write;
@@ -56,12 +65,24 @@ module vsu (
                            offset < 11'h540;
     assign global_stop_write = aligned_write && offset == 11'h580 && write_byte[0];
     assign base_tick = ce && base_clock_divider == 2'd3;
+    assign sweep_delta = {1'b0, effective_frequency[4]} >> sweep_control[2:0];
+    assign sweep_next_frequency = sweep_control[3] ?
+        {1'b0, effective_frequency[4]} + sweep_delta :
+        {1'b0, effective_frequency[4]} - sweep_delta;
+    assign sweep_pending_delta = sweep_pending_frequency >> sweep_control[2:0];
+    assign sweep_following_frequency = sweep_control[3] ?
+        sweep_pending_frequency + sweep_pending_delta :
+        sweep_pending_frequency - sweep_pending_delta;
 
     integer channel_index;
     integer wave_reset_index;
     always_ff @(posedge clk or negedge reset_n) begin
         if (!reset_n) begin
             base_clock_divider <= 2'd0;
+            sweep_control <= 8'd0;
+            sweep_interval_counter <= 3'd0;
+            sweep_clock_divider <= 16'd4800;
+            sweep_pending_frequency <= 12'd0;
             for (wave_reset_index = 0; wave_reset_index < 160;
                  wave_reset_index = wave_reset_index + 1)
                 wave_ram[wave_reset_index] <= 6'd0;
@@ -71,6 +92,7 @@ module vsu (
                 left_level[channel_index] <= 4'd0;
                 right_level[channel_index] <= 4'd0;
                 frequency[channel_index] <= 11'd0;
+                effective_frequency[channel_index] <= 11'd0;
                 envelope_control[channel_index] <= 16'd0;
                 envelope_level[channel_index] <= 4'd0;
                 wave_bank[channel_index] <= 4'd0;
@@ -94,7 +116,7 @@ module vsu (
                     if (interval_control[channel_index][7]) begin
                         if (frequency_counter[channel_index] <= 12'd1) begin
                             frequency_counter[channel_index] <=
-                                12'd2048 - frequency[channel_index];
+                                12'd2048 - effective_frequency[channel_index];
                             wave_position[channel_index] <=
                                 wave_position[channel_index] + 5'd1;
                         end else begin
@@ -150,6 +172,31 @@ module vsu (
                         end
                     end
                 end
+
+                if (interval_control[4][7]) begin
+                    if (sweep_clock_divider <= 16'd1) begin
+                        sweep_clock_divider <= sweep_control[7] ?
+                            16'd38400 : 16'd4800;
+                        if (sweep_interval_counter <= 3'd1) begin
+                            sweep_interval_counter <= sweep_control[6:4];
+                            if (sweep_control[6:4] != 3'd0 &&
+                                envelope_control[4][14] &&
+                                !envelope_control[4][12]) begin
+                                effective_frequency[4] <=
+                                    sweep_pending_frequency[10:0];
+                                sweep_pending_frequency <=
+                                    sweep_following_frequency;
+                                if (sweep_following_frequency[11])
+                                    interval_control[4][7] <= 1'b0;
+                            end
+                        end else begin
+                            sweep_interval_counter <=
+                                sweep_interval_counter - 3'd1;
+                        end
+                    end else begin
+                        sweep_clock_divider <= sweep_clock_divider - 16'd1;
+                    end
+                end
             end
 
             if (channel_write) begin
@@ -158,7 +205,7 @@ module vsu (
                         interval_control[write_channel] <= write_byte & 8'hbf;
                         if (write_byte[7]) begin
                             frequency_counter[write_channel] <=
-                                12'd2048 - frequency[write_channel];
+                                12'd2048 - effective_frequency[write_channel];
                             wave_position[write_channel] <= 5'd0;
                             interval_counter[write_channel] <=
                                 {1'b0, write_byte[4:0]} + 6'd1;
@@ -166,20 +213,43 @@ module vsu (
                             envelope_counter[write_channel] <=
                                 {1'b0, envelope_control[write_channel][2:0]} + 4'd1;
                             envelope_divider[write_channel] <= 19'd76800;
+                            if (write_channel == 3'd4) begin
+                                sweep_interval_counter <= sweep_control[6:4];
+                                sweep_clock_divider <= sweep_control[7] ?
+                                    16'd38400 : 16'd4800;
+                                sweep_pending_frequency <= sweep_next_frequency;
+                                if (!envelope_control[4][12] &&
+                                    sweep_next_frequency[11])
+                                    interval_control[4][7] <= 1'b0;
+                            end
                         end
                     end
                     4'h1: begin
                         left_level[write_channel] <= write_byte[7:4];
                         right_level[write_channel] <= write_byte[3:0];
                     end
-                    4'h2: frequency[write_channel][7:0] <= write_byte;
-                    4'h3: frequency[write_channel][10:8] <= write_byte[2:0];
+                    4'h2: begin
+                        frequency[write_channel][7:0] <= write_byte;
+                        effective_frequency[write_channel][7:0] <= write_byte;
+                    end
+                    4'h3: begin
+                        frequency[write_channel][10:8] <= write_byte[2:0];
+                        effective_frequency[write_channel][10:8] <= write_byte[2:0];
+                    end
                     4'h4: begin
                         envelope_control[write_channel][7:0] <= write_byte;
                         envelope_level[write_channel] <= write_byte[7:4];
                     end
-                    4'h5: envelope_control[write_channel][9:8] <= write_byte[1:0];
+                    4'h5: begin
+                        envelope_control[write_channel][9:8] <= write_byte[1:0];
+                        if (write_channel == 3'd4)
+                            envelope_control[write_channel][14:12] <= write_byte[6:4];
+                    end
                     4'h6: wave_bank[write_channel] <= write_byte[3:0];
+                    4'h7: begin
+                        if (write_channel == 3'd4)
+                            sweep_control <= write_byte;
+                    end
                     default: begin end
                 endcase
             end
