@@ -28,6 +28,7 @@ module vsu (
     logic [10:0] effective_frequency [0:CHANNEL_COUNT - 1];
     logic [15:0] envelope_control [0:CHANNEL_COUNT - 1];
     logic [3:0]  envelope_level [0:CHANNEL_COUNT - 1];
+    logic        envelope_terminal [0:CHANNEL_COUNT - 1];
     logic [3:0]  wave_bank [0:CHANNEL_COUNT - 1];
 
     logic [14:0] frequency_counter [0:CHANNEL_COUNT - 1];
@@ -37,20 +38,29 @@ module vsu (
     logic [3:0]  envelope_counter [0:CHANNEL_COUNT - 1];
     logic [18:0] envelope_divider [0:CHANNEL_COUNT - 1];
     logic [7:0]  sweep_control;
-    logic [2:0]  sweep_interval_counter;
-    logic [15:0] sweep_clock_divider;
+    logic [18:0] sweep_elapsed;
+    logic [18:0] sweep_frame_period;
+    logic [18:0] sweep_next_period;
     logic [11:0] sweep_delta;
     logic [11:0] sweep_next_frequency;
     logic [11:0] sweep_pending_frequency;
     logic [11:0] sweep_pending_delta;
     logic [11:0] sweep_following_frequency;
+    logic [10:0] sweep_write_frequency;
+    logic [7:0]  sweep_write_control;
+    logic [11:0] sweep_write_candidate;
     logic [5:0]  modulation_position;
+    logic [1:0]  modulation_lock;
+    logic [11:0] modulation_sum;
     logic [11:0] modulation_frequency;
     logic [14:0] noise_lfsr;
     logic        noise_feedback;
+    logic        noise_sample;
 
     logic [10:0] offset;
-    logic        aligned_write;
+    logic        write_accept;
+    logic        memory_write;
+    logic        high_byte_write;
     logic [7:0]  write_byte;
     logic [3:0]  register_index;
     logic [7:0]  wave_index;
@@ -62,16 +72,19 @@ module vsu (
     logic [1:0]  base_clock_divider;
     logic        base_tick;
 
-    assign offset = {addr[10:1], 1'b0};
-    assign aligned_write = sel && we && be[0] && offset[1:0] == 2'b00;
-    assign write_byte = wdata[7:0];
+    assign high_byte_write = be == 2'b10;
+    assign offset = {addr[10:2], 1'b0, high_byte_write};
+    assign write_accept = sel && we &&
+        (be == 2'b01 || high_byte_write || (be == 2'b11 && !addr[1]));
+    assign memory_write = write_accept && offset[1:0] == 2'b00;
+    assign write_byte = high_byte_write ? wdata[15:8] : wdata[7:0];
     assign register_index = offset[5:2];
     assign wave_index = offset[9:2];
     assign modulation_index = offset[6:2];
     assign write_channel = offset[8:6];
-    assign channel_write = aligned_write && offset >= 11'h400 &&
+    assign channel_write = write_accept && offset >= 11'h400 &&
                            offset < 11'h580;
-    assign global_stop_write = aligned_write && offset == 11'h580 && write_byte[0];
+    assign global_stop_write = write_accept && offset == 11'h580 && write_byte[0];
     assign any_channel_active = interval_control[0][7] |
                                 interval_control[1][7] |
                                 interval_control[2][7] |
@@ -87,9 +100,24 @@ module vsu (
     assign sweep_following_frequency = sweep_control[3] ?
         sweep_pending_frequency + sweep_pending_delta :
         sweep_pending_frequency - sweep_pending_delta;
-    assign modulation_frequency = {1'b0, frequency[4]} +
+    assign modulation_sum = {1'b0, frequency[4]} +
         {{4{modulation_ram[modulation_position[4:0]][7]}},
          modulation_ram[modulation_position[4:0]]};
+    always_comb begin
+        modulation_frequency = modulation_sum;
+        if (modulation_lock == 2'd1)
+            modulation_frequency[7:0] = frequency[4][7:0];
+        else if (modulation_lock == 2'd2)
+            modulation_frequency[10:8] = frequency[4][10:8];
+    end
+
+    assign sweep_write_frequency = register_index == 4'h2 ?
+        {effective_frequency[4][10:8], write_byte} :
+        register_index == 4'h3 ?
+        {write_byte[2:0], effective_frequency[4][7:0]} :
+        effective_frequency[4];
+    assign sweep_write_control = register_index == 4'h7 ?
+        write_byte : sweep_control;
 
     function automatic logic noise_tap(
         input logic [14:0] state,
@@ -120,6 +148,43 @@ module vsu (
         end
     endfunction
 
+    function automatic logic [18:0] sweep_period(
+        input logic slow,
+        input logic [2:0] interval_value
+    );
+        logic [18:0] unit_period;
+        begin
+            unit_period = slow ? 19'd38400 : 19'd4800;
+            unique case (interval_value)
+                3'd0, 3'd1: sweep_period = unit_period;
+                3'd2: sweep_period = unit_period << 1;
+                3'd3: sweep_period = (unit_period << 1) + unit_period;
+                3'd4: sweep_period = unit_period << 2;
+                3'd5: sweep_period = (unit_period << 2) + unit_period;
+                3'd6: sweep_period = (unit_period << 2) +
+                                             (unit_period << 1);
+                default: sweep_period = (unit_period << 2) +
+                                                (unit_period << 1) + unit_period;
+            endcase
+        end
+    endfunction
+
+    function automatic logic [11:0] sweep_candidate(
+        input logic [10:0] value,
+        input logic [7:0] control
+    );
+        logic [10:0] delta;
+        begin
+            delta = value >> control[2:0];
+            sweep_candidate = control[3] ?
+                {1'b0, value} + {1'b0, delta} :
+                {1'b0, value} - {1'b0, delta};
+        end
+    endfunction
+
+    assign sweep_write_candidate = sweep_candidate(
+        sweep_write_frequency, sweep_write_control);
+
     assign noise_feedback = noise_lfsr[7] ^
         noise_tap(noise_lfsr, envelope_control[5][14:12]) ^ 1'b1;
 
@@ -129,11 +194,14 @@ module vsu (
         if (!reset_n) begin
             base_clock_divider <= 2'd0;
             sweep_control <= 8'd0;
-            sweep_interval_counter <= 3'd0;
-            sweep_clock_divider <= 16'd4800;
+            sweep_elapsed <= 19'd0;
+            sweep_frame_period <= 19'd4800;
+            sweep_next_period <= 19'd4800;
             sweep_pending_frequency <= 12'd0;
             modulation_position <= 6'd0;
+            modulation_lock <= 2'd0;
             noise_lfsr <= 15'd0;
+            noise_sample <= 1'b1;
             for (wave_reset_index = 0; wave_reset_index < 160;
                  wave_reset_index = wave_reset_index + 1)
                 wave_ram[wave_reset_index] <= 6'd0;
@@ -149,6 +217,7 @@ module vsu (
                 effective_frequency[channel_index] <= 11'd0;
                 envelope_control[channel_index] <= 16'd0;
                 envelope_level[channel_index] <= 4'd0;
+                envelope_terminal[channel_index] <= 1'b0;
                 wave_bank[channel_index] <= 4'd0;
                 frequency_counter[channel_index] <= 15'd0;
                 wave_position[channel_index] <= 5'd0;
@@ -158,12 +227,23 @@ module vsu (
                 envelope_divider[channel_index] <= 19'd76800;
             end
         end else begin
+            if (write_accept) begin
+                if (channel_write && write_channel == 3'd4 &&
+                    register_index == 4'h2)
+                    modulation_lock <= 2'd1;
+                else if (channel_write && write_channel == 3'd4 &&
+                         register_index == 4'h3)
+                    modulation_lock <= 2'd2;
+                else if (!offset[0])
+                    modulation_lock <= 2'd0;
+            end
+
             if (ce)
                 base_clock_divider <= base_clock_divider + 2'd1;
 
-            if (aligned_write && offset < 11'h280 && !any_channel_active)
+            if (memory_write && offset < 11'h280 && !any_channel_active)
                 wave_ram[wave_index] <= write_byte[5:0];
-            if (aligned_write && offset >= 11'h280 && offset < 11'h300 &&
+            if (memory_write && offset >= 11'h280 && offset < 11'h300 &&
                 !interval_control[4][7])
                 modulation_ram[modulation_index] <= write_byte;
 
@@ -180,6 +260,8 @@ module vsu (
                             else
                                 wave_position[channel_index] <=
                                     wave_position[channel_index] + 5'd1;
+                            if (channel_index == 5)
+                                noise_sample <= noise_feedback;
                         end else begin
                             frequency_counter[channel_index] <=
                                 frequency_counter[channel_index] - 15'd1;
@@ -206,7 +288,8 @@ module vsu (
                             if (envelope_counter[channel_index] <= 4'd1) begin
                                 envelope_counter[channel_index] <=
                                     {1'b0, envelope_control[channel_index][2:0]} + 4'd1;
-                                if (envelope_control[channel_index][8]) begin
+                                if (envelope_control[channel_index][8] &&
+                                    !envelope_terminal[channel_index]) begin
                                     if (envelope_control[channel_index][3]) begin
                                         if (envelope_level[channel_index] < 4'd15)
                                             envelope_level[channel_index] <=
@@ -214,6 +297,8 @@ module vsu (
                                         else if (envelope_control[channel_index][9])
                                             envelope_level[channel_index] <=
                                                 envelope_control[channel_index][7:4];
+                                        else
+                                            envelope_terminal[channel_index] <= 1'b1;
                                     end else begin
                                         if (envelope_level[channel_index] > 4'd0)
                                             envelope_level[channel_index] <=
@@ -221,6 +306,8 @@ module vsu (
                                         else if (envelope_control[channel_index][9])
                                             envelope_level[channel_index] <=
                                                 envelope_control[channel_index][7:4];
+                                        else
+                                            envelope_terminal[channel_index] <= 1'b1;
                                     end
                                 end
                             end else begin
@@ -235,37 +322,37 @@ module vsu (
                 end
 
                 if (interval_control[4][7]) begin
-                    if (sweep_clock_divider <= 16'd1) begin
-                        sweep_clock_divider <= sweep_control[7] ?
-                            16'd38400 : 16'd4800;
-                        if (sweep_interval_counter <= 3'd1) begin
-                            sweep_interval_counter <= sweep_control[6:4];
-                            if (sweep_control[6:4] != 3'd0 &&
-                                envelope_control[4][14]) begin
-                                if (envelope_control[4][12]) begin
-                                    if (modulation_position < 6'd32 ||
-                                        envelope_control[4][13]) begin
-                                        effective_frequency[4] <=
-                                            modulation_frequency[10:0];
-                                        modulation_position <=
-                                            modulation_position < 6'd32 ?
-                                            modulation_position + 6'd1 : 6'd1;
-                                    end
-                                end else begin
+                    if (sweep_elapsed >= sweep_frame_period - 19'd1) begin
+                        sweep_elapsed <= 19'd0;
+                        sweep_frame_period <= sweep_next_period;
+                        if (sweep_control[6:4] != 3'd0 &&
+                            envelope_control[4][14]) begin
+                            if (envelope_control[4][12]) begin
+                                if (modulation_position < 6'd32 ||
+                                    envelope_control[4][13]) begin
                                     effective_frequency[4] <=
-                                        sweep_pending_frequency[10:0];
-                                    sweep_pending_frequency <=
-                                        sweep_following_frequency;
-                                    if (sweep_following_frequency[11])
-                                        interval_control[4][7] <= 1'b0;
+                                        modulation_frequency[10:0];
+                                    modulation_position <=
+                                        modulation_position < 6'd32 ?
+                                        modulation_position + 6'd1 : 6'd1;
                                 end
+                            end else begin
+                                effective_frequency[4] <=
+                                    sweep_pending_frequency[10:0];
+                                sweep_pending_frequency <=
+                                    sweep_following_frequency;
+                                if (modulation_position == 6'd31)
+                                    modulation_position <=
+                                        envelope_control[4][13] ? 6'd0 : 6'd32;
+                                else if (modulation_position < 6'd31)
+                                    modulation_position <=
+                                        modulation_position + 6'd1;
+                                if (sweep_following_frequency[11])
+                                    interval_control[4][7] <= 1'b0;
                             end
-                        end else begin
-                            sweep_interval_counter <=
-                                sweep_interval_counter - 3'd1;
                         end
                     end else begin
-                        sweep_clock_divider <= sweep_clock_divider - 16'd1;
+                        sweep_elapsed <= sweep_elapsed + 19'd1;
                     end
                 end
             end
@@ -274,29 +361,32 @@ module vsu (
                 unique case (register_index)
                     4'h0: begin
                         interval_control[write_channel] <= write_byte & 8'hbf;
+                        frequency_counter[write_channel] <=
+                            frequency_period(effective_frequency[write_channel],
+                                             write_channel == 3'd5);
+                        wave_position[write_channel] <= 5'd0;
+                        interval_counter[write_channel] <=
+                            {1'b0, write_byte[4:0]} + 6'd1;
+                        interval_divider[write_channel] <= 15'd19200;
+                        envelope_counter[write_channel] <=
+                            {1'b0, envelope_control[write_channel][2:0]} + 4'd1;
+                        envelope_divider[write_channel] <= 19'd76800;
+                        envelope_terminal[write_channel] <= 1'b0;
                         if (write_channel == 3'd5)
                             noise_lfsr <= 15'd0;
-                        if (write_byte[7]) begin
-                            frequency_counter[write_channel] <=
-                                frequency_period(effective_frequency[write_channel],
-                                                 write_channel == 3'd5);
-                            wave_position[write_channel] <= 5'd0;
-                            interval_counter[write_channel] <=
-                                {1'b0, write_byte[4:0]} + 6'd1;
-                            interval_divider[write_channel] <= 15'd19200;
-                            envelope_counter[write_channel] <=
-                                {1'b0, envelope_control[write_channel][2:0]} + 4'd1;
-                            envelope_divider[write_channel] <= 19'd76800;
-                            if (write_channel == 3'd4) begin
-                                sweep_interval_counter <= sweep_control[6:4];
-                                sweep_clock_divider <= sweep_control[7] ?
-                                    16'd38400 : 16'd4800;
-                                modulation_position <= 6'd0;
-                                sweep_pending_frequency <= sweep_next_frequency;
-                                if (!envelope_control[4][12] &&
-                                    sweep_next_frequency[11])
-                                    interval_control[4][7] <= 1'b0;
-                            end
+                        if (write_channel == 3'd5)
+                            noise_sample <= 1'b1;
+                        if (write_channel == 3'd4) begin
+                            sweep_elapsed <= 19'd0;
+                            sweep_frame_period <= sweep_period(
+                                sweep_control[7], sweep_control[6:4]);
+                            sweep_next_period <= sweep_period(
+                                sweep_control[7], sweep_control[6:4]);
+                            modulation_position <= 6'd0;
+                            sweep_pending_frequency <= sweep_next_frequency;
+                            if (!envelope_control[4][12] &&
+                                sweep_next_frequency[11])
+                                interval_control[4][7] <= 1'b0;
                         end
                     end
                     4'h1: begin
@@ -306,10 +396,22 @@ module vsu (
                     4'h2: begin
                         frequency[write_channel][7:0] <= write_byte;
                         effective_frequency[write_channel][7:0] <= write_byte;
+                        if (write_channel == 3'd4 &&
+                            !envelope_control[4][12]) begin
+                            sweep_pending_frequency <= sweep_write_candidate;
+                            if (sweep_write_candidate[11])
+                                interval_control[4][7] <= 1'b0;
+                        end
                     end
                     4'h3: begin
                         frequency[write_channel][10:8] <= write_byte[2:0];
                         effective_frequency[write_channel][10:8] <= write_byte[2:0];
+                        if (write_channel == 3'd4 &&
+                            !envelope_control[4][12]) begin
+                            sweep_pending_frequency <= sweep_write_candidate;
+                            if (sweep_write_candidate[11])
+                                interval_control[4][7] <= 1'b0;
+                        end
                     end
                     4'h4: begin
                         envelope_control[write_channel][7:0] <= write_byte;
@@ -319,16 +421,35 @@ module vsu (
                         envelope_control[write_channel][9:8] <= write_byte[1:0];
                         if (write_channel >= 3'd4)
                             envelope_control[write_channel][14:12] <= write_byte[6:4];
+                        if (write_channel == 3'd4 && !write_byte[4]) begin
+                            sweep_pending_frequency <= sweep_write_candidate;
+                            if (sweep_write_candidate[11])
+                                interval_control[4][7] <= 1'b0;
+                        end
                         if (write_channel == 3'd5)
                             noise_lfsr <= 15'd0;
+                        if (write_channel == 3'd5)
+                            noise_sample <= 1'b1;
                     end
                     4'h6: begin
                         if (write_channel < 3'd5)
-                            wave_bank[write_channel] <= write_byte[3:0];
+                            wave_bank[write_channel] <= {1'b0, write_byte[2:0]};
                     end
                     4'h7: begin
-                        if (write_channel == 3'd4)
+                        if (write_channel == 3'd4) begin
                             sweep_control <= write_byte;
+                            sweep_next_period <= sweep_period(
+                                write_byte[7], write_byte[6:4]);
+                            if (sweep_elapsed < sweep_period(
+                                write_byte[7], write_byte[6:4]))
+                                sweep_frame_period <= sweep_period(
+                                    write_byte[7], write_byte[6:4]);
+                            if (!envelope_control[4][12]) begin
+                                sweep_pending_frequency <= sweep_write_candidate;
+                                if (sweep_write_candidate[11])
+                                    interval_control[4][7] <= 1'b0;
+                            end
+                        end
                     end
                     default: begin end
                 endcase
@@ -353,55 +474,145 @@ module vsu (
         end
     endfunction
 
+    logic [8:0] sample_divider;
+    logic       mix_active;
     logic [2:0] mix_index;
-    logic signed [18:0] left_accumulator;
-    logic signed [18:0] right_accumulator;
+    logic [13:0] left_accumulator;
+    logic [13:0] right_accumulator;
     logic [5:0] mix_wave_sample;
     logic [7:0] mix_left_gain;
     logic [7:0] mix_right_gain;
-    logic signed [6:0] mix_centered_sample;
-    logic signed [15:0] mix_left_product;
-    logic signed [15:0] mix_right_product;
-    logic signed [18:0] mix_left_contribution;
-    logic signed [18:0] mix_right_contribution;
+    logic       mix_sample_valid;
+    logic [10:0] mix_left_contribution;
+    logic [10:0] mix_right_contribution;
+    logic [13:0] mix_left_sum;
+    logic [13:0] mix_right_sum;
+    logic [9:0] digital_left;
+    logic [9:0] digital_right;
+    logic       mix_channel_active [0:CHANNEL_COUNT - 1];
+    logic [3:0] mix_channel_left [0:CHANNEL_COUNT - 1];
+    logic [3:0] mix_channel_right [0:CHANNEL_COUNT - 1];
+    logic [3:0] mix_channel_envelope [0:CHANNEL_COUNT - 1];
+    logic [3:0] mix_channel_bank [0:CHANNEL_COUNT - 1];
+    logic [4:0] mix_channel_position [0:CHANNEL_COUNT - 1];
+    logic       mix_noise_bit;
+    logic signed [16:0] filter_previous_left;
+    logic signed [16:0] filter_previous_right;
+    logic signed [17:0] filter_state_left;
+    logic signed [17:0] filter_state_right;
+    logic signed [17:0] filter_input_left;
+    logic signed [17:0] filter_input_right;
+    logic signed [18:0] filter_delta_left;
+    logic signed [18:0] filter_delta_right;
+    logic signed [35:0] filter_product_left;
+    logic signed [35:0] filter_product_right;
+    logic signed [17:0] filter_next_left;
+    logic signed [17:0] filter_next_right;
+    integer mix_reset_index;
 
     always_comb begin
+        mix_sample_valid = mix_channel_active[mix_index];
         if (mix_index == 3'd5)
-            mix_wave_sample = noise_lfsr[0] ? 6'd63 : 6'd0;
-        else
-            mix_wave_sample = wave_bank[mix_index] < 5 ?
-                wave_ram[{wave_bank[mix_index][2:0], wave_position[mix_index]}] :
+            mix_wave_sample = mix_noise_bit ? 6'd63 : 6'd0;
+        else begin
+            mix_sample_valid = mix_sample_valid &&
+                               mix_channel_bank[mix_index] < 5;
+            mix_wave_sample = mix_channel_bank[mix_index] < 5 ?
+                wave_ram[{mix_channel_bank[mix_index][2:0],
+                          mix_channel_position[mix_index]}] :
                 6'd0;
+        end
         mix_left_gain = channel_gain(
-            envelope_level[mix_index], left_level[mix_index]);
+            mix_channel_envelope[mix_index], mix_channel_left[mix_index]);
         mix_right_gain = channel_gain(
-            envelope_level[mix_index], right_level[mix_index]);
-        mix_centered_sample = $signed({1'b0, mix_wave_sample}) - 7'sd32;
-        mix_left_product = mix_centered_sample * $signed({1'b0, mix_left_gain});
-        mix_right_product = mix_centered_sample * $signed({1'b0, mix_right_gain});
-        mix_left_contribution = interval_control[mix_index][7] ?
-            mix_left_product <<< 2 : 19'sd0;
-        mix_right_contribution = interval_control[mix_index][7] ?
-            mix_right_product <<< 2 : 19'sd0;
+            mix_channel_envelope[mix_index], mix_channel_right[mix_index]);
+        mix_left_contribution = mix_sample_valid ?
+            mix_wave_sample * mix_left_gain : 11'd0;
+        mix_right_contribution = mix_sample_valid ?
+            mix_wave_sample * mix_right_gain : 11'd0;
+        mix_left_sum = left_accumulator + mix_left_contribution;
+        mix_right_sum = right_accumulator + mix_right_contribution;
+        filter_input_left = $signed({1'b0, mix_left_sum[13:4], 5'b00000});
+        filter_input_right = $signed({1'b0, mix_right_sum[13:4], 5'b00000});
+        filter_delta_left = filter_state_left + filter_input_left -
+                            filter_previous_left;
+        filter_delta_right = filter_state_right + filter_input_right -
+                             filter_previous_right;
+        filter_product_left = filter_delta_left * 17'sd65465;
+        filter_product_right = filter_delta_right * 17'sd65465;
+        filter_next_left = filter_product_left >>> 16;
+        filter_next_right = filter_product_right >>> 16;
     end
 
     always_ff @(posedge clk or negedge reset_n) begin
         if (!reset_n) begin
+            sample_divider <= 9'd0;
+            mix_active <= 1'b0;
             mix_index <= 3'd0;
-            left_accumulator <= 19'sd0;
-            right_accumulator <= 19'sd0;
+            left_accumulator <= 14'd0;
+            right_accumulator <= 14'd0;
+            digital_left <= 10'd0;
+            digital_right <= 10'd0;
+            filter_previous_left <= 17'sd0;
+            filter_previous_right <= 17'sd0;
+            filter_state_left <= 18'sd0;
+            filter_state_right <= 18'sd0;
+            mix_noise_bit <= 1'b0;
+            for (mix_reset_index = 0; mix_reset_index < CHANNEL_COUNT;
+                 mix_reset_index = mix_reset_index + 1) begin
+                mix_channel_active[mix_reset_index] <= 1'b0;
+                mix_channel_left[mix_reset_index] <= 4'd0;
+                mix_channel_right[mix_reset_index] <= 4'd0;
+                mix_channel_envelope[mix_reset_index] <= 4'd0;
+                mix_channel_bank[mix_reset_index] <= 4'd0;
+                mix_channel_position[mix_reset_index] <= 5'd0;
+            end
             sample_left <= 16'sd0;
             sample_right <= 16'sd0;
-        end else if (mix_index == 3'd5) begin
-            sample_left <= left_accumulator + mix_left_contribution;
-            sample_right <= right_accumulator + mix_right_contribution;
-            mix_index <= 3'd0;
-            left_accumulator <= 19'sd0;
-            right_accumulator <= 19'sd0;
-        end else begin
-            mix_index <= mix_index + 3'd1;
-            left_accumulator <= left_accumulator + mix_left_contribution;
-            right_accumulator <= right_accumulator + mix_right_contribution;
+        end else if (ce) begin
+            if (sample_divider == 9'd479) begin
+                sample_divider <= 9'd0;
+                mix_active <= 1'b1;
+                mix_index <= 3'd0;
+                left_accumulator <= 14'd0;
+                right_accumulator <= 14'd0;
+                mix_noise_bit <= noise_sample;
+                for (mix_reset_index = 0; mix_reset_index < CHANNEL_COUNT;
+                     mix_reset_index = mix_reset_index + 1) begin
+                    mix_channel_active[mix_reset_index] <=
+                        interval_control[mix_reset_index][7];
+                    mix_channel_left[mix_reset_index] <=
+                        left_level[mix_reset_index];
+                    mix_channel_right[mix_reset_index] <=
+                        right_level[mix_reset_index];
+                    mix_channel_envelope[mix_reset_index] <=
+                        envelope_level[mix_reset_index];
+                    mix_channel_bank[mix_reset_index] <=
+                        wave_bank[mix_reset_index];
+                    mix_channel_position[mix_reset_index] <=
+                        wave_position[mix_reset_index];
+                end
+            end else begin
+                sample_divider <= sample_divider + 9'd1;
+            end
+
+            if (mix_active) begin
+                if (mix_index == 3'd5) begin
+                    digital_left <= mix_left_sum[13:4];
+                    digital_right <= mix_right_sum[13:4];
+                    filter_previous_left <= filter_input_left[16:0];
+                    filter_previous_right <= filter_input_right[16:0];
+                    filter_state_left <= filter_next_left;
+                    filter_state_right <= filter_next_right;
+                    sample_left <= filter_next_left[15:0];
+                    sample_right <= filter_next_right[15:0];
+                    mix_active <= 1'b0;
+                end else begin
+                    mix_index <= mix_index + 3'd1;
+                    left_accumulator <= mix_left_sum;
+                    right_accumulator <= mix_right_sum;
+                end
+            end
         end
     end
 
