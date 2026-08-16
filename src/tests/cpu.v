@@ -80,8 +80,34 @@ module cpu_tb;
         .irq(timer_irq)
     );
 
+    // The real game pad answers the same region at its own registers and
+    // interrupts at level 0, again wired the way core_top wires it. Its
+    // report is driven straight from the bench, standing in for
+    // host_pad_map, which src/tests/game_pad.v owns.
+    reg  [15:0] pad_buttons = 16'h0002;
+    wire [15:0] pad_rdata;
+    wire        pad_irq;
+
+    game_pad u_pad (
+        .clk(clk),
+        .reset_n(reset_n),
+        .ce(ce),
+        .sel(req && a[26:24] == 3'd2),
+        .addr(a),
+        .we(we),
+        .be(be),
+        .wdata(wd),
+        .rdata(pad_rdata),
+        .buttons(pad_buttons),
+        .irq(pad_irq)
+    );
+
     reg rd_misc = 1'b0;   // last access hit region 2: the timer answers
     always @(posedge clk) if (req) rd_misc <= a[26:24] == 3'd2;
+
+    // The region's two devices decode disjoint registers, so one answer is
+    // the other's zero -- core_top merges them the same way.
+    wire [15:0] misc_rdata = timer_rdata | pad_rdata;
 
     cpu dut (
         .clk(clk),
@@ -92,10 +118,10 @@ module cpu_tb;
         .we(we),
         .be(be),
         .wdata(wd),
-        .rdata(rd_misc ? timer_rdata : rd),
+        .rdata(rd_misc ? misc_rdata : rd),
         .ready(ready),
-        .irq_valid(irq_valid || timer_irq),
-        .irq_level(irq_valid ? irq_level : 4'd1),
+        .irq_valid(irq_valid || timer_irq || pad_irq),
+        .irq_level(irq_valid ? irq_level : timer_irq ? 4'd1 : 4'd0),
         .dbg_pc(dbg_pc),
         .dbg_halted(dbg_halted)
     );
@@ -260,7 +286,7 @@ module cpu_tb;
     task automatic run_rom_status(input string name, input integer hwords,
                                   input [15:0] want,
                                   input integer max_cycles);
-        integer fd, i;
+        integer fd;
         string  path;
         begin
             restart();
@@ -273,6 +299,16 @@ module cpu_tb;
             $readmemh(path, rom);
             rom_mask = hwords - 1;
             go();
+            wait_status(want, max_cycles, name);
+        end
+    endtask
+
+    // Waits for a running image to publish a status word, for a ROM whose
+    // display loop answers more than once.
+    task automatic wait_status(input [15:0] want, input integer max_cycles,
+                               input string name);
+        integer i;
+        begin
             i = 0;
             while (status !== want) begin
                 @(negedge clk);
@@ -601,6 +637,21 @@ module cpu_tb;
         // passed and the seconds display armed. The seconds themselves
         // are far too slow to simulate; the hardware run judges those.
         run_rom_status("timer", 1024, 16'h0000, 400000);
+
+        // The pad ROM, through the real game pad and the real bus. Its
+        // self-test publishes 0x600D only after the data registers came up
+        // zero, a software read alone filled them, a hardware read reported
+        // busy and finished, and the two agreed -- the one order that can
+        // tell the two read paths apart, since they share a register.
+        // Driving a second value afterwards proves the loop re-reads rather
+        // than latching once.
+        pad_buttons = 16'h1236;
+        run_rom_status("pad", 1024, 16'h600d, 400000);
+        wait_status(16'h1236, 400000, "pad");
+        pad_buttons = 16'hc0de;
+        wait_status(16'hc0de, 400000, "pad");
+        if (pad_irq !== 1'b0)
+            $fatal(1, "pad: the key interrupt fired on a report that sets SGN");
 
         $finish;
     end
