@@ -1,7 +1,48 @@
 {
     "interact": {
         "magic": "APF_VER_1",
-        "variables": [],
+        "variables": [
+            {
+                "name": "D-Pad",
+                "id": 1,
+                "type": "list",
+                "enabled": true,
+                "persist": true,
+                "address": "0x10000000",
+                "defaultval": 0,
+                "mask": "0xFFFFFFFE",
+                "options": [
+                    {
+                        "value": 0,
+                        "name": "Left Pad"
+                    },
+                    {
+                        "value": 1,
+                        "name": "Right Pad"
+                    }
+                ]
+            },
+            {
+                "name": "Select and Start",
+                "id": 2,
+                "type": "list",
+                "enabled": true,
+                "persist": true,
+                "address": "0x10000000",
+                "defaultval": 0,
+                "mask": "0xFFFFFFFD",
+                "options": [
+                    {
+                        "value": 0,
+                        "name": "L and R"
+                    },
+                    {
+                        "value": 2,
+                        "name": "Select and Start"
+                    }
+                ]
+            }
+        ],
         "messages": []
     }
 }
