@@ -62,6 +62,7 @@ module vsu_tb;
 
     task automatic step_envelope;
         @(negedge clk);
+        dut.base_clock_divider = 2'd3;
         dut.envelope_counter[0] = 4'd1;
         dut.envelope_divider[0] = 19'd1;
         ce = 1'b1;
@@ -88,8 +89,16 @@ module vsu_tb;
         ce = 1'b0;
         expect_samples(-3712, -2048, "position zero and stereo gain");
         @(negedge clk);
+        dut.base_clock_divider = 2'd0;
         ce = 1'b1;
-        repeat (2) @(posedge clk);
+        repeat (7) @(posedge clk);
+        #1;
+        if (dut.wave_position[0] !== 5'd0)
+            $fatal(1, "frequency advanced before the second VSU tick");
+        @(posedge clk);
+        #1;
+        if (dut.wave_position[0] !== 5'd1)
+            $fatal(1, "frequency did not advance on the second VSU tick");
         @(negedge clk);
         ce = 1'b0;
         expect_samples(3596, 1984, "frequency advances after one tick");
@@ -119,8 +128,9 @@ module vsu_tb;
         write8(11'h400, 8'ha0);
         expect_samples(-3712, 0, "interval restart");
         @(negedge clk);
+        dut.base_clock_divider = 2'd0;
         ce = 1'b1;
-        repeat (19200) @(posedge clk);
+        repeat (76800) @(posedge clk);
         @(negedge clk);
         ce = 1'b0;
         expect_samples(0, 0, "interval expiry");

@@ -1,7 +1,6 @@
 `default_nettype none
 
-// Five wavetable channels. Timing follows beetle-vb's vsu.c, where one
-// frequency count is one 20 MHz CPU tick.
+// Five wavetable channels. The VSU base clock is one quarter of the CPU clock.
 module vsu (
     input  logic               clk,
     input  logic               reset_n,
@@ -44,6 +43,8 @@ module vsu (
     logic [2:0]  write_channel;
     logic        channel_write;
     logic        global_stop_write;
+    logic [1:0]  base_clock_divider;
+    logic        base_tick;
 
     assign offset = {addr[10:1], 1'b0};
     assign aligned_write = sel && we && be[0] && offset[1:0] == 2'b00;
@@ -54,11 +55,13 @@ module vsu (
     assign channel_write = aligned_write && offset >= 11'h400 &&
                            offset < 11'h540;
     assign global_stop_write = aligned_write && offset == 11'h580 && write_byte[0];
+    assign base_tick = ce && base_clock_divider == 2'd3;
 
     integer channel_index;
     integer wave_reset_index;
     always_ff @(posedge clk or negedge reset_n) begin
         if (!reset_n) begin
+            base_clock_divider <= 2'd0;
             for (wave_reset_index = 0; wave_reset_index < 160;
                  wave_reset_index = wave_reset_index + 1)
                 wave_ram[wave_reset_index] <= 6'd0;
@@ -76,13 +79,16 @@ module vsu (
                 interval_counter[channel_index] <= 6'd0;
                 interval_divider[channel_index] <= 15'd0;
                 envelope_counter[channel_index] <= 4'd1;
-                envelope_divider[channel_index] <= 19'd307200;
+                envelope_divider[channel_index] <= 19'd76800;
             end
         end else begin
+            if (ce)
+                base_clock_divider <= base_clock_divider + 2'd1;
+
             if (aligned_write && offset < 11'h280)
                 wave_ram[wave_index] <= write_byte[5:0];
 
-            if (ce) begin
+            if (base_tick) begin
                 for (channel_index = 0; channel_index < CHANNEL_COUNT;
                      channel_index = channel_index + 1) begin
                     if (interval_control[channel_index][7]) begin
@@ -113,7 +119,7 @@ module vsu (
                         end
 
                         if (envelope_divider[channel_index] <= 19'd1) begin
-                            envelope_divider[channel_index] <= 19'd307200;
+                            envelope_divider[channel_index] <= 19'd76800;
                             if (envelope_counter[channel_index] <= 4'd1) begin
                                 envelope_counter[channel_index] <=
                                     {1'b0, envelope_control[channel_index][2:0]} + 4'd1;
@@ -159,7 +165,7 @@ module vsu (
                             interval_divider[write_channel] <= 15'd19200;
                             envelope_counter[write_channel] <=
                                 {1'b0, envelope_control[write_channel][2:0]} + 4'd1;
-                            envelope_divider[write_channel] <= 19'd307200;
+                            envelope_divider[write_channel] <= 19'd76800;
                         end
                     end
                     4'h1: begin
