@@ -6,14 +6,14 @@
 // reach all fourteen at once. Which two go missing is the only real choice
 // here, so it is a setting rather than a constant.
 //
-// The default is the layout morgan-vieira chose (Controller.md, 2026-08-16,
-// which settles TODO's open decision 2): the Pocket's D-pad is the left
+// The default is the layout morgan-vieira chose (recorded in TODO section
+// 7, 2026-08-16, settling open decision 2): the Pocket's D-pad is the left
 // pad, its face buttons are the right pad in the diamond the hardware
 // already draws, and L and R are the machine's A and B, the two buttons
 // games press most. That leaves Select and Start standing in for the
 // machine's L and R, and the machine's own Select and Start unreachable --
-// which the note flags with "or swap with L/R if preferred", so the swap is
-// the second setting.
+// which the decision flags as swappable if preferred, so the swap is the
+// second setting.
 //
 // Report bit numbering is the scroll's, and game_pad.v carries the note on
 // why the wiki article numbers the same bits backwards.

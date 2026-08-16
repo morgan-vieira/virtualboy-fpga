@@ -934,18 +934,27 @@ pass criterion cover all sixteen.
       path, which both references do agree on, and a software read raises nothing,
       because the scroll conditions the interrupt on a hardware read.
 
-**ROM:** `pad`, the raw sixteen-bit word twice, one row per read path, plus a
-startup self-test. The two rows cannot prove each other on their own, because
-both reads land in the same registers and a dead software read leaves the
-hardware read's value standing; the reset state is what separates them, so the
-self-test reads the registers zero, then does a software read alone before any
-hardware read has run. Built, Mednafen header-checked, and passing in
-`src/tests/cpu.v` against the real pad.
-**Pass criterion:** each physical button toggles exactly its documented bit and no
-others, in both rows, with the failure bar black throughout. The full wording,
-including the per-button cell numbers and each self-test sentinel, is the ROM's
-`expectation`.
-**Not yet watched on hardware.**
+**ROM:** `pad`, the Pocket's controls drawn where they sit on the device and
+lighting while held, plus the raw sixteen-bit word twice in small rows along
+the bottom, one row per read path, plus a startup self-test. The picture
+decodes the hardware read through the default mapping, because the V810
+cannot see Core Settings; the rows are the ground truth under any setting.
+The two rows cannot prove each other on their own, because both reads land in
+the same registers and a dead software read leaves the hardware read's value
+standing; the reset state is what separates them, so the self-test reads the
+registers zero, then does a software read alone before any hardware read has
+run. Built, Mednafen header-checked, and passing in `src/tests/cpu.v` against
+the real pad.
+**Pass criterion:** each physical button lights exactly its control and its
+documented bit and no others, in both rows, with the failure bar black
+throughout. The full wording, including the per-button cell numbers and each
+self-test sentinel, is the ROM's `expectation`.
+**Watched and passed 2026-08-16** by morgan-vieira on the 0.7.0 bitstream, as
+the original two-row display: every button toggled exactly its cell in both
+rows and the bar stayed black. **Re-watched and passed 2026-08-17** as the
+controls-picture display above, same bitstream, ROM change only. The two
+Core Settings switches are proven by `src/tests/game_pad.v` and have not been
+separately watched on hardware.
 
 ---
 
