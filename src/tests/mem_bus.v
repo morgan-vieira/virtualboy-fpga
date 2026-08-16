@@ -25,9 +25,11 @@ module mem_bus_tb;
   reg         req = 1'b0;
   reg  [26:1] addr = 26'd0;
   reg         we = 1'b0;
+  reg         vip_ready = 1'b1;
   reg  [1:0]  be = 2'b00;
   reg  [15:0] wdata = 16'd0;
   wire [15:0] rdata;
+  wire        ready;
   wire        vip_sel, vsu_sel, misc_sel, exp_sel, cart_ram_sel, cart_rom_sel;
 
   mem_bus dut (
@@ -39,6 +41,7 @@ module mem_bus_tb;
     .be             (be),
     .wdata          (wdata),
     .rdata          (rdata),
+    .ready          (ready),
     .vip_sel        (vip_sel),
     .vsu_sel        (vsu_sel),
     .misc_sel       (misc_sel),
@@ -46,6 +49,7 @@ module mem_bus_tb;
     .cart_ram_sel   (cart_ram_sel),
     .cart_rom_sel   (cart_rom_sel),
     .vip_rdata      (VIP_DATA),
+    .vip_ready      (vip_ready),
     .misc_rdata     (MISC_DATA),
     .cart_ram_rdata (CRAM_DATA),
     .cart_rom_rdata (CROM_DATA)
@@ -112,6 +116,18 @@ module mem_bus_tb;
     #1;
     if (sels !== 6'b000000) $fatal(1, "selects asserted without req");
     if (rdata !== 16'd0)    $fatal(1, "rdata %04x out of reset, expected 0", rdata);
+
+    // Only VIP accesses inherit the external memory stall.
+    req = 1'b1;
+    addr = 26'd0;
+    vip_ready = 1'b0;
+    #1;
+    if (ready !== 1'b0) $fatal(1, "VIP stall did not reach the CPU");
+    addr = 26'h1000000;
+    #1;
+    if (ready !== 1'b1) $fatal(1, "VIP stall escaped its region");
+    req = 1'b0;
+    vip_ready = 1'b1;
 
     // Each region hits exactly its own select, at both ends of the region.
     // Regions 3 (unmapped) and 5 (work RAM, internal) assert no select at all.

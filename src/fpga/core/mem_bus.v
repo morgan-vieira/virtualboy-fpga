@@ -32,6 +32,7 @@ module mem_bus (
     input  wire [1:0]   be,
     input  wire [15:0]  wdata,
     output wire [15:0]  rdata,
+    output wire         ready,
 
     // One select per region a future module owns. addr, we, be and wdata
     // fan out to the devices unchanged; only the selects are decoded here.
@@ -43,6 +44,7 @@ module mem_bus (
     output wire         cart_rom_sel,
 
     input  wire [15:0]  vip_rdata,
+    input  wire         vip_ready,
     input  wire [15:0]  misc_rdata,
     input  wire [15:0]  cart_ram_rdata,
     input  wire [15:0]  cart_rom_rdata
@@ -94,5 +96,7 @@ end
                    region_q == 3'd6 ? cart_ram_rdata :
                    region_q == 3'd7 ? cart_rom_rdata :
                    16'd0;
+
+    assign ready = !req || region != 3'd0 || vip_ready;
 
 endmodule
