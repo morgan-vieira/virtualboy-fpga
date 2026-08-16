@@ -310,7 +310,7 @@ always @(*) begin
         bridge_rd_data <= 0;
     end
     32'h10xxxxxx: begin
-        bridge_rd_data <= pad_cfg;
+        bridge_rd_data <= core_cfg;
     end
     32'hF8xxxxxx: begin
         bridge_rd_data <= cmd_bridge_rd_data;
@@ -320,17 +320,18 @@ end
 
 
 //
-// controller mapping settings
+// core settings
 //
-// the Pocket has twelve inputs and the machine has fourteen, so which two
-// go missing is a user's choice rather than ours -- interact.json puts both
-// switches in the Core Settings menu at this address, and host_pad_map.v
-// carries the layout and the reasoning. APF reads the register back and
-// writes it whole every frame, so it answers reads as well as writes.
+// one register behind the Core Settings menu. bits 1:0 are the controller
+// mapping: the Pocket has twelve inputs and the machine has fourteen, so
+// which two go missing is a user's choice rather than ours, and
+// host_pad_map.v carries the layout and the reasoning. bit 2 turns on the
+// diagnostic overlay below. APF reads the register back and writes it whole
+// every frame, so it answers reads as well as writes.
 
-    reg     [31:0]  pad_cfg = 32'd0;
+    reg     [31:0]  core_cfg = 32'd0;
 always @(posedge clk_74a) begin
-    if(bridge_wr && bridge_addr == 32'h10000000) pad_cfg <= bridge_wr_data;
+    if(bridge_wr && bridge_addr == 32'h10000000) core_cfg <= bridge_wr_data;
 end
 
 
@@ -699,7 +700,7 @@ timer vb_timer (
 synch_3 #(.WIDTH(16)) s_cont1(cont1_key[15:0], cont1_key_s, clk_cpu);
 
     wire [1:0]  pad_cfg_s;
-synch_3 #(.WIDTH(2)) s_padcfg(pad_cfg[1:0], pad_cfg_s, clk_cpu);
+synch_3 #(.WIDTH(2)) s_padcfg(core_cfg[1:0], pad_cfg_s, clk_cpu);
 
     wire [15:0] pad_buttons;
 
@@ -754,6 +755,41 @@ cart_rom vb_cart (
     .rdata                  ( cart_rom_rdata )
 );
 
+// the test-ROM status convention (src/roms/README.md): ROMs report through
+// the halfword at WRAM 0x05000000. this latch only observes the bus, so it
+// is host-side presentation, not Virtual Boy hardware.
+
+    reg [15:0]  rom_status;
+
+always @(posedge clk_cpu or negedge reset_n) begin
+    if(~reset_n) begin
+        rom_status <= 16'h0000;
+    end else if(cpu_req && cpu_we && cpu_addr == 26'h2800000) begin
+        if(cpu_be[0]) rom_status[7:0]  <= cpu_wdata[7:0];
+        if(cpu_be[1]) rom_status[15:8] <= cpu_wdata[15:8];
+    end
+end
+
+// into the video domain for the display. two flops per bundle, no handshake:
+// the values only need to read correctly once they hold still, which is when
+// a maintainer reads them.
+    reg [15:0]  disp_status_m, disp_status;
+    reg [15:0]  disp_pc_m, disp_pc;
+    reg         disp_halted_m, disp_halted;
+    reg         disp_diag_m, disp_diag;
+
+always @(posedge clk_core_12288) begin
+    disp_status_m <= rom_status;
+    disp_status   <= disp_status_m;
+    disp_pc_m     <= cpu_dbg_pc[16:1];
+    disp_pc       <= disp_pc_m;
+    disp_halted_m <= cpu_dbg_halted;
+    disp_halted   <= disp_halted_m;
+    disp_diag_m   <= core_cfg[2];
+    disp_diag     <= disp_diag_m;
+end
+
+
 // video generation
 //
 // the raster belongs to host_video_timing; everything here only supplies colour.
@@ -762,7 +798,9 @@ cart_rom vb_cart (
 
 assign video_rgb_clock = clk_core_12288;
 assign video_rgb_clock_90 = clk_core_12288_90deg;
-assign video_rgb = video_de_q ? {vip_display_luma, 16'h0000} : 24'h000000;
+assign video_rgb = !video_de_q      ? 24'h000000 :
+                    overlay_on_q    ? overlay_rgb_q :
+                                      {vip_display_luma, 16'h0000};
 assign video_de = video_de_q;
 assign video_skip = 1'b0;
 assign video_vs = video_vs_q;
@@ -794,18 +832,76 @@ host_video_timing #(
     .y                      ( vidout_y )
 );
 
-// Framebuffer RAM has one display-clock cycle of read latency.
+// the diagnostic overlay, off unless Core Settings turns it on
+//
+// what the status-reporting ROMs' pass criteria read, restored over the VIP's
+// picture rather than instead of it: the centre square outlines always and
+// fills solid red when the CPU halts, and two rows of sixteen cells show the
+// ROM status halfword (top, MSB left) and PC bits 16-1 (bottom). a maintainer
+// reads the failing check number straight off the top row.
+//
+// off by default because the VIP owns this screen now. a ROM that draws its
+// own picture -- every vip-* image, and pad -- would have this drawn on top
+// of it, and so would a game, so it is opt-in per ROM rather than furniture.
+
+    localparam  SQUARE      = 'd112;
+    localparam  SQUARE_X    = (VID_H_ACTIVE - SQUARE) / 2;
+    localparam  SQUARE_Y    = (VID_V_ACTIVE - SQUARE) / 2;
+
+    localparam  CELLS_X     = (VID_H_ACTIVE - 16*16) / 2;
+    localparam  STATUS_Y    = 'd24;
+    localparam  PC_Y        = 'd184;
+    localparam  CELL_H      = 'd16;
+
+    wire        in_square =
+                    vidout_x >= SQUARE_X && vidout_x < SQUARE_X+SQUARE &&
+                    vidout_y >= SQUARE_Y && vidout_y < SQUARE_Y+SQUARE;
+
+    wire        square_edge = in_square &&
+                    (vidout_x == SQUARE_X || vidout_x == SQUARE_X+SQUARE-1 ||
+                     vidout_y == SQUARE_Y || vidout_y == SQUARE_Y+SQUARE-1);
+
+    wire [9:0]  cell_x    = vidout_x - CELLS_X;
+    wire [3:0]  cell_idx  = cell_x[7:4];
+    wire        in_cells  = vidout_x >= CELLS_X && vidout_x < CELLS_X + 16*16 &&
+                            cell_x[3:0] < 14;   // 2px gap marks positions
+    wire        status_row = in_cells && vidout_y >= STATUS_Y &&
+                             vidout_y < STATUS_Y + CELL_H;
+    wire        pc_row     = in_cells && vidout_y >= PC_Y &&
+                             vidout_y < PC_Y + CELL_H;
+
+    wire        status_bit = disp_status[4'd15 - cell_idx];
+    wire        pc_bit     = disp_pc[4'd15 - cell_idx];
+
+    wire        overlay_on = disp_diag &&
+                    (square_edge || (in_square && disp_halted) ||
+                     status_row || pc_row);
+
+    wire [23:0] overlay_rgb =
+                    (square_edge || in_square) ? 24'hFF0000 :
+                    status_row ? (status_bit ? 24'hFFFFFF : 24'h282828) :
+                                 (pc_bit     ? 24'hFFFFFF : 24'h282828);
+
+    reg         overlay_on_q;
+    reg [23:0]  overlay_rgb_q;
+
+// Framebuffer RAM has one display-clock cycle of read latency, so the overlay
+// takes the same clock or it would land a pixel early.
 always @(posedge clk_core_12288 or negedge reset_n) begin
     if(~reset_n) begin
         video_de_q <= 1'b0;
         video_vs_q <= 1'b0;
         video_hs_q <= 1'b0;
+        overlay_on_q <= 1'b0;
     end else begin
         video_de_q <= vidout_de;
         video_vs_q <= vidout_vs;
         video_hs_q <= vidout_hs;
+        overlay_on_q <= overlay_on;
     end
 end
+
+always @(posedge clk_core_12288) overlay_rgb_q <= overlay_rgb;
 
 
 

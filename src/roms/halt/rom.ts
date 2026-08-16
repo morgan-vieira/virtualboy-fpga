@@ -5,7 +5,8 @@ export default defineRom({
   name: "halt",
   header: { gameTitle: "OPENFPGA HALT", makerCode: "OF", gameCode: "VHLT", revision: 0 },
   expectation:
-    "On the Pocket: the centre square fills solid red (CPU halted) and the top row " +
+    "On the Pocket, with Core Settings > Diagnostic Overlay set to On: the centre " +
+    "square fills solid red (CPU halted) and the top row " +
     "of 16 status cells reads 0xBEEF (1011 1110 1110 1111) — the low halfword of " +
     "the 0xDEADBEEF the ROM stores to 0x05000000. In Mednafen: the image loads " +
     "without being rejected, the log reports the title OPENFPGA HALT and a 1KiB " +
