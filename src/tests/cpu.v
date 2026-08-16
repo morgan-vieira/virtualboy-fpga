@@ -48,6 +48,7 @@ module cpu_tb;
     end
 
     reg reset_n = 1'b0;
+    reg ready = 1'b1;
     reg irq_valid = 1'b0;
     reg [3:0] irq_level = 4'd0;
 
@@ -92,6 +93,7 @@ module cpu_tb;
         .be(be),
         .wdata(wd),
         .rdata(rd_misc ? timer_rdata : rd),
+        .ready(ready),
         .irq_valid(irq_valid || timer_irq),
         .irq_level(irq_valid ? irq_level : 4'd1),
         .dbg_pc(dbg_pc),
@@ -165,6 +167,7 @@ module cpu_tb;
         integer i;
         begin
             reset_n   = 1'b0;
+            ready     = 1'b1;
             irq_valid = 1'b0;
             irq_level = 4'd0;
             for (i = 0; i < ROM_HWORDS; i = i + 1) rom[i] = 16'hxxxx;
@@ -297,10 +300,17 @@ module cpu_tb;
         prog_h(16'h75de);  // stsr 30,   r14
         prog_h(16'h75e8);  // stsr 8,    r15
         prog_h(16'h6800);  // halt
+        ready = 1'b0;
         go();
         while (!req) @(negedge clk);
         if (a !== 26'h3FFFFF8)
             $fatal(1, "d1: first fetch at %07x, expected 3fffff8 (0xFFFFFFF0 masked)", a);
+        repeat (5) begin
+            @(negedge clk);
+            if (!req || a !== 26'h3FFFFF8)
+                $fatal(1, "d1: fetch changed while ready was low");
+        end
+        ready = 1'b1;
         wait_halt(2000, "d1");
         expect_gpr(10, 32'h0000_8000, "d1 PSW");
         expect_gpr(11, 32'h0000_FFF0, "d1 ECR");

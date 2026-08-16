@@ -67,6 +67,7 @@ module cpu (
     output logic [1:0]       be,
     output logic [15:0]      wdata,
     input  wire logic [15:0] rdata,
+    input  wire logic        ready,
 
     // Interrupt request: level held while asserted.
     input  wire logic        irq_valid,
@@ -457,7 +458,7 @@ module cpu (
                             exc_is_irq  <= 1'b1;
                             exc_level   <= irq_level;
                             state       <= EXC_ENTER;
-                        end else begin
+                        end else if (ready) begin
                             state <= FETCH_END;
                         end
                     end
@@ -467,14 +468,14 @@ module cpu (
                     // barrier and executes below. rdata holds between
                     // accesses, so the hold costs nothing but time.
                     FETCH_END:
-                        if (is_32bit(rdata)) begin
+                        if (is_32bit(rdata) && ready) begin
                             ir_lo_q <= rdata;
                             state   <= EXEC2;
                         end
 
                     EXEC2: ;   // the barrier below owns this state
 
-                    MEM_LO: begin
+                    MEM_LO: if (ready) begin
                         if (mem_store && mem_ea[26:24] == 3'd2
                             && mem_ea[7:0] == 8'h24) begin
                             wcr_rom1w <= mem_data[0];
@@ -484,7 +485,7 @@ module cpu (
                                : mem_store ? FETCH1 : MEM_CAP;
                     end
 
-                    MEM_HI: begin
+                    MEM_HI: if (ready) begin
                         // A word load's low answer lands here while the
                         // high request goes out, keeping the two accesses
                         // back-to-back on the bus.
@@ -586,7 +587,7 @@ module cpu (
                         end
                     end
 
-                    FATAL_WR: begin
+                    FATAL_WR: if (ready) begin
                         // Cause word, PSW, then PC to 0x0/0x4/0x8, then
                         // stopped for good [Scroll, Exception handling
                         // algorithm].
