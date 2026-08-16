@@ -43,6 +43,8 @@ Anything below a sub-feature is small enough to explain in a sentence, so explai
 
 A module that compiles isn't a module that works. Every module takes the same route:
 
+Do not declare a module complete by pinning or deferring features that can be implemented within it. Missing behavior remains part of the module's work regardless of difficulty. A feature may be deferred only when a technical constraint is outside the control of the maintainers and agents, or when implementing it requires another unfinished module; record that dependency and return once it exists.
+
 - **Simulate first.** Exercise the ports, the edge cases, and the timing you're least sure about before the module goes near Quartus. Synthesis checks that a module is legal, not that it's right. A module's testbench is `src/tests/<module>.v`, it reports failure with `$fatal` or `$error`, and `pnpm run test:sim` runs it.
 - **Build the ROM that proves it.** One ROM per module, written for that module's requirement. Video timing gets a ROM that stresses sync and refresh; the VSU gets one that plays known tones. A commercial game exercises everything at once and proves nothing in particular.
 - **Say what a pass looks like.** What shows on screen, what comes out of the speaker, what failure looks like instead. That's the `expectation` field in the ROM spec, and it gets written before the code. "Load it and see" is not an instruction.
