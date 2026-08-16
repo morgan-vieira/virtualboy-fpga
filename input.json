@@ -1,6 +1,52 @@
 {
     "input": {
         "magic": "APF_VER_1",
-        "controllers": []
+        "controllers": [
+            {
+                "type": "default",
+                "mappings": [
+                    {
+                        "id": 0,
+                        "name": "Right Pad Right",
+                        "key": "pad_btn_a"
+                    },
+                    {
+                        "id": 1,
+                        "name": "Right Pad Down",
+                        "key": "pad_btn_b"
+                    },
+                    {
+                        "id": 2,
+                        "name": "Right Pad Up",
+                        "key": "pad_btn_x"
+                    },
+                    {
+                        "id": 3,
+                        "name": "Right Pad Left",
+                        "key": "pad_btn_y"
+                    },
+                    {
+                        "id": 4,
+                        "name": "A",
+                        "key": "pad_trig_l"
+                    },
+                    {
+                        "id": 5,
+                        "name": "B",
+                        "key": "pad_trig_r"
+                    },
+                    {
+                        "id": 6,
+                        "name": "R",
+                        "key": "pad_btn_start"
+                    },
+                    {
+                        "id": 7,
+                        "name": "L",
+                        "key": "pad_btn_select"
+                    }
+                ]
+            }
+        ]
     }
 }
