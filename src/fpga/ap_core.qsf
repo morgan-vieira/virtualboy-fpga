@@ -748,6 +748,14 @@ set_global_assignment -name SYSTEMVERILOG_FILE core/cpu.v
 set_global_assignment -name SYSTEMVERILOG_FILE core/cart_rom.v
 set_global_assignment -name SYSTEMVERILOG_FILE core/cpu_clock_enable.v
 set_global_assignment -name SYSTEMVERILOG_FILE core/timer.v
+set_global_assignment -name SYSTEMVERILOG_FILE core/vip_memory.v
+set_global_assignment -name SYSTEMVERILOG_FILE core/vip_registers.v
+set_global_assignment -name SYSTEMVERILOG_FILE core/vip_timing.v
+set_global_assignment -name SYSTEMVERILOG_FILE core/vip_display.v
+set_global_assignment -name SYSTEMVERILOG_FILE core/vip_draw.v
+set_global_assignment -name SYSTEMVERILOG_FILE core/vip_line_bank.v
+set_global_assignment -name SYSTEMVERILOG_FILE core/vip.v
+set_global_assignment -name SYSTEMVERILOG_FILE core/pocket_sram.v
 set_global_assignment -name VERILOG_FILE core/core_bridge_cmd.v
 set_global_assignment -name SDC_FILE core/core_constraints.sdc
 set_global_assignment -name SIGNALTAP_FILE core/stp1.stp

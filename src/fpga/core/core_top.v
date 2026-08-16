@@ -295,13 +295,6 @@ assign dram_ras_n = 'h1;
 assign dram_cas_n = 'h1;
 assign dram_we_n = 'h1;
 
-assign sram_a = 'h0;
-assign sram_dq = {16{1'bZ}};
-assign sram_oe_n  = 1;
-assign sram_we_n  = 1;
-assign sram_ub_n  = 1;
-assign sram_lb_n  = 1;
-
 assign dbg_tx = 1'bZ;
 assign user1 = 1'bZ;
 assign aux_scl = 1'bZ;
@@ -532,15 +525,22 @@ cpu_clock_enable ce_gen (
     wire [1:0]  cpu_be;
     wire [15:0] cpu_wdata;
     wire [15:0] cpu_rdata;
+    wire        cpu_ready;
     wire [31:0] cpu_dbg_pc;
     wire        cpu_dbg_halted;
 
     wire        cart_rom_sel;
     wire [15:0] cart_rom_rdata;
 
+    wire        vip_sel;
+    wire [15:0] vip_rdata;
+    wire        vip_ready;
+
+
     wire        misc_sel;
     wire [15:0] misc_rdata;
     wire        timer_irq;
+    wire        vip_irq;
 
 cpu vb_cpu (
     .clk                    ( clk_cpu ),
@@ -553,11 +553,10 @@ cpu vb_cpu (
     .be                     ( cpu_be ),
     .wdata                  ( cpu_wdata ),
     .rdata                  ( cpu_rdata ),
+    .ready                  ( cpu_ready ),
 
-    // the timer is the first of the five sources, at level 1 (0xFE10);
-    // the priority encoder over all five grows here as the rest land
-    .irq_valid              ( timer_irq ),
-    .irq_level              ( 4'd1 ),
+    .irq_valid              ( vip_irq || timer_irq ),
+    .irq_level              ( vip_irq ? 4'd4 : 4'd1 ),
 
     .dbg_pc                 ( cpu_dbg_pc ),
     .dbg_halted             ( cpu_dbg_halted )
@@ -573,18 +572,77 @@ mem_bus vb_bus (
     .be                     ( cpu_be ),
     .wdata                  ( cpu_wdata ),
     .rdata                  ( cpu_rdata ),
+    .ready                  ( cpu_ready ),
 
-    .vip_sel                ( ),
+    .vip_sel                ( vip_sel ),
     .vsu_sel                ( ),
     .misc_sel               ( misc_sel ),
     .exp_sel                ( ),
     .cart_ram_sel           ( ),
     .cart_rom_sel           ( cart_rom_sel ),
 
-    .vip_rdata              ( 16'd0 ),
+    .vip_rdata              ( vip_rdata ),
+    .vip_ready              ( vip_ready ),
     .misc_rdata             ( misc_rdata ),
     .cart_ram_rdata         ( 16'd0 ),
     .cart_rom_rdata         ( cart_rom_rdata )
+);
+
+    wire [1:0]  vip_display_pixel;
+    wire [7:0]  vip_display_luma;
+    wire        vip_dram_req;
+    wire [15:0] vip_dram_addr;
+    wire        vip_dram_we;
+    wire [1:0]  vip_dram_be;
+    wire [15:0] vip_dram_wdata;
+    wire [15:0] vip_dram_rdata;
+    wire        vip_dram_ready;
+
+vip vb_vip (
+    .clk                    ( clk_cpu ),
+    .reset_n                ( reset_n && dataslot_allcomplete_s ),
+
+    .cpu_sel                ( vip_sel ),
+    .cpu_addr               ( cpu_addr ),
+    .cpu_we                 ( cpu_we ),
+    .cpu_be                 ( cpu_be ),
+    .cpu_wdata              ( cpu_wdata ),
+    .cpu_rdata              ( vip_rdata ),
+    .cpu_ready              ( vip_ready ),
+    .irq                    ( vip_irq ),
+
+    .dram_req               ( vip_dram_req ),
+    .dram_addr              ( vip_dram_addr ),
+    .dram_we                ( vip_dram_we ),
+    .dram_be                ( vip_dram_be ),
+    .dram_wdata             ( vip_dram_wdata ),
+    .dram_rdata             ( vip_dram_rdata ),
+    .dram_ready             ( vip_dram_ready ),
+
+    .display_clk            ( clk_core_12288 ),
+    .display_eye            ( 1'b0 ),
+    .display_x              ( vidout_x[8:0] ),
+    .display_y              ( vidout_y[7:0] ),
+    .display_pixel          ( vip_display_pixel ),
+    .display_luma           ( vip_display_luma )
+);
+
+pocket_sram vip_dram_sram (
+    .clk                    ( clk_cpu ),
+    .reset_n                ( reset_n ),
+    .req                    ( vip_dram_req ),
+    .addr                   ( {1'b0, vip_dram_addr} ),
+    .we                     ( vip_dram_we ),
+    .be                     ( vip_dram_be ),
+    .wdata                  ( vip_dram_wdata ),
+    .rdata                  ( vip_dram_rdata ),
+    .ready                  ( vip_dram_ready ),
+    .sram_a                 ( sram_a ),
+    .sram_dq                ( sram_dq ),
+    .sram_oe_n              ( sram_oe_n ),
+    .sram_we_n              ( sram_we_n ),
+    .sram_ub_n              ( sram_ub_n ),
+    .sram_lb_n              ( sram_lb_n )
 );
 
 // the timer answers the misc region's registers at 0x18/0x1C/0x20; the
@@ -619,39 +677,6 @@ cart_rom vb_cart (
     .rdata                  ( cart_rom_rdata )
 );
 
-// the test-ROM status convention (src/roms/README.md): ROMs report through
-// the halfword at WRAM 0x05000000. this latch only observes the bus, so it
-// is host-side presentation, not Virtual Boy hardware.
-
-    reg [15:0]  rom_status;
-
-always @(posedge clk_cpu or negedge reset_n) begin
-    if(~reset_n) begin
-        rom_status <= 16'h0000;
-    end else if(cpu_req && cpu_we && cpu_addr == 26'h2800000) begin
-        if(cpu_be[0]) rom_status[7:0]  <= cpu_wdata[7:0];
-        if(cpu_be[1]) rom_status[15:8] <= cpu_wdata[15:8];
-    end
-end
-
-// into the video domain for the display. two flops per bundle, no handshake:
-// the values only need to read correctly once they hold still, which is when
-// a maintainer reads them.
-    reg [15:0]  disp_status_m, disp_status;
-    reg [15:0]  disp_pc_m, disp_pc;
-    reg         disp_halted_m, disp_halted;
-
-always @(posedge clk_core_12288) begin
-    disp_status_m <= rom_status;
-    disp_status   <= disp_status_m;
-    disp_pc_m     <= cpu_dbg_pc[16:1];
-    disp_pc       <= disp_pc_m;
-    disp_halted_m <= cpu_dbg_halted;
-    disp_halted   <= disp_halted_m;
-end
-
-
-
 // video generation
 //
 // the raster belongs to host_video_timing; everything here only supplies colour.
@@ -660,11 +685,11 @@ end
 
 assign video_rgb_clock = clk_core_12288;
 assign video_rgb_clock_90 = clk_core_12288_90deg;
-assign video_rgb = vidout_rgb;
-assign video_de = vidout_de;
+assign video_rgb = video_de_q ? {vip_display_luma, 16'h0000} : 24'h000000;
+assign video_de = video_de_q;
 assign video_skip = 1'b0;
-assign video_vs = vidout_vs;
-assign video_hs = vidout_hs;
+assign video_vs = video_vs_q;
+assign video_hs = video_hs_q;
 
     localparam  VID_H_ACTIVE = 'd384;
     localparam  VID_V_ACTIVE = 'd224;
@@ -674,6 +699,9 @@ assign video_hs = vidout_hs;
     wire        vidout_hs;
     wire [9:0]  vidout_x;
     wire [9:0]  vidout_y;
+    reg         video_de_q;
+    reg         video_vs_q;
+    reg         video_hs_q;
 
 host_video_timing #(
     .H_ACTIVE               ( VID_H_ACTIVE ),
@@ -689,63 +717,16 @@ host_video_timing #(
     .y                      ( vidout_y )
 );
 
-
-// CPU state display, until the VIP has pixels of its own
-//
-// what the test ROMs' pass criteria read: the one-pixel border stays as the
-// liveness frame (already watched and passed 2026-08-14), the centre square
-// fills solid red when the CPU halts, and two rows of sixteen cells show the
-// ROM status halfword (top, MSB left) and PC bits 16-1 (bottom). a maintainer
-// reads the failing check number straight off the top row.
-
-    localparam  SQUARE      = 'd112;
-    localparam  SQUARE_X    = (VID_H_ACTIVE - SQUARE) / 2;
-    localparam  SQUARE_Y    = (VID_V_ACTIVE - SQUARE) / 2;
-
-    localparam  CELLS_X     = (VID_H_ACTIVE - 16*16) / 2;
-    localparam  STATUS_Y    = 'd24;
-    localparam  PC_Y        = 'd184;
-    localparam  CELL_H      = 'd16;
-
-    wire        border = vidout_x == 0 || vidout_x == VID_H_ACTIVE-1 ||
-                         vidout_y == 0 || vidout_y == VID_V_ACTIVE-1;
-
-    wire        in_square =
-                    vidout_x >= SQUARE_X && vidout_x < SQUARE_X+SQUARE &&
-                    vidout_y >= SQUARE_Y && vidout_y < SQUARE_Y+SQUARE;
-
-    wire        square_edge = in_square &&
-                    (vidout_x == SQUARE_X || vidout_x == SQUARE_X+SQUARE-1 ||
-                     vidout_y == SQUARE_Y || vidout_y == SQUARE_Y+SQUARE-1);
-
-    wire [9:0]  cell_x    = vidout_x - CELLS_X;
-    wire [3:0]  cell_idx  = cell_x[7:4];
-    wire        in_cells  = vidout_x >= CELLS_X && vidout_x < CELLS_X + 16*16 &&
-                            cell_x[3:0] < 14;   // 2px gap marks positions
-    wire        status_row = in_cells && vidout_y >= STATUS_Y &&
-                             vidout_y < STATUS_Y + CELL_H;
-    wire        pc_row     = in_cells && vidout_y >= PC_Y &&
-                             vidout_y < PC_Y + CELL_H;
-
-    wire        status_bit = disp_status[4'd15 - cell_idx];
-    wire        pc_bit     = disp_pc[4'd15 - cell_idx];
-
-    reg [23:0]  vidout_rgb;
-
-// combinational, so colour stays aligned with the registered de it is sampled against
-always @* begin
-    if(~vidout_de) begin
-        vidout_rgb = 24'h000000;
-    end else if(border) begin
-        vidout_rgb = 24'hFFFFFF;
-    end else if(square_edge || (in_square && disp_halted)) begin
-        vidout_rgb = 24'hFF0000;
-    end else if(status_row) begin
-        vidout_rgb = status_bit ? 24'hFFFFFF : 24'h282828;
-    end else if(pc_row) begin
-        vidout_rgb = pc_bit ? 24'hFFFFFF : 24'h282828;
+// Framebuffer RAM has one display-clock cycle of read latency.
+always @(posedge clk_core_12288 or negedge reset_n) begin
+    if(~reset_n) begin
+        video_de_q <= 1'b0;
+        video_vs_q <= 1'b0;
+        video_hs_q <= 1'b0;
     end else begin
-        vidout_rgb = 24'h000000;
+        video_de_q <= vidout_de;
+        video_vs_q <= vidout_vs;
+        video_hs_q <= vidout_hs;
     end
 end
 
