@@ -1,0 +1,3 @@
+interface:
+  display_name: "Package Core"
+  short_description: "Compile and package the openFPGA core into an installable Analogue Pocket zip."

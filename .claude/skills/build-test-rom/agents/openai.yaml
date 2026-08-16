@@ -1,0 +1,3 @@
+interface:
+  display_name: "Build Test ROM"
+  short_description: "Write, build, and verify a Virtual Boy test ROM against one module's requirement."

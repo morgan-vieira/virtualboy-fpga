@@ -99,7 +99,7 @@ Before handing a ROM over, confirm all of:
 1. `pnpm run test:roms` passes. A change to the assembler that breaks an encoding breaks every ROM at once.
 2. The build reports a power-of-two size and the code size you expect. Code far larger than the program suggests a loop emitting instructions.
 3. The header reads back correctly from the end of the image, at `size - 0x220`.
-4. `npx tsc -p src/roms/tsconfig.json --noEmit` is clean.
+4. `npx tsgo -p src/roms/tsconfig.json --noEmit` is clean.
 
 Then add the ROM to the table in `src/roms/README.md`.
 
@@ -138,6 +138,8 @@ A rejected image prints `VB ROM image size is not a power of 2.` at the end of t
 Ignore the `Failed:` and `Error:` lines about `.ips`, `vb.cfg`, `pgconfig`, `vb.pal` and `vb.cht`. Mednafen probes for those optional files on every launch and they are absent by design; they are not a problem with the ROM.
 
 To give a maintainer something to watch, record the run with `-qtrecord <file.mov>` and report where the file is. `F9` saves a PNG into `snaps/`, but it needs a keypress, so it belongs to whoever is at the machine.
+
+For a ROM whose pass criterion is audible, add `-soundrecord <absolute path>.wav` to the launch and check the recording with `pnpm run analyze:wav <file.wav>`, which reports per-channel levels and dominant frequencies. The `read-wav` skill covers the pattern and how to read the report.
 
 Mednafen agreeing proves the image is well-formed and that a reference emulator runs it. It says nothing about the core. Ask a maintainer to run the ROM on the Pocket; a clean build and a clean emulator run are status updates, not conclusions, and no ROM is done until someone has watched it behave on hardware.
 

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Read WAV"
+  short_description: "Record Mednafen's audio to a WAV and verify levels and frequencies numerically."
