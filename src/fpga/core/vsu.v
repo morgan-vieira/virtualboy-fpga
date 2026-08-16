@@ -58,6 +58,7 @@ module vsu (
     logic [2:0]  write_channel;
     logic        channel_write;
     logic        global_stop_write;
+    logic        any_channel_active;
     logic [1:0]  base_clock_divider;
     logic        base_tick;
 
@@ -71,6 +72,12 @@ module vsu (
     assign channel_write = aligned_write && offset >= 11'h400 &&
                            offset < 11'h580;
     assign global_stop_write = aligned_write && offset == 11'h580 && write_byte[0];
+    assign any_channel_active = interval_control[0][7] |
+                                interval_control[1][7] |
+                                interval_control[2][7] |
+                                interval_control[3][7] |
+                                interval_control[4][7] |
+                                interval_control[5][7];
     assign base_tick = ce && base_clock_divider == 2'd3;
     assign sweep_delta = {1'b0, effective_frequency[4]} >> sweep_control[2:0];
     assign sweep_next_frequency = sweep_control[3] ?
@@ -154,7 +161,7 @@ module vsu (
             if (ce)
                 base_clock_divider <= base_clock_divider + 2'd1;
 
-            if (aligned_write && offset < 11'h280)
+            if (aligned_write && offset < 11'h280 && !any_channel_active)
                 wave_ram[wave_index] <= write_byte[5:0];
             if (aligned_write && offset >= 11'h280 && offset < 11'h300 &&
                 !interval_control[4][7])

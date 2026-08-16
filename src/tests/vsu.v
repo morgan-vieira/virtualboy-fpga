@@ -286,6 +286,17 @@ module vsu_tb;
         if (dut.noise_lfsr !== 15'd0)
             $fatal(1, "noise INT write did not reset the LFSR");
 
+        write8(11'h580, 8'h01);
+        write8(11'h000, 8'd12);
+        write8(11'h540, 8'h80);
+        write8(11'h000, 8'd34);
+        if (dut.wave_ram[0] !== 6'd12)
+            $fatal(1, "active noise channel did not lock waveform RAM");
+        write8(11'h580, 8'h01);
+        write8(11'h000, 8'd34);
+        if (dut.wave_ram[0] !== 6'd34)
+            $fatal(1, "inactive channels did not unlock waveform RAM");
+
         $finish;
     end
 
