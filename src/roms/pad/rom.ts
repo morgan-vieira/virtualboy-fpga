@@ -23,10 +23,16 @@ import {
 } from "#scripts/lib/v810";
 import { defineRom } from "#scripts/lib/vb-rom";
 
-// The raw report, one cell per bit, twice: the top row is what a hardware
-// read returned and the bottom row what a software read returned. Bit 15 is
-// leftmost, and the wider gap in the middle separates SDHR's eight bits
-// from SDLR's.
+// The Pocket's controls drawn where they sit on the device, each lighting
+// bright while its button is held, plus the raw sixteen-bit report twice in
+// small cells along the bottom: hardware read above, software read below,
+// bit 15 leftmost, a two-cell gap between SDHR's half and SDLR's.
+//
+// The picture decodes the hardware read through the default mapping, which
+// the V810 cannot see changed: the Core Settings register is bridge-side.
+// Flip a mapping switch and the picture lights the control the report says,
+// not the one under your thumb. The rows are the ground truth either way,
+// and the only view of the software-read path.
 //
 // The two rows cannot prove each other on their own. Both reads land in the
 // same pair of data registers, so a software read that never clocks anything
@@ -55,14 +61,46 @@ const CHR = 0x00006000; // character table 0, 16 bytes a character
 const MAP = 0x00020000; // BG map 0, 64x64 cells of one halfword
 
 const chr = (index: number) => CHR + index * 16;
-const mapRow = (row: number) => MAP + row * 64 * 2;
+const mapCell = (row: number, col: number) => MAP + (row * 64 + col) * 2;
 
-// Six character rows of cells, two bands, and a three-row bar underneath
-// that lights only if something went wrong.
-const TOP_ROW = 6;
-const BOTTOM_ROW = 16;
-const BAR_ROW = 24;
+// Character allocation: 0 stays blank, the rows own 1-32 so drawWord walks
+// them by index, and each control is one character painted over its whole
+// map region, so lighting a control is one character fill.
+const HW_CHAR = 1; // 1..16, top row cells
+const SW_CHAR = 17; // 17..32, bottom row cells
 const BAR_CHAR = 33;
+const DPAD_HUB = 34; // the cross's centre, dim always
+const CTL_CHAR = 35; // 35..46, the twelve controls
+const CHAR_COUNT = 47;
+
+const ROWS_COL = 15; // both rows: cols 15-22 and 25-32, centred
+const HW_ROW = 24;
+const SW_ROW = 26;
+const BAR_ROW = 27;
+
+// Pixel values: two-bit colour indices through GPLT0, LSB pixel leftmost.
+const BRIGHT = 0xffff; // every pixel colour 3
+const DIM = 0x5555; // every pixel colour 1
+const CELL_ON = 0x0fff; // a six-pixel glyph, two pixels of gap
+const CELL_OFF = 0x0555;
+
+// Each control is its report bit under the default mapping and the map
+// region it fills, in 8px cells: shoulders top, cross left, diamond right,
+// Select and Start centre. host_pad_map.v is where these bits come from.
+const CONTROLS: [mask: number, row: number, col: number, w: number, h: number][] = [
+  [0x0004, 1, 1, 11, 2], // L shoulder    -> A,  bit 2
+  [0x0008, 1, 36, 11, 2], // R shoulder   -> B,  bit 3
+  [0x0800, 8, 9, 3, 3], // D-pad up       -> LU, bit 11
+  [0x0400, 14, 9, 3, 3], // D-pad down    -> LD, bit 10
+  [0x0200, 11, 6, 3, 3], // D-pad left    -> LL, bit 9
+  [0x0100, 11, 12, 3, 3], // D-pad right  -> LR, bit 8
+  [0x0040, 8, 37, 2, 2], // X             -> RU, bit 6
+  [0x0080, 11, 40, 2, 2], // A            -> RR, bit 7
+  [0x8000, 14, 37, 2, 2], // B            -> RD, bit 15
+  [0x4000, 11, 34, 2, 2], // Y            -> RL, bit 14
+  [0x0020, 19, 19, 3, 1], // Select       -> LT, bit 5
+  [0x0010, 19, 26, 3, 1], // Start        -> RT, bit 4
+];
 
 let seq = 0;
 const uniq = (prefix: string) => `${prefix}_${(seq += 1)}`;
@@ -76,7 +114,7 @@ const readReport = (a: Assembler, dest: Register) => {
 };
 
 // Falls through when the flags say the check passed, and otherwise freezes
-// on `sentinel` with the bar lit.
+// on `sentinel` with the bar lit and the code in the top row.
 const failUnless = (a: Assembler, taken: "be" | "bne", sentinel: number) => {
   const ok = uniq("ok");
   if (taken === "be") a.be(ok);
@@ -90,35 +128,37 @@ export default defineRom({
   name: "pad",
   header: { gameTitle: "OPENFPGA PAD", makerCode: "OF", gameCode: "VPAD", revision: 0 },
   expectation:
-    "On the Pocket: two rows of sixteen red cells, each cell one bit of the game " +
-    "pad's report, bit 15 leftmost and bit 0 rightmost, with a wider gap in the " +
-    "middle separating the left eight (SDHR) from the right eight (SDLR). The top " +
-    "row is a hardware read and the bottom row a software read. Counting cells from " +
-    "the left, with nothing pressed exactly cell 15 is lit in both rows and nothing " +
-    "else: that is the signature bit a standard controller always sets. Each button " +
-    "then lights exactly one further cell in both rows and no other -- B cell 1, Y " +
-    "cell 2, Up cell 5, Down cell 6, Left cell 7, Right cell 8, A cell 9, X cell 10, " +
-    "Select cell 11, Start cell 12, R cell 13, L cell 14 -- and releasing it puts " +
-    "that cell out again. Cells 3 and 4 stay dark with every button held at once, " +
-    "because nothing reaches them in the default mapping; cell 16 stays dark in " +
-    "every setting, because it is the low-battery bit and APF gives the core no " +
-    "battery signal to drive it with. In Core Settings, " +
-    "switching 'Select and Start' to 'Select and Start' moves Select to cell 3 and " +
-    "Start to cell 4 and leaves 11 and 12 dark; switching 'D-Pad' to 'Right Pad' " +
-    "swaps the D-pad and the face buttons, so Up becomes cell 10 and X becomes cell " +
-    "5. The three-row bar across the bottom must stay black throughout: it lights " +
-    "for a failed startup self-test, and for a keypad interrupt, which a controller " +
-    "that sets the signature bit can never cause. A lit bar at boot is the " +
-    "self-test: the cells then hold 0xE001 (the data registers were not zero out of " +
-    "reset), 0xE002 (a software read alone never filled them, so the software clock " +
-    "or the latch is broken), 0xE003 (HW-SI did not report busy), 0xE004 (the " +
-    "hardware read finished but returned no signature bit) or 0xE005 (the two reads " +
-    "disagreed). A black screen means the VIP never drew; a pattern that ignores " +
-    "buttons means the reads stopped completing. In Mednafen: loads as OPENFPGA PAD " +
-    "and freezes on 0xE001 -- expected there and only there, because beetle-vb's " +
-    "instant-read hack answers the data registers with live pad state instead of " +
-    "the reset zero the scroll documents. The behavioural run for this ROM is " +
-    "src/tests/cpu.v, which drives the real game pad RTL.",
+    "On the Pocket: the Pocket's own controls drawn in red where they sit on " +
+    "the device -- two shoulder slabs across the top, the D-pad cross on the " +
+    "left, the four face buttons as a diamond on the right, Select and Start " +
+    "as two small slabs in the centre -- plus two small rows of sixteen cells " +
+    "near the bottom edge, the raw report bit 15 leftmost with a gap between " +
+    "halves, hardware read above and software read below. With nothing " +
+    "pressed every control sits dim and exactly the fifteenth cell from the " +
+    "left is lit in both rows: the signature bit. Holding a button fills its " +
+    "control bright and lights exactly one further cell in both rows -- B " +
+    "cell 1, Y cell 2, Up cell 5, Down cell 6, Left cell 7, Right cell 8, A " +
+    "cell 9, X cell 10, Select cell 11, Start cell 12, R cell 13, L cell 14 " +
+    "-- and releasing it puts both out again. Cells 3, 4 and 16 stay dark " +
+    "with everything held: nothing reaches 3 and 4 in the default mapping, " +
+    "and 16 is the low-battery bit APF gives the core no signal for. The " +
+    "picture assumes the default mapping, because the V810 cannot read Core " +
+    "Settings: flip 'D-Pad > Right Pad' and pressing the D-pad lights the " +
+    "face diamond (Up becomes cell 10, X cell 5); flip 'Select and Start' " +
+    "and the Select/Start slabs go dark while cells 3 and 4 light instead. " +
+    "Under any setting the rows are the truth. The thin bar along the bottom " +
+    "edge must stay black: it lights for a failed startup self-test, with " +
+    "the failing code drawn in the top row -- 0xE001 data registers not zero " +
+    "at reset, 0xE002 a software read alone never filled them, 0xE003 HW-SI " +
+    "did not report busy, 0xE004 the hardware read returned no signature " +
+    "bit, 0xE005 the two reads disagreed -- and for a keypad interrupt, " +
+    "which a controller that sets the signature bit can never cause. A black " +
+    "screen means the VIP never drew; a picture that ignores buttons means " +
+    "the reads stopped completing. In Mednafen: loads as OPENFPGA PAD and " +
+    "freezes on 0xE001 -- expected there and only there, because beetle-vb's " +
+    "instant-read hack answers the data registers with live pad state " +
+    "instead of the reset zero the scroll documents. The behavioural run for " +
+    "this ROM is src/tests/cpu.v, which drives the real game pad RTL.",
   handlers: { keypad: "onKeypad" },
   program: (a) => {
     // Acknowledge through K-Int-Inh -- the only path that clears the line --
@@ -132,53 +172,76 @@ export default defineRom({
     // Subroutines
     // ----------------------------------------------------------------
 
-    // Paint one band of sixteen cells: r10 the map address of its first
-    // row, r11 the character its leftmost cell uses. Each cell is two
-    // characters wide over six rows with one column of gap, and the gap
-    // after the eighth is two columns so the report's halves read apart.
-    a.label("writeBand");
-    a.movea(16, r0, r9);
-    a.mov(r10, r12);
-    a.label("bandCell");
-    a.movImm(6, r8);
-    a.mov(r12, r6);
-    a.label("bandRow");
-    a.stH(r11, 0, r6);
-    a.stH(r11, 2, r6);
-    a.addi(128, r6, r6);
+    // Fill one character solid: r6 its data address, r13 the row value.
+    // Leaves r6 on the next character, which initCtls counts on.
+    a.label("fillChar");
+    a.movImm(8, r8);
+    a.label("fillRow");
+    a.stH(r13, 0, r6);
+    a.addImm(2, r6);
     a.addImm(-1, r8);
-    a.bne("bandRow");
-    a.addImm(6, r12);
+    a.bne("fillRow");
+    a.jmp(r31);
+
+    // Paint one rectangle of map cells with one character: r10 the top-left
+    // cell's address, r7 the character, r8 width, r9 height.
+    a.label("paintRect");
+    a.mov(r10, r12);
+    a.label("rectRow");
+    a.mov(r12, r6);
+    a.mov(r8, r11);
+    a.label("rectCol");
+    a.stH(r7, 0, r6);
+    a.addImm(2, r6);
+    a.addImm(-1, r11);
+    a.bne("rectCol");
+    a.addi(128, r12, r12);
+    a.addImm(-1, r9);
+    a.bne("rectRow");
+    a.jmp(r31);
+
+    // Point one row's sixteen cells at consecutive characters: r10 the first
+    // cell's address, r11 the first character. Two columns of gap after the
+    // eighth so the report's halves read apart.
+    a.label("mapCells");
+    a.movea(16, r0, r9);
+    a.label("cellNext");
+    a.stH(r11, 0, r10);
+    a.addImm(2, r10);
     a.addImm(1, r11);
     a.addImm(-1, r9);
     a.cmpImm(8, r9);
-    a.bne("bandNoGap");
-    a.addImm(2, r12);
-    a.label("bandNoGap");
+    a.bne("cellNoGap");
+    a.addImm(4, r10);
+    a.label("cellNoGap");
     a.cmpImm(0, r9);
-    a.bne("bandCell");
+    a.bne("cellNext");
     a.jmp(r31);
 
-    // Paint one word into sixteen characters: r10 the first character's
-    // data address, r7 the word, consumed from bit 15 down so the leftmost
-    // cell is the report's top bit.
+    // Paint one word into sixteen row cells: r10 the first character's data
+    // address, r7 the word, consumed from bit 15 down so the leftmost cell
+    // is the report's top bit. Off cells stay dim so the row reads as
+    // sixteen positions rather than a count of lit ones.
     a.label("drawWord");
     a.movea(16, r0, r9);
     a.mov(r10, r6);
     a.label("wordCell");
     a.andi(0x8000, r7, r12);
     a.be("wordBlank");
-    a.loadImm(0xffff, r13);
+    a.movea(CELL_ON, r0, r13);
     a.br("wordFill");
     a.label("wordBlank");
-    a.mov(r0, r13);
+    a.movea(CELL_OFF, r0, r13);
     a.label("wordFill");
-    a.movImm(8, r8);
+    a.movImm(6, r8);
     a.label("wordRow");
     a.stH(r13, 0, r6);
     a.addImm(2, r6);
     a.addImm(-1, r8);
     a.bne("wordRow");
+    a.stH(r0, 0, r6);
+    a.stH(r0, 2, r6);
+    a.addImm(4, r6);
     a.shlImm(1, r7);
     a.addImm(-1, r9);
     a.bne("wordCell");
@@ -210,18 +273,16 @@ export default defineRom({
     a.bne("hwWait");
     a.jmp(r31);
 
-    // Freeze on r13 with the bar lit, so a failure names itself on screen
-    // and in the status word at once.
+    // Freeze on r13 with the bar lit and the code in the top row, so a
+    // failure names itself on screen and in the status word at once.
     a.label("fail");
     a.stH(r13, 0, r20);
-    a.loadImm(0xffff, r12);
+    a.mov(r13, r7);
+    a.loadImm(chr(HW_CHAR), r10);
+    a.jal("drawWord");
+    a.loadImm(BRIGHT, r13);
     a.loadImm(chr(BAR_CHAR), r6);
-    a.movImm(8, r8);
-    a.label("failRow");
-    a.stH(r12, 0, r6);
-    a.addImm(2, r6);
-    a.addImm(-1, r8);
-    a.bne("failRow");
+    a.jal("fillChar");
     a.label("failSpin");
     a.br("failSpin");
 
@@ -243,7 +304,7 @@ export default defineRom({
     // Blank every character the display uses, then point the whole map at
     // character 0, so nothing shows power-on junk.
     a.loadImm(chr(0), r6);
-    a.movea((BAR_CHAR + 1) * 8, r0, r8);
+    a.movea(CHAR_COUNT * 8, r0, r8);
     a.label("blankChars");
     a.stH(r0, 0, r6);
     a.addImm(2, r6);
@@ -258,23 +319,51 @@ export default defineRom({
     a.addImm(-1, r8);
     a.bne("clearMap");
 
-    a.loadImm(mapRow(TOP_ROW), r10);
-    a.movImm(1, r11);
-    a.jal("writeBand");
-    a.loadImm(mapRow(BOTTOM_ROW), r10);
-    a.movea(17, r0, r11);
-    a.jal("writeBand");
+    // The controls' map regions, plus the cross's centre block.
+    CONTROLS.forEach(([, row, col, w, h], index) => {
+      a.loadImm(mapCell(row, col), r10);
+      a.movea(CTL_CHAR + index, r0, r7);
+      a.movImm(w, r8);
+      a.movImm(h, r9);
+      a.jal("paintRect");
+    });
+    a.loadImm(mapCell(11, 9), r10);
+    a.movea(DPAD_HUB, r0, r7);
+    a.movImm(3, r8);
+    a.movImm(3, r9);
+    a.jal("paintRect");
 
-    // The bar: three whole map rows of one character, including the sixteen
+    a.loadImm(mapCell(HW_ROW, ROWS_COL), r10);
+    a.movImm(HW_CHAR, r11);
+    a.jal("mapCells");
+    a.loadImm(mapCell(SW_ROW, ROWS_COL), r10);
+    a.movea(SW_CHAR, r0, r11);
+    a.jal("mapCells");
+
+    // The bar: one whole map row of one character, including the sixteen
     // columns past the right edge, which costs nothing.
-    a.loadImm(mapRow(BAR_ROW), r6);
+    a.loadImm(mapCell(BAR_ROW, 0), r10);
     a.movea(BAR_CHAR, r0, r7);
-    a.movea(192, r0, r8);
-    a.label("barMap");
-    a.stH(r7, 0, r6);
-    a.addImm(2, r6);
-    a.addImm(-1, r8);
-    a.bne("barMap");
+    a.movea(64, r0, r8);
+    a.movImm(1, r9);
+    a.jal("paintRect");
+
+    // Every control dim, the hub dim, both rows at their off state, so a
+    // self-test freeze still shows the whole layout. fillChar leaves r6 on
+    // the next character, so the thirteen fills walk 34..46 in one loop.
+    a.loadImm(chr(DPAD_HUB), r6);
+    a.movImm(13, r9);
+    a.label("initCtls");
+    a.movea(DIM, r0, r13);
+    a.jal("fillChar");
+    a.addImm(-1, r9);
+    a.bne("initCtls");
+    a.mov(r0, r7);
+    a.loadImm(chr(HW_CHAR), r10);
+    a.jal("drawWord");
+    a.mov(r0, r7);
+    a.loadImm(chr(SW_CHAR), r10);
+    a.jal("drawWord");
 
     // Brightness, palette, one world over the whole display, and the next
     // world down ending the list -- the same shape vip-bg uses. On before
@@ -363,7 +452,7 @@ export default defineRom({
     a.ldsr(r6, PSW);
 
     // ----------------------------------------------------------------
-    // The display loop: both reads, both rows, every pass
+    // The display loop: both reads, the picture, both rows, every pass
     // ----------------------------------------------------------------
 
     a.label("loop");
@@ -372,10 +461,26 @@ export default defineRom({
     a.jal("softRead");
     readReport(a, r15);
 
-    a.loadImm(chr(1), r10);
+    // Each control bright while its report bit is up, dim otherwise,
+    // decoded from the hardware word.
+    CONTROLS.forEach(([mask], index) => {
+      const dim = uniq("dim");
+      const fill = uniq("ctl");
+      a.andi(mask, r14, r12);
+      a.be(dim);
+      a.loadImm(BRIGHT, r13);
+      a.br(fill);
+      a.label(dim);
+      a.movea(DIM, r0, r13);
+      a.label(fill);
+      a.loadImm(chr(CTL_CHAR + index), r6);
+      a.jal("fillChar");
+    });
+
+    a.loadImm(chr(HW_CHAR), r10);
     a.mov(r14, r7);
     a.jal("drawWord");
-    a.loadImm(chr(17), r10);
+    a.loadImm(chr(SW_CHAR), r10);
     a.mov(r15, r7);
     a.jal("drawWord");
 
@@ -387,19 +492,14 @@ export default defineRom({
     a.ldH(0, r18, r12);
     a.cmpImm(0, r12);
     a.be("barBlank");
-    a.loadImm(0xffff, r13);
+    a.loadImm(BRIGHT, r13);
     a.br("barFill");
     a.label("barBlank");
     a.mov(r0, r13);
     a.label("barFill");
     a.loadImm(chr(BAR_CHAR), r6);
-    a.movImm(8, r8);
-    a.label("barRow");
-    a.stH(r13, 0, r6);
-    a.addImm(2, r6);
-    a.addImm(-1, r8);
-    a.bne("barRow");
+    a.jal("fillChar");
 
-    a.br("loop");
+    a.jr("loop"); // the unrolled controls put it past a short branch's reach
   },
 });
