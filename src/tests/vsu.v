@@ -83,6 +83,17 @@ module vsu_tb;
         ce = 1'b0;
     endtask
 
+    task automatic step_noise;
+        @(negedge clk);
+        dut.base_clock_divider = 2'd3;
+        dut.frequency_counter[5] = 15'd1;
+        ce = 1'b1;
+        @(posedge clk);
+        #1;
+        @(negedge clk);
+        ce = 1'b0;
+    endtask
+
     initial begin
         repeat (4) @(negedge clk);
         reset_n = 1'b1;
@@ -242,6 +253,38 @@ module vsu_tb;
         write8(11'h280, 8'd99);
         if (dut.modulation_ram[0] !== 8'd99)
             $fatal(1, "inactive channel blocked modulation RAM write");
+
+        write8(11'h580, 8'h01);
+        write8(11'h544, 8'hf0);
+        write8(11'h548, 8'hff);
+        write8(11'h54c, 8'h07);
+        write8(11'h550, 8'hf0);
+        write8(11'h554, 8'h00);
+        write8(11'h540, 8'h80);
+        expect_samples(-3712, 0, "noise starts from the reset bit");
+        step_noise();
+        if (dut.noise_lfsr !== 15'd1 || dut.frequency_counter[5] !== 15'd10)
+            $fatal(1, "noise first step or 500 kHz period failed");
+        expect_samples(3596, 0, "noise scales a set bit to 63");
+
+        write8(11'h554, 8'h00);
+        dut.noise_lfsr = 15'h4000;
+        step_noise();
+        if (dut.noise_lfsr[0] !== 1'b0)
+            $fatal(1, "tap zero did not use bit 14");
+        write8(11'h554, 8'h10);
+        dut.noise_lfsr = 15'h4000;
+        step_noise();
+        if (dut.noise_lfsr[0] !== 1'b1)
+            $fatal(1, "tap one did not use bit 10");
+
+        write8(11'h554, 8'h70);
+        if (dut.noise_lfsr !== 15'd0)
+            $fatal(1, "noise EV1 write did not reset the LFSR");
+        dut.noise_lfsr = 15'h1234;
+        write8(11'h540, 8'h80);
+        if (dut.noise_lfsr !== 15'd0)
+            $fatal(1, "noise INT write did not reset the LFSR");
 
         $finish;
     end

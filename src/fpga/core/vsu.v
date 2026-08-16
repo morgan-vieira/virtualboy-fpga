@@ -1,6 +1,6 @@
 `default_nettype none
 
-// Five wavetable channels. The VSU base clock is one quarter of the CPU clock.
+// Five wavetable channels and one noise channel.
 module vsu (
     input  logic               clk,
     input  logic               reset_n,
@@ -16,7 +16,7 @@ module vsu (
     output logic signed [15:0] sample_right
 );
 
-    localparam integer CHANNEL_COUNT = 5;
+    localparam integer CHANNEL_COUNT = 6;
 
     logic [5:0] wave_ram [0:159];
     logic [7:0] modulation_ram [0:31];
@@ -30,7 +30,7 @@ module vsu (
     logic [3:0]  envelope_level [0:CHANNEL_COUNT - 1];
     logic [3:0]  wave_bank [0:CHANNEL_COUNT - 1];
 
-    logic [11:0] frequency_counter [0:CHANNEL_COUNT - 1];
+    logic [14:0] frequency_counter [0:CHANNEL_COUNT - 1];
     logic [4:0]  wave_position [0:CHANNEL_COUNT - 1];
     logic [5:0]  interval_counter [0:CHANNEL_COUNT - 1];
     logic [14:0] interval_divider [0:CHANNEL_COUNT - 1];
@@ -46,6 +46,8 @@ module vsu (
     logic [11:0] sweep_following_frequency;
     logic [5:0]  modulation_position;
     logic [11:0] modulation_frequency;
+    logic [14:0] noise_lfsr;
+    logic        noise_feedback;
 
     logic [10:0] offset;
     logic        aligned_write;
@@ -67,7 +69,7 @@ module vsu (
     assign modulation_index = offset[6:2];
     assign write_channel = offset[8:6];
     assign channel_write = aligned_write && offset >= 11'h400 &&
-                           offset < 11'h540;
+                           offset < 11'h580;
     assign global_stop_write = aligned_write && offset == 11'h580 && write_byte[0];
     assign base_tick = ce && base_clock_divider == 2'd3;
     assign sweep_delta = {1'b0, effective_frequency[4]} >> sweep_control[2:0];
@@ -82,6 +84,38 @@ module vsu (
         {{4{modulation_ram[modulation_position[4:0]][7]}},
          modulation_ram[modulation_position[4:0]]};
 
+    function automatic logic noise_tap(
+        input logic [14:0] state,
+        input logic [2:0] tap
+    );
+        unique case (tap)
+            3'd0: noise_tap = state[14];
+            3'd1: noise_tap = state[10];
+            3'd2: noise_tap = state[13];
+            3'd3: noise_tap = state[4];
+            3'd4: noise_tap = state[8];
+            3'd5: noise_tap = state[6];
+            3'd6: noise_tap = state[9];
+            3'd7: noise_tap = state[11];
+            default: noise_tap = 1'b0;
+        endcase
+    endfunction
+
+    function automatic logic [14:0] frequency_period(
+        input logic [10:0] value,
+        input logic noise
+    );
+        logic [14:0] base_period;
+        begin
+            base_period = 15'd2048 - value;
+            frequency_period = noise ?
+                (base_period << 3) + (base_period << 1) : base_period;
+        end
+    endfunction
+
+    assign noise_feedback = noise_lfsr[7] ^
+        noise_tap(noise_lfsr, envelope_control[5][14:12]) ^ 1'b1;
+
     integer channel_index;
     integer wave_reset_index;
     always_ff @(posedge clk or negedge reset_n) begin
@@ -92,6 +126,7 @@ module vsu (
             sweep_clock_divider <= 16'd4800;
             sweep_pending_frequency <= 12'd0;
             modulation_position <= 6'd0;
+            noise_lfsr <= 15'd0;
             for (wave_reset_index = 0; wave_reset_index < 160;
                  wave_reset_index = wave_reset_index + 1)
                 wave_ram[wave_reset_index] <= 6'd0;
@@ -108,7 +143,7 @@ module vsu (
                 envelope_control[channel_index] <= 16'd0;
                 envelope_level[channel_index] <= 4'd0;
                 wave_bank[channel_index] <= 4'd0;
-                frequency_counter[channel_index] <= 12'd0;
+                frequency_counter[channel_index] <= 15'd0;
                 wave_position[channel_index] <= 5'd0;
                 interval_counter[channel_index] <= 6'd0;
                 interval_divider[channel_index] <= 15'd0;
@@ -129,14 +164,18 @@ module vsu (
                 for (channel_index = 0; channel_index < CHANNEL_COUNT;
                      channel_index = channel_index + 1) begin
                     if (interval_control[channel_index][7]) begin
-                        if (frequency_counter[channel_index] <= 12'd1) begin
+                        if (frequency_counter[channel_index] <= 15'd1) begin
                             frequency_counter[channel_index] <=
-                                12'd2048 - effective_frequency[channel_index];
-                            wave_position[channel_index] <=
-                                wave_position[channel_index] + 5'd1;
+                                frequency_period(effective_frequency[channel_index],
+                                                 channel_index == 5);
+                            if (channel_index == 5)
+                                noise_lfsr <= {noise_lfsr[13:0], noise_feedback};
+                            else
+                                wave_position[channel_index] <=
+                                    wave_position[channel_index] + 5'd1;
                         end else begin
                             frequency_counter[channel_index] <=
-                                frequency_counter[channel_index] - 12'd1;
+                                frequency_counter[channel_index] - 15'd1;
                         end
 
                         if (interval_divider[channel_index] <= 15'd1) begin
@@ -228,9 +267,12 @@ module vsu (
                 unique case (register_index)
                     4'h0: begin
                         interval_control[write_channel] <= write_byte & 8'hbf;
+                        if (write_channel == 3'd5)
+                            noise_lfsr <= 15'd0;
                         if (write_byte[7]) begin
                             frequency_counter[write_channel] <=
-                                12'd2048 - effective_frequency[write_channel];
+                                frequency_period(effective_frequency[write_channel],
+                                                 write_channel == 3'd5);
                             wave_position[write_channel] <= 5'd0;
                             interval_counter[write_channel] <=
                                 {1'b0, write_byte[4:0]} + 6'd1;
@@ -268,10 +310,15 @@ module vsu (
                     end
                     4'h5: begin
                         envelope_control[write_channel][9:8] <= write_byte[1:0];
-                        if (write_channel == 3'd4)
+                        if (write_channel >= 3'd4)
                             envelope_control[write_channel][14:12] <= write_byte[6:4];
+                        if (write_channel == 3'd5)
+                            noise_lfsr <= 15'd0;
                     end
-                    4'h6: wave_bank[write_channel] <= write_byte[3:0];
+                    4'h6: begin
+                        if (write_channel < 3'd5)
+                            wave_bank[write_channel] <= write_byte[3:0];
+                    end
                     4'h7: begin
                         if (write_channel == 3'd4)
                             sweep_control <= write_byte;
@@ -312,8 +359,12 @@ module vsu (
     logic signed [18:0] mix_right_contribution;
 
     always_comb begin
-        mix_wave_sample = wave_bank[mix_index] < 5 ?
-            wave_ram[{wave_bank[mix_index][2:0], wave_position[mix_index]}] : 6'd0;
+        if (mix_index == 3'd5)
+            mix_wave_sample = noise_lfsr[0] ? 6'd63 : 6'd0;
+        else
+            mix_wave_sample = wave_bank[mix_index] < 5 ?
+                wave_ram[{wave_bank[mix_index][2:0], wave_position[mix_index]}] :
+                6'd0;
         mix_left_gain = channel_gain(
             envelope_level[mix_index], left_level[mix_index]);
         mix_right_gain = channel_gain(
@@ -334,7 +385,7 @@ module vsu (
             right_accumulator <= 19'sd0;
             sample_left <= 16'sd0;
             sample_right <= 16'sd0;
-        end else if (mix_index == 3'd4) begin
+        end else if (mix_index == 3'd5) begin
             sample_left <= left_accumulator + mix_left_contribution;
             sample_right <= right_accumulator + mix_right_contribution;
             mix_index <= 3'd0;
