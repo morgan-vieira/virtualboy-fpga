@@ -206,6 +206,43 @@ module vsu_tb;
         if (dut.interval_control[4][7] !== 1'b0)
             $fatal(1, "disabled sweep overflow did not stop channel five");
 
+        write8(11'h280, 8'd16);
+        write8(11'h284, 8'hf0);
+        write8(11'h508, 8'he8);
+        write8(11'h50c, 8'h03);
+        write8(11'h514, 8'h50);
+        write8(11'h51c, 8'h10);
+        write8(11'h500, 8'h80);
+        step_sweep();
+        if (dut.effective_frequency[4] !== 11'd1016 ||
+            dut.modulation_position !== 6'd1)
+            $fatal(1, "positive modulation step failed");
+        step_sweep();
+        if (dut.effective_frequency[4] !== 11'd984 ||
+            dut.modulation_position !== 6'd2)
+            $fatal(1, "negative modulation step failed");
+
+        write8(11'h280, 8'd99);
+        if (dut.modulation_ram[0] !== 8'd16)
+            $fatal(1, "active channel allowed modulation RAM write");
+
+        dut.modulation_position = 6'd32;
+        step_sweep();
+        if (dut.effective_frequency[4] !== 11'd984 ||
+            dut.modulation_position !== 6'd32)
+            $fatal(1, "one-shot modulation did not stop at entry 32");
+
+        write8(11'h514, 8'h70);
+        step_sweep();
+        if (dut.effective_frequency[4] !== 11'd1016 ||
+            dut.modulation_position !== 6'd1)
+            $fatal(1, "repeating modulation did not wrap to entry zero");
+
+        write8(11'h500, 8'h00);
+        write8(11'h280, 8'd99);
+        if (dut.modulation_ram[0] !== 8'd99)
+            $fatal(1, "inactive channel blocked modulation RAM write");
+
         $finish;
     end
 

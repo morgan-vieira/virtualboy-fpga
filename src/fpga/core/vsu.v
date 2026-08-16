@@ -19,6 +19,7 @@ module vsu (
     localparam integer CHANNEL_COUNT = 5;
 
     logic [5:0] wave_ram [0:159];
+    logic [7:0] modulation_ram [0:31];
 
     logic [7:0]  interval_control [0:CHANNEL_COUNT - 1];
     logic [3:0]  left_level [0:CHANNEL_COUNT - 1];
@@ -43,12 +44,15 @@ module vsu (
     logic [11:0] sweep_pending_frequency;
     logic [11:0] sweep_pending_delta;
     logic [11:0] sweep_following_frequency;
+    logic [5:0]  modulation_position;
+    logic [11:0] modulation_frequency;
 
     logic [10:0] offset;
     logic        aligned_write;
     logic [7:0]  write_byte;
     logic [3:0]  register_index;
     logic [7:0]  wave_index;
+    logic [4:0]  modulation_index;
     logic [2:0]  write_channel;
     logic        channel_write;
     logic        global_stop_write;
@@ -60,6 +64,7 @@ module vsu (
     assign write_byte = wdata[7:0];
     assign register_index = offset[5:2];
     assign wave_index = offset[9:2];
+    assign modulation_index = offset[6:2];
     assign write_channel = offset[8:6];
     assign channel_write = aligned_write && offset >= 11'h400 &&
                            offset < 11'h540;
@@ -73,6 +78,9 @@ module vsu (
     assign sweep_following_frequency = sweep_control[3] ?
         sweep_pending_frequency + sweep_pending_delta :
         sweep_pending_frequency - sweep_pending_delta;
+    assign modulation_frequency = {1'b0, frequency[4]} +
+        {{4{modulation_ram[modulation_position[4:0]][7]}},
+         modulation_ram[modulation_position[4:0]]};
 
     integer channel_index;
     integer wave_reset_index;
@@ -83,9 +91,13 @@ module vsu (
             sweep_interval_counter <= 3'd0;
             sweep_clock_divider <= 16'd4800;
             sweep_pending_frequency <= 12'd0;
+            modulation_position <= 6'd0;
             for (wave_reset_index = 0; wave_reset_index < 160;
                  wave_reset_index = wave_reset_index + 1)
                 wave_ram[wave_reset_index] <= 6'd0;
+            for (wave_reset_index = 0; wave_reset_index < 32;
+                 wave_reset_index = wave_reset_index + 1)
+                modulation_ram[wave_reset_index] <= 8'd0;
             for (channel_index = 0; channel_index < CHANNEL_COUNT;
                  channel_index = channel_index + 1) begin
                 interval_control[channel_index] <= 8'd0;
@@ -109,6 +121,9 @@ module vsu (
 
             if (aligned_write && offset < 11'h280)
                 wave_ram[wave_index] <= write_byte[5:0];
+            if (aligned_write && offset >= 11'h280 && offset < 11'h300 &&
+                !interval_control[4][7])
+                modulation_ram[modulation_index] <= write_byte;
 
             if (base_tick) begin
                 for (channel_index = 0; channel_index < CHANNEL_COUNT;
@@ -180,14 +195,24 @@ module vsu (
                         if (sweep_interval_counter <= 3'd1) begin
                             sweep_interval_counter <= sweep_control[6:4];
                             if (sweep_control[6:4] != 3'd0 &&
-                                envelope_control[4][14] &&
-                                !envelope_control[4][12]) begin
-                                effective_frequency[4] <=
-                                    sweep_pending_frequency[10:0];
-                                sweep_pending_frequency <=
-                                    sweep_following_frequency;
-                                if (sweep_following_frequency[11])
-                                    interval_control[4][7] <= 1'b0;
+                                envelope_control[4][14]) begin
+                                if (envelope_control[4][12]) begin
+                                    if (modulation_position < 6'd32 ||
+                                        envelope_control[4][13]) begin
+                                        effective_frequency[4] <=
+                                            modulation_frequency[10:0];
+                                        modulation_position <=
+                                            modulation_position < 6'd32 ?
+                                            modulation_position + 6'd1 : 6'd1;
+                                    end
+                                end else begin
+                                    effective_frequency[4] <=
+                                        sweep_pending_frequency[10:0];
+                                    sweep_pending_frequency <=
+                                        sweep_following_frequency;
+                                    if (sweep_following_frequency[11])
+                                        interval_control[4][7] <= 1'b0;
+                                end
                             end
                         end else begin
                             sweep_interval_counter <=
@@ -217,6 +242,7 @@ module vsu (
                                 sweep_interval_counter <= sweep_control[6:4];
                                 sweep_clock_divider <= sweep_control[7] ?
                                     16'd38400 : 16'd4800;
+                                modulation_position <= 6'd0;
                                 sweep_pending_frequency <= sweep_next_frequency;
                                 if (!envelope_control[4][12] &&
                                     sweep_next_frequency[11])
