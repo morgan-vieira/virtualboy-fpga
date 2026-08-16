@@ -42,10 +42,9 @@ Not Virtual Boy hardware, and not a module. Needed before anything can be proven
       fails the process on `$fatal`, on a compile error, on a bench that outlives its
       timeout, and on `$error` — which Icarus reports but exits zero for, so the
       output marker is the only signal. Proven against a throwaway tree covering all
-      five outcomes; no module has a testbench yet.
-- [ ] **A current Quartus source list.** `ap_core.qsf` names only `core_top.v`,
-      `core_bridge_cmd.v`, the PLL and the constraints today. Every new module gets
-      added as it lands, and timing closure gets read rather than assumed.
+      five outcomes; the suite now runs 14 module benches.
+- [ ] **A current Quartus source list.** Every new module gets added as it lands,
+      and timing closure gets read rather than assumed.
       `core/host_video_timing.v` is listed. Its compile closed with every slack
       positive and TNS 0.000, at 433 ALMs and 2 RAM blocks. Stays open as a standing
       obligation, not as a task with an end.
@@ -74,6 +73,11 @@ Not Virtual Boy hardware, and not a module. Needed before anything can be proven
       stages, a two-stage shifter, and registered bus command and answer —
       is history the rebuild deleted; cpu.v's header says why those stages
       must not come back.
+      The completed VSU build on 2026-08-16 also closes every timing category:
+      6,659 ALMs (36%), 2,498,560 RAM bits (79%), 306 of 308 RAM blocks
+      (99%), 14 DSPs (21%), and worst setup slack +0.150 ns. The source list
+      now includes the implemented CPU, VIP, timer, VSU, audio and memory path;
+      this item remains open only as the standing obligation described above.
 - [ ] **DECIDE: SignalTap is on in the template.** `ap_core.qsf` carries
       `ENABLE_SIGNALTAP ON` with `core/stp1.stp` (lines 326, 327, 744), inherited from
       Analogue rather than chosen. It costs nothing today — `stp1.stp` instruments no
@@ -203,10 +207,11 @@ These differ per peripheral and are an easy source of bugs that only show up in 
       shifted left by 8. Both are well-defined and both are wrong-looking. Lands in
       the VIP: on this bus a byte write is a halfword access with one byte lane, so
       the mangling is the VIP's reaction to lanes, not the bus's.
-- [ ] **VSU accepts byte writes only.** Wider writes are undefined and every read is
+- [x] **VSU accepts byte writes only.** Wider writes are undefined and every read is
       undefined, because its bus is 8 bits. `mem_bus` already answers VSU reads
-      with zero, following beetle-vb (`MemRead16` falls through); the write rule
-      lands in the VSU.
+      with zero, following beetle-vb (`MemRead16` falls through); `vsu.v` accepts
+      either byte lane, ignores address bit 1, and accepts only the first half of
+      a word write, matching the observed hardware/MiSTer quirk.
 - [x] **Round unaligned accesses down.** A halfword access ignores address bit 0 and a
       word access ignores bits 1 and 0. Nothing faults; the address just moves.
       Structural: bit 0 never leaves the CPU (`addr[26:1]`), and a word access is
@@ -565,9 +570,11 @@ Still to write: `cpu-cache` (enable, clear, dump, verify the spilled layout),
 **Pass criterion:** the on-screen status cells read `0x600D` with the halt square
 filled; a failure shows the failing check's number instead (the status convention
 in `src/roms/README.md`).
-**Awaiting:** the hardware run for `cpu-alu` and `cpu-branch`; for the rest, the
-assembler doesn't yet encode bit strings, floating point or compare-and-exchange.
-See the assembler section below.
+**Watched and passed:** `cpu-alu`, `cpu-branch`, `cpu-except`, `busmap`, `halt`
+and `timer` on the Pocket across the 0.2.1 through 0.5.0 builds as recorded
+above. The remaining floating-point, bit-string, `CAXI`, extended-instruction,
+cache and long-instruction interruption work is tracked by GitHub issue #3;
+the assembler additions remain part of that completion work.
 **Delivery:** through the APF dataslot loader (section 9's first feature, landed
 same day at Morgan's request): `.vb` files in `Assets/virtualboy/common/`, picked
 at core launch, reloadable from the Interact menu. One bitstream serves every ROM.
@@ -681,7 +688,11 @@ a reference frame), `vip-int` (each interrupt condition raised and acknowledged 
 All four are built, and their paths pass `vip_draw` or `vip_registers` simulation.
 `vip-affine-diag` isolates affine completion from coordinate errors.
 **Pass criterion:** recorded per ROM in `src/roms/README.md`.
-**Awaiting:** the hardware runs.
+**Watched and passed 2026-08-15:** `vip-bg`, `vip-obj`, `vip-affine`,
+`vip-affine-diag` and `vip-int` on Pocket hardware. These prove the current
+renderer paths, not every edge case marked `[~]`. Completing all documented and
+reference-defined VIP behavior is tracked by GitHub issue #4. Undocumented
+refresh, event-overlap and display-servo behavior remains isolated in issue #2.
 
 ---
 
@@ -737,7 +748,9 @@ Ships finished frame buffers to the screen. Fixed timing, unlike drawing.
 **Pass criterion:** alternating four-pixel-wide dim and medium red vertical stripes
 fill the 384×224 field. Black, flat brightness, incorrectly sized stripes, or
 horizontal breaks fail.
-**Awaiting:** the hardware run.
+**Watched and passed 2026-08-15:** `vip-display` on Pocket hardware, alongside
+the drawing ROMs above. Documented display completion remains in issue #4;
+the silicon behavior that the available sources do not establish remains in #2.
 
 ---
 
@@ -817,14 +830,16 @@ that corner.
 `src/tests/cpu.v`. Ten checks (reset state, the reload disagreement, any-width
 access, counting to zero, the faulty clear, disable-then-clear, three interrupt
 paths), then a display phase: one interrupt per second from reload 10000 at
-100 µs, the count on the status cells. The TODO's original sketch counted
-against the VIP frame; no VIP exists yet, so a stopwatch is the reference — the
-50 Hz raster and the timer share the PLL, so the check subsumes it.
+100 µs, the count on the status cells. The hardware run used a stopwatch as the
+human reference; the 50 Hz raster and timer share the PLL, so the check also
+covered their common timebase.
 **Pass criterion:** the status cells count up by one each second and read
 `0x003C` after a timed minute; the halt square never fills. A frozen small
 number is that check failing; check 10 alone failing means real hardware does
 not raise a write-induced zero while disabled, which would itself be a finding.
-**Awaiting:** the hardware run.
+**Watched and passed 2026-08-15:** all ten checks completed on the Pocket and
+the status count advanced once per second. The earlier 0.3.0 run also failed at
+the expected timer-less sentinel, authenticating the ROM's failure path.
 
 ---
 
@@ -866,96 +881,72 @@ not raise a write-induced zero while disabled, which would itself be a finding.
 
 ## 8. VSU
 
-Six channels mixed to 10-bit stereo at 41,700 Hz.
+Six channels mixed to 10-bit stereo at the exact 480-cycle publication cadence,
+41.666 kHz from the 20 MHz architectural clock. **Complete 2026-08-16.**
 
-### Feature: produce a tone from wavetable memory
+### Feature: produce wavetable channels
 
-- [ ] **Five 32-sample tables.** Samples are 6-bit unsigned, stored four bytes apart,
-      and writable only with byte stores. The upper two bits of each written byte are
-      discarded.
-- [ ] **Write them only when everything is silent.** Wave memory can be written only
-      while *all* channels including noise are inactive; writes during playback are
-      dropped. Selecting a table index above the fifth makes the channel play silently
-      while still blocking writes, which is a trap worth reproducing.
-- [ ] **Turn a frequency value into a delay.** The channel waits 2,048 minus the
-      frequency value in base clocks, at 5 MHz for the wavetable channels. Higher values
-      mean higher pitch, which is backwards from how it reads.
-- [ ] **Keep two frequency values.** One is what software last wrote, the other is what
-      playback is using. Register writes update both; sweep and modulation update only
-      the second. Software that writes only one of the two frequency registers can
-      therefore end up with a value it didn't intend.
-- [ ] **Play for a fixed time and stop.** A channel can be told to disable itself after
-      an interval measured in units of about 3.84 ms.
-- [ ] **Reset six things on a channel write.** Writing the channel's control register
-      restarts the frequency delay, the wave position, the envelope step timer, the
-      frequency-modification timer, the modulation position and the noise shift
-      register, all at once.
+- [x] **Store five 32-sample tables.** Samples are 6-bit unsigned, stored four
+      bytes apart, and the upper two written bits are discarded.
+- [x] **Lock waveform memory during playback.** Any active source, including noise
+      and a channel selecting invalid bank 5–7, blocks writes. Invalid banks stay
+      active but contribute silence.
+- [x] **Run five independent oscillators from the 5 MHz VSU clock.** Frequency
+      timing, 32-sample phase progression, stereo levels, fixed duration and partial
+      frequency-register writes match the documented register behavior.
+- [x] **Restart channel state on every `SxINT` write.** Phase and timing restart,
+      but the live envelope level does not reload. The `vsu-restart` ROM isolates
+      this distinction on hardware.
 
 ### Feature: shape amplitude with the envelope
 
-- [ ] **Step up or down once per interval.** One direction bit and an interval in units
-      of about 15.36 ms; the level clamps at 15 and at 0 rather than wrapping.
-- [ ] **Optionally reload and continue.** With repeat set, the envelope holds at its
-      limit for one interval, reloads the initial value for one interval, and resumes.
-- [ ] **Require a non-zero level for any sound at all.** Even with automatic
-      modification disabled, a zero envelope is silence.
-- [ ] ? A channel enabled with the envelope active emits zero samples for the first 5 to
-      10 ms; the reference doesn't know why or whether it's consistent.
+- [x] **Grow, decay, clamp and repeat.** The live level advances on the documented
+      frame grid, holds at a terminal value for one-shot envelopes, and reloads at
+      the documented point when repeat is enabled.
+- [x] **Keep restart and envelope reload separate.** Frequent `INT` writes cannot
+      turn a completed one-shot envelope back on; rewriting the envelope register
+      provides the reload behavior.
 
 ### Feature: sweep and modulate channel 5
 
-- [ ] **Slide the pitch, or drive it from a table.** One bit chooses between sweep,
-      which shifts the current frequency right and adds or subtracts the result to slide
-      along octaves, and modulation, which adds a signed value from a 32-entry table to
-      the last-written frequency and keeps 11 bits.
-- [ ] **Compute ahead, apply behind.** The new value is calculated at the start of a
-      modification frame and applied only after that frame's audio is generated.
-- [ ] **Stop the channel on overflow — even when disabled.** A calculated value above
-      2,047 kills channel 5 immediately, and a hardware bug means this happens whether
-      or not the sweep function is enabled. Because the check runs at the frame start, it
-      also makes the highest valid frequency unusable. This is the spec, not a defect to
-      smooth over.
-- [ ] **Honor a mid-frame interval change conditionally.** A newly written interval
-      takes effect immediately only if that much time hasn't already elapsed in the
-      current frame; otherwise the frame finishes on the old interval.
+- [x] **Sweep the current frequency.** Direction, shift, frame interval and the
+      immediate overflow-shutdown quirk are implemented.
+- [x] **Apply signed 32-entry modulation.** One-shot and repeating table walks use
+      the programmed base frequency without destroying it, and table writes lock
+      while channel 5 is active.
+- [x] **Honor control writes during a frame.** Current, next and elapsed frame state
+      preserve the hardware's conditional interval-change behavior; sweep and
+      modulation share the same progression model.
 
 ### Feature: produce noise
 
-- [ ] **A 15-bit shift register with a selectable tap.** Each sample XORs a fixed bit
-      with the tapped bit, inverts, shifts left and inserts the result. Eight tap
-      choices give sequence lengths from 28 to 32,767, so the tap is a timbre control
-      rather than a frequency control.
-- [ ] **Emit only two values.** A generated 0 becomes sample 0 and a 1 becomes 63, so
-      the channel matches the others' 6-bit width. Its base clock is 500 kHz, a tenth of
-      the other channels'.
-- [ ] **Clear on either of two writes.** Both the channel control register and the
-      envelope register reset the shift register to all zeroes.
+- [x] **Generate all eight documented sequences.** Channel 6 uses the 15-bit XNOR
+      shift register, selectable taps, 500 kHz base clock, two-level output, and the
+      reset behavior of both control writes. Simulation pins every sequence period.
 
-### Feature: mix to stereo output
+### Feature: mix and deliver stereo output
 
-- [ ] **Scale each channel in a specific order.** Multiply the 4-bit stereo level by the
-      4-bit envelope level, keep the top five bits of the result, add one if neither
-      input was zero, then multiply by the 6-bit sample. The add-one step is what keeps
-      quiet channels audible and it only applies conditionally.
-- [ ] **Sum and truncate.** Add all six 11-bit channel outputs and keep the top 10 bits
-      of the 14-bit sum. Inactive channels contribute zero and the maximum output is 685.
-- [ ] **Stop everything on request.** One register disables all active channels; clearing
-      it does nothing and channels can restart without clearing it.
+- [x] **Use the documented unsigned digital mix.** Each channel applies stereo level
+      and envelope gain in the hardware order; all six snapshots are summed and
+      truncated to the 10-bit result.
+- [x] **Remove DC without introducing clicks.** A stereo Q16 first-order high-pass
+      implements the approximately 7.234 Hz analog cutoff before scaling to APF's
+      signed audio path.
+- [x] **Publish at a stable cadence.** The serial snapshot mixer emits one sample
+      every 480 enabled CPU cycles and `audio_i2s` carries it to the Pocket without
+      popping or crackling.
+- [x] **Stop and reset deterministically.** `SSTOP` disables every source and the
+      reset state is silent. Exact uninitialized silicon contents are undocumented
+      and unobservable through the write-only VSU bus, so they do not leave a
+      software-visible feature incomplete.
 
-### Feature: deliver audio to the Pocket
-
-- [ ] **Apply the output filter.** Real hardware blocks DC through an RC circuit that
-      works out to a first-order high-pass at about 7.234 Hz, and the reference gives the
-      discrete form directly.
-- [ ] **Resample 41,700 Hz to what APF expects.** The Virtual Boy's rate isn't one the
-      Pocket's audio path takes natively.
-- [ ] ? The VSU's reset state isn't verified. The reference only suggests using the stop
-      register on boot.
-
-**ROMs:** `vsu-tone` (a known frequency on one channel), `vsu-noise` (each of the eight
-taps in turn).
-**Pass criterion:** a maintainer hears the stated pitch, for the stated duration, in the
-stated ear. Silence and wrong-pitch are distinguishable failures.
+**ROMs:** `vsu-tone`, `vsu-chord`, `vsu-envelope`, `vsu-timing`, `vsu-sweep`,
+`vsu-modulation`, `vsu-noise`, `vsu-wave-lock` and `vsu-restart`.
+**Verification:** all 14 simulation benches, all 39 assembler tests, ROM
+typechecking, Mednafen parsing and numerical WAV analysis passed. Quartus closed
+with positive timing slack. Morgan watched the complete Pocket suite and confirmed
+stable tone and timing, stereo mixing, fade/restart, sweep, repeating modulation,
+noise and waveform locking with no popping or crackling.
 
 ---
 
