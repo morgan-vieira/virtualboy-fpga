@@ -748,6 +748,8 @@ set_global_assignment -name SYSTEMVERILOG_FILE core/cpu.v
 set_global_assignment -name SYSTEMVERILOG_FILE core/cart_rom.v
 set_global_assignment -name SYSTEMVERILOG_FILE core/cpu_clock_enable.v
 set_global_assignment -name SYSTEMVERILOG_FILE core/timer.v
+set_global_assignment -name SYSTEMVERILOG_FILE core/game_pad.v
+set_global_assignment -name SYSTEMVERILOG_FILE core/host_pad_map.v
 set_global_assignment -name SYSTEMVERILOG_FILE core/vsu.v
 set_global_assignment -name SYSTEMVERILOG_FILE core/audio_i2s.v
 set_global_assignment -name SYSTEMVERILOG_FILE core/vip_memory.v

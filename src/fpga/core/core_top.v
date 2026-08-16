@@ -310,14 +310,27 @@ always @(*) begin
         bridge_rd_data <= 0;
     end
     32'h10xxxxxx: begin
-        // example
-        // bridge_rd_data <= example_device_data;
-        bridge_rd_data <= 0;
+        bridge_rd_data <= pad_cfg;
     end
     32'hF8xxxxxx: begin
         bridge_rd_data <= cmd_bridge_rd_data;
     end
     endcase
+end
+
+
+//
+// controller mapping settings
+//
+// the Pocket has twelve inputs and the machine has fourteen, so which two
+// go missing is a user's choice rather than ours -- interact.json puts both
+// switches in the Core Settings menu at this address, and host_pad_map.v
+// carries the layout and the reasoning. APF reads the register back and
+// writes it whole every frame, so it answers reads as well as writes.
+
+    reg     [31:0]  pad_cfg = 32'd0;
+always @(posedge clk_74a) begin
+    if(bridge_wr && bridge_addr == 32'h10000000) pad_cfg <= bridge_wr_data;
 end
 
 
@@ -541,9 +554,15 @@ cpu_clock_enable ce_gen (
     wire signed [15:0] vsu_sample_right;
 
     wire        misc_sel;
-    wire [15:0] misc_rdata;
+    wire [15:0] timer_rdata;
+    wire [15:0] pad_rdata;
     wire        timer_irq;
+    wire        pad_irq;
     wire        vip_irq;
+
+    // the misc region's two devices decode disjoint registers and answer
+    // zero everywhere else, so one answer is the other's zero.
+    wire [15:0] misc_rdata = timer_rdata | pad_rdata;
 
 cpu vb_cpu (
     .clk                    ( clk_cpu ),
@@ -558,8 +577,12 @@ cpu vb_cpu (
     .rdata                  ( cpu_rdata ),
     .ready                  ( cpu_ready ),
 
-    .irq_valid              ( vip_irq || timer_irq ),
-    .irq_level              ( vip_irq ? 4'd4 : 4'd1 ),
+    // five hardware sources ranked with the VIP highest and the game pad
+    // lowest; three of them exist so far, and this is the priority encoder
+    // TODO section 3 was waiting on a second source for.
+    .irq_valid              ( vip_irq || timer_irq || pad_irq ),
+    .irq_level              ( vip_irq   ? 4'd4 :
+                              timer_irq ? 4'd1 : 4'd0 ),
 
     .dbg_pc                 ( cpu_dbg_pc ),
     .dbg_halted             ( cpu_dbg_halted )
@@ -662,9 +685,45 @@ timer vb_timer (
     .we                     ( cpu_we ),
     .be                     ( cpu_be ),
     .wdata                  ( cpu_wdata ),
-    .rdata                  ( misc_rdata ),
+    .rdata                  ( timer_rdata ),
 
     .irq                    ( timer_irq )
+);
+
+// the game pad answers the misc region's registers at 0x10/0x14/0x28. its
+// report is the Pocket's controller through host_pad_map, synchronized out
+// of clk_74a here rather than inside the pad, which only ever sees a value
+// already in its own domain.
+
+    wire [15:0] cont1_key_s;
+synch_3 #(.WIDTH(16)) s_cont1(cont1_key[15:0], cont1_key_s, clk_cpu);
+
+    wire [1:0]  pad_cfg_s;
+synch_3 #(.WIDTH(2)) s_padcfg(pad_cfg[1:0], pad_cfg_s, clk_cpu);
+
+    wire [15:0] pad_buttons;
+
+host_pad_map vb_pad_map (
+    .key                    ( cont1_key_s ),
+    .cfg                    ( pad_cfg_s ),
+    .buttons                ( pad_buttons )
+);
+
+game_pad vb_pad (
+    .clk                    ( clk_cpu ),
+    .reset_n                ( reset_n && dataslot_allcomplete_s ),
+    .ce                     ( cpu_ce ),
+
+    .sel                    ( misc_sel ),
+    .addr                   ( cpu_addr ),
+    .we                     ( cpu_we ),
+    .be                     ( cpu_be ),
+    .wdata                  ( cpu_wdata ),
+    .rdata                  ( pad_rdata ),
+
+    .buttons                ( pad_buttons ),
+
+    .irq                    ( pad_irq )
 );
 
 vsu vb_vsu (
