@@ -536,6 +536,9 @@ cpu_clock_enable ce_gen (
     wire [15:0] vip_rdata;
     wire        vip_ready;
 
+    wire        vsu_sel;
+    wire signed [15:0] vsu_sample_left;
+    wire signed [15:0] vsu_sample_right;
 
     wire        misc_sel;
     wire [15:0] misc_rdata;
@@ -575,7 +578,7 @@ mem_bus vb_bus (
     .ready                  ( cpu_ready ),
 
     .vip_sel                ( vip_sel ),
-    .vsu_sel                ( ),
+    .vsu_sel                ( vsu_sel ),
     .misc_sel               ( misc_sel ),
     .exp_sel                ( ),
     .cart_ram_sel           ( ),
@@ -664,6 +667,21 @@ timer vb_timer (
     .irq                    ( timer_irq )
 );
 
+vsu vb_vsu (
+    .clk                    ( clk_cpu ),
+    .reset_n                ( reset_n && dataslot_allcomplete_s ),
+    .ce                     ( cpu_ce ),
+
+    .sel                    ( vsu_sel ),
+    .addr                   ( cpu_addr ),
+    .we                     ( cpu_we ),
+    .be                     ( cpu_be ),
+    .wdata                  ( cpu_wdata ),
+
+    .sample_left            ( vsu_sample_left ),
+    .sample_right           ( vsu_sample_right )
+);
+
 cart_rom vb_cart (
     .load_clk               ( clk_74a ),
     .load_begin             ( dataslot_requestwrite ),
@@ -734,50 +752,20 @@ end
 
 
 //
-// audio i2s silence generator
-// see other examples for actual audio generation
+// APF audio is signed 16-bit stereo I2S at 48 kHz.
 //
 
-assign audio_mclk = audgen_mclk;
-assign audio_dac = audgen_dac;
-assign audio_lrck = audgen_lrck;
+assign audio_mclk = clk_core_12288;
 
-// generate MCLK = 12.288mhz with fractional accumulator
-    reg         [21:0]  audgen_accum;
-    reg                 audgen_mclk;
-    parameter   [20:0]  CYCLE_48KHZ = 21'd122880 * 2;
-always @(posedge clk_74a) begin
-    audgen_accum <= audgen_accum + CYCLE_48KHZ;
-    if(audgen_accum >= 21'd742500) begin
-        audgen_mclk <= ~audgen_mclk;
-        audgen_accum <= audgen_accum - 21'd742500 + CYCLE_48KHZ;
-    end
-end
-
-// generate SCLK = 3.072mhz by dividing MCLK by 4
-    reg [1:0]   aud_mclk_divider;
-    wire        audgen_sclk = aud_mclk_divider[1] /* synthesis keep*/;
-    reg         audgen_lrck_1;
-always @(posedge audgen_mclk) begin
-    aud_mclk_divider <= aud_mclk_divider + 1'b1;
-end
-
-// shift out audio data as I2S 
-// 32 total bits per channel, but only 16 active bits at the start and then 16 dummy bits
-//
-    reg     [4:0]   audgen_lrck_cnt;    
-    reg             audgen_lrck;
-    reg             audgen_dac;
-always @(negedge audgen_sclk) begin
-    audgen_dac <= 1'b0;
-    // 48khz * 64
-    audgen_lrck_cnt <= audgen_lrck_cnt + 1'b1;
-    if(audgen_lrck_cnt == 31) begin
-        // switch channels
-        audgen_lrck <= ~audgen_lrck;
-        
-    end 
-end
+audio_i2s audio_output (
+    .source_clk             ( clk_cpu ),
+    .source_left            ( vsu_sample_left ),
+    .source_right           ( vsu_sample_right ),
+    .mclk                   ( clk_core_12288 ),
+    .reset_n                ( reset_n && dataslot_allcomplete_s ),
+    .dac                    ( audio_dac ),
+    .lrck                   ( audio_lrck )
+);
 
 
 ///////////////////////////////////////////////
