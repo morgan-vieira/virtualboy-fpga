@@ -3,6 +3,7 @@ node_modules/
 .ignore/
 .local/
 tools/
+tmp/
 
 # Environment variables
 .env
