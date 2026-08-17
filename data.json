@@ -13,6 +13,18 @@
                 "size_exact": 0,
                 "size_maximum": 16777216,
                 "address": "0x00000000"
+            },
+            {
+                "name": "Save",
+                "id": 1,
+                "required": false,
+                "nonvolatile": true,
+                "parameters": "0x24",
+                "extensions": [
+                    "sav"
+                ],
+                "size_maximum": 8192,
+                "address": "0x01000000"
             }
         ]
     }

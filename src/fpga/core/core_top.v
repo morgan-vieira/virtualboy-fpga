@@ -296,10 +296,20 @@ assign vpll_feed = 1'bZ;
 // for bridge write data, we just broadcast it to all bus devices
 // for bridge read data, we have to mux it
 // add your own devices here
+//
+// the save RAM answers 0x01xxxxxx, which is how APF reads the slot back onto
+// the SD card when the core shuts down. it sits above the 16MB slot 0 owns.
+
+    wire    [31:0]  cart_ram_bridge_rd_data;
+    wire    [31:0]  cart_ram_bytes;
+
 always @(*) begin
     casex(bridge_addr)
     default: begin
         bridge_rd_data <= 0;
+    end
+    32'h01xxxxxx: begin
+        bridge_rd_data <= cart_ram_bridge_rd_data;
     end
     32'h10xxxxxx: begin
         bridge_rd_data <= core_cfg;
@@ -510,8 +520,9 @@ core_bridge_cmd icb (
 // lands at bridge 0x00000000, and its "reset core while loading" bit means
 // reset_n is low for the whole load. the CPU is gated on
 // dataslot_allcomplete besides, so it cannot boot before the first image is
-// in. devices that don't exist yet answer zero, matching mem_bus's unmapped
-// rule.
+// in -- and before the save in slot 1 is, which loads without a reset of its
+// own. the game pak's expansion region is the last device that answers zero,
+// matching mem_bus's unmapped rule; no commercial pak populated it.
 
     // the cartridge decodes its own slot window off the raw bridge address;
     // see cart_rom.v for why the size limit lives there and not here.
@@ -540,6 +551,9 @@ cpu_clock_enable ce_gen (
     wire        cart_rom_sel;
     wire [15:0] cart_rom_rdata;
     wire        cart_rom_ready;
+
+    wire        cart_ram_sel;
+    wire [15:0] cart_ram_rdata;
 
     wire        vip_sel;
     wire [15:0] vip_rdata;
@@ -600,13 +614,13 @@ mem_bus vb_bus (
     .vsu_sel                ( vsu_sel ),
     .misc_sel               ( misc_sel ),
     .exp_sel                ( ),
-    .cart_ram_sel           ( ),
+    .cart_ram_sel           ( cart_ram_sel ),
     .cart_rom_sel           ( cart_rom_sel ),
 
     .vip_rdata              ( vip_rdata ),
     .vip_ready              ( vip_ready ),
     .misc_rdata             ( misc_rdata ),
-    .cart_ram_rdata         ( 16'd0 ),
+    .cart_ram_rdata         ( cart_ram_rdata ),
     .cart_rom_rdata         ( cart_rom_rdata ),
     .cart_rom_ready         ( cart_rom_ready )
 );
@@ -757,9 +771,17 @@ vsu vb_vsu (
     wire        pll_core_locked_cpu;
 synch_3 s_lockcpu(pll_core_locked, pll_core_locked_cpu, clk_cpu);
 
+// each cartridge module resets its own size mask when its own slot starts
+// loading, so the id has to qualify the request: without it, the save slot's
+// load would clear the mask the ROM had just recovered from the image.
+    wire cart_rom_load_begin =
+        dataslot_requestwrite && dataslot_requestwrite_id == 16'd0;
+    wire cart_ram_load_begin =
+        dataslot_requestwrite && dataslot_requestwrite_id == 16'd1;
+
 cart_rom vb_cart (
     .load_clk               ( clk_74a ),
-    .load_begin             ( dataslot_requestwrite ),
+    .load_begin             ( cart_rom_load_begin ),
     .load_wr                ( bridge_wr ),
     .load_addr              ( bridge_addr ),
     .load_data              ( bridge_wr_data ),
@@ -811,6 +833,48 @@ pin_ddio_clk vb_cart_sdram_clk (
     .datain_l               ( 1'b1 ),
     .outclock               ( clk_cpu ),
     .dataout                ( dram_clk )
+);
+
+// the other half of the game pak. the save is small enough to live in block
+// RAM, so unlike the cartridge it needs no memory controller: the array is
+// the crossing, one port per clock. APF writes it at boot and reads it back
+// at shutdown through data.json's nonvolatile slot 1 at bridge 0x01000000,
+// which is what makes the save survive a power cycle. see cart_ram.v for why
+// a cell is eight bits wide.
+cart_ram vb_cart_ram (
+    .bridge_clk             ( clk_74a ),
+    .load_begin             ( cart_ram_load_begin ),
+    .bridge_wr              ( bridge_wr ),
+    .bridge_rd              ( bridge_rd ),
+    .bridge_addr            ( bridge_addr ),
+    .bridge_wr_data         ( bridge_wr_data ),
+    .bridge_rd_data         ( cart_ram_bridge_rd_data ),
+    .save_bytes             ( cart_ram_bytes ),
+
+    .clk                    ( clk_cpu ),
+    .sel                    ( cart_ram_sel ),
+    .addr                   ( cpu_addr ),
+    .we                     ( cpu_we ),
+    .be                     ( cpu_be ),
+    .wdata                  ( cpu_wdata ),
+    .rdata                  ( cart_ram_rdata )
+);
+
+// APF decides how many bytes to flush from the size table, and a save with no
+// file on the card yet is loaded as zero bytes -- so left alone, the flush
+// writes nothing and the save file is never created at all. The core is
+// allowed to correct the entry and this is the core doing it, with the size
+// the cartridge's RAM was actually handed.
+dataslot_size #(
+    .SLOT_ID                ( 16'd1 )
+) vb_save_size (
+    .clk                    ( clk_74a ),
+    .start                  ( dataslot_allcomplete ),
+    .bytes                  ( cart_ram_bytes ),
+    .table_addr             ( datatable_addr ),
+    .table_wren             ( datatable_wren ),
+    .table_data             ( datatable_data ),
+    .table_q                ( datatable_q )
 );
 
 // the test-ROM status convention (src/roms/README.md): ROMs report through
