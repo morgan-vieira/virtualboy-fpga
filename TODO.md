@@ -874,9 +874,19 @@ earlier draw fired SBHIT at strip 0 and nothing cleared the stale pending,
 which check 7 then consumed with no draw running. Fixed by clearing
 `0x6000` when arming, and `vip-sched` plus `vip-dpctrl` now also run in
 `src/tests/vip_system.v` — the end-to-end gap that let the bug through.
-The fixed `vip-sched` and the still-unwatched `vip-dpctrl` await the
-maintainer's re-run. Undocumented refresh, event-overlap and display-servo
-behavior remains isolated in issue #2.
+**Re-watched 2026-08-17** on the fixed image: `vip-sched` showed the
+filled square with status `0x600D` and its PC row decoding to the rebuilt
+image's halt address `0x0700096A` exactly (`191050.png`), so XPRST,
+overtime and DPRST are hardware-proven. `vip-dpctrl` (`191029.png`)
+showed `0x600D` over the left-bright gradient with the PC row live inside
+its display loop — the profile matches the column-table budgets
+quantitatively, saturating left and reading ~115 where entry 0x9B
+computes 112 — which proves every check including LOCK's register-visible
+hold at 0xFA. The one claim the still cannot carry is the ~2 s visible
+alternation between the gradient and the uniform field; that, and a
+regression sweep of the five 2026-08-15 `vip-*` ROMs on the rewritten
+renderer, remain for a maintainer's eyes. Undocumented refresh,
+event-overlap and display-servo behavior remains isolated in issue #2.
 
 ---
 
