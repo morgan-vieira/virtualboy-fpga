@@ -27,7 +27,10 @@ Where the documents run out, two implementations already had to answer the quest
 Take the behavior, comment which file it came from and that it's an implementation
 choice rather than documented hardware, and never copy code across — `.repos/` is
 read-only, and an imported bug looks exactly like a core bug from the outside.
-Where the two disagree, follow beetle-vb and say so in the comment.
+Where the two disagree, follow beetle-vb and say so in the comment — except for
+cycle counts, where MiSTer carries hardware-measured Cycle Test figures that
+beetle-vb lacks, and is checked first (Morgan, 2026-08-17). Deviations that no
+source resolves at all are collected in `CAVEATS.md`.
 
 ---
 
@@ -495,9 +498,15 @@ the VIP gets built directly in this domain.
 - [~] **Halt until something happens.** `HALT` stops the CPU until an interrupt is
       accepted. With everything masked it never resumes, and that's correct behavior
       rather than a hang to guard against. Benched both ways.
-- [ ] **Trap on an address.** With a breakpoint register loaded and a flag set, the CPU
+- [~] **Trap on an address.** With a breakpoint register loaded and a flag set, the CPU
       raises an exception when the program counter matches, checked before the fetch.
-      `ADTRE` stores; the compare is deliberately not wired yet.
+      Wired 2026-08-17, the last CPU-local feature: 0xFFC0 with restore at
+      current PC and AE cleared on entry, checked in FETCH1 after the
+      interrupt (the scroll's priority list ranks interrupts above the trap;
+      MiSTer orders them the other way, and the scroll wins with a comment).
+      MiSTer proves the shape — beetle-vb stores ADTRE and never checks it, so
+      Mednafen freezes `cpu-adtre` at check 1 by design. Sim-proven by the
+      bench's E8 scenario and the `cpu-adtre` ROM; awaits its Pocket watch.
 
 ### Feature: cache instructions
 
@@ -583,14 +592,23 @@ why); revisit if a later peripheral can.
       VIP's variable handshake exists. What stays unresearched is the exact
       fetch/execute interleave; our max() model is the approximation.
 - [~] ? Input and output instruction costs "may be identical to" load and store costs,
-      unconfirmed. Adopted as identical, per that sentence.
+      unconfirmed. Resolved per MiSTer (2026-08-17), which follows Table
+      5-11's flat figures: IN charges 5 with no context discount and never
+      arms the following load's discount; only true loads do. OUT still
+      shares the store shape; MiSTer's finer same-size streak rule is
+      unmeasured and lives in `CAVEATS.md`.
 - [~] ? The cost of entering an exception — "research is needed." Charged as zero,
-      following beetle-vb's explicit "exception overhead is unknown".
+      following beetle-vb's explicit "exception overhead is unknown"; MiSTer
+      agrees ("unpublished") and charges only its normal fetch timing.
+      `CAVEATS.md` carries it — a hardware measurement is the only way out.
 - [~] ? Floating-point instructions have documented *ranges* with no rule for which
       case costs what. A separate document gives point values that fall inside those
-      ranges but contradicts itself elsewhere; see `INDEX.md`. Charged as
-      beetle-vb's per-instruction points, which sit at the bottom of each of the
-      scroll's ranges; the T2 bench spans pin every one.
+      ranges but contradicts itself elsewhere; see `INDEX.md`. Charged as the
+      Cycle Test totals measured on real hardware, taken from MiSTer's
+      fp_issue_cycles_fn (2026-08-17): CMPF 7, CVT.WS 8, CVT.SW 14, TRNC 13,
+      ADDF 22, SUBF 26, MULF 26, DIVF 44 — every one inside its scroll range,
+      where beetle-vb instead guesses each range's bottom. The T2 bench spans
+      pin them.
 - [~] ? Bit string timing exists as a table in the V810 manual that was never carried
       into the reference. Now charged from it: word accesses at their region
       waits land the manual's 12-per-word bitwise and 5-per-word search slopes
@@ -634,7 +652,10 @@ fabricated entry executing in place of ROM, clear clamps, the dumped layout),
 `cpu-longint` (timer interrupts landing inside a bit string and aborting a
 divide, both resuming to correct results — Mednafen freezes at check 5 by
 design, and a Pocket freeze there would be the finding that real silicon does
-not abort DIV).
+not abort DIV). A sixth followed on 2026-08-17: `cpu-adtre` (the address
+trap fires before the armed instruction with 0xFFC0 and AE stripped, and
+stays quiet with AE clear — Mednafen freezes at check 1 by design, since
+beetle-vb never checks ADTRE), built, sim-proven, awaiting its watch.
 **Pass criterion:** the on-screen status cells read `0x600D` with the halt square
 filled; a failure shows the failing check's number instead (the status convention
 in `src/roms/README.md`).

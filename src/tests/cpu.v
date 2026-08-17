@@ -1327,6 +1327,61 @@ module cpu_tb;
         if (wram['h1AFE] !== 16'h0000 || wram['h1AFF] !== 16'h0000)
             $fatal(1, "e7: entry 127 should dump as cleared zeros");
 
+        // E8: the address trap. With AE set and ADTRE on an instruction,
+        // the trap fires before that instruction's fetch with restore at
+        // current PC and AE cleared on entry; the handler steps EIPC to
+        // resume past it. With AE clear the same address executes.
+        restart();
+        prog_h(16'ha800);  // 07000000
+        prog_h(16'h0014);  // 07000002
+        prog_h(16'h7684);  // 07000004
+        prog_h(16'h76a0);  // 07000006
+        prog_h(16'h76c5);  // 07000008
+        prog_h(16'h7500);  // 0700000a
+        prog_h(16'h4502);  // 0700000c
+        prog_h(16'h7100);  // 0700000e
+        prog_h(16'h4661);  // 07000010
+        prog_h(16'h6400);  // 07000012
+        prog_h(16'h4140);  // 07000014
+        prog_h(16'h7145);  // 07000016
+        prog_h(16'h7800);  // 07000018
+        prog_h(16'h4260);  // 0700001a
+        prog_h(16'hbd60);  // 0700001c
+        prog_h(16'h0700);  // 0700001e
+        prog_h(16'ha16b);  // 07000020
+        prog_h(16'h002e);  // 07000022
+        prog_h(16'h7179);  // 07000024
+        prog_h(16'ha180);  // 07000026
+        prog_h(16'h3000);  // 07000028
+        prog_h(16'h7185);  // 0700002a
+        prog_h(16'h41a3);  // 0700002c
+        prog_h(16'h41a7);  // 0700002e
+        prog_h(16'h41c5);  // 07000030
+        prog_h(16'ha180);  // 07000032
+        prog_h(16'h1000);  // 07000034
+        prog_h(16'h7185);  // 07000036
+        prog_h(16'hbd60);  // 07000038
+        prog_h(16'h0700);  // 0700003a
+        prog_h(16'ha16b);  // 0700003c
+        prog_h(16'h0044);  // 0700003e
+        prog_h(16'h7179);  // 07000040
+        prog_h(16'h4202);  // 07000042
+        prog_h(16'h4209);  // 07000044
+        prog_h(16'h6800);  // 07000046
+        dp = 'h7FE0;   // handler 0xFFFFFFC0
+        prog_h(16'hbc20); prog_h(16'h0700);
+        prog_h(16'ha021); prog_h(16'h0004);
+        prog_h(16'h1801);
+        go();
+        wait_halt(6000, "e8");
+        expect_gpr(20, 32'h0000_FFC0, "e8 the address trap code");
+        expect_gpr(21, 32'h0700_002E, "e8 EIPC is the trapped instruction");
+        expect_gpr(22, 32'h0000_5000, "e8 entry sets EP|ID and clears AE");
+        expect_gpr(13, 32'd3, "e8 the trapped instruction never ran");
+        expect_gpr(14, 32'd5, "e8 execution resumed past it");
+        expect_gpr(16, 32'd9, "e8 no trap once AE is clear");
+        expect_gpr(19, 32'd1, "e8 exactly one trap");
+
         // T2: the new charges, measured the way T1 measures. Marker pairs
         // cost 7 at one-wait ROM; each expected value is the instruction's
         // charge from cpu.v's tables plus that 7.
@@ -1477,7 +1532,7 @@ module cpu_tb;
         expect_delta(3, 22 + 7, "t2 rev");
         // CAXI: max(26, 4) plus one wait on each of its four accesses
         expect_delta(4, 30 + 7, "t2 caxi");
-        expect_delta(5, 9 + 7, "t2 addf");
+        expect_delta(5, 22 + 7, "t2 addf");
         expect_delta(6, 44 + 7, "t2 divf");
         // MOVBSU, 64 aligned WRAM bits: 22+16 first invocation, 2+12 next
         expect_delta(8, 52 + 7, "t2 movbsu");
@@ -1505,6 +1560,7 @@ module cpu_tb;
         run_rom("cpu-bitstring", 1024, 400000);
         run_rom("cpu-cache", 512, 400000);
         run_rom("cpu-longint", 512, 2000000);
+        run_rom("cpu-adtre", 512, 200000);
 
         // The timer ROM's check phase, through the real timer and the
         // real interrupt path: its status 0x0000 write means every check
