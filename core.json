@@ -7,7 +7,7 @@
             "description": "Nintendo Virtual Boy for Analogue Pocket.",
             "author": "MorganVieira",
             "url": "https://github.com/morgan-vieira/virtualboy-fpga",
-            "version": "0.8.0",
+            "version": "0.8.1",
             "date_release": "2026-08-17"
         },
         "framework": {
