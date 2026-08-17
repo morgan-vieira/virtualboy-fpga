@@ -882,10 +882,11 @@ showed `0x600D` over the left-bright gradient with the PC row live inside
 its display loop — the profile matches the column-table budgets
 quantitatively, saturating left and reading ~115 where entry 0x9B
 computes 112 — which proves every check including LOCK's register-visible
-hold at 0xFA. The one claim the still cannot carry is the ~2 s visible
-alternation between the gradient and the uniform field; that, and a
-regression sweep of the five 2026-08-15 `vip-*` ROMs on the rewritten
-renderer, remain for a maintainer's eyes. Undocumented refresh,
+hold at 0xFA. The ~2 s visible alternation between the gradient and the
+uniform field — the one claim a still cannot carry — was watched and
+confirmed by morgan-vieira (2026-08-17), which closes the issue #4
+hardware bar. A regression sweep of the five 2026-08-15 `vip-*` ROMs on
+the rewritten renderer remains worthwhile at the next convenient session. Undocumented refresh,
 event-overlap and display-servo behavior remains isolated in issue #2.
 
 ---
