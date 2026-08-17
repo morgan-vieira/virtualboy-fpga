@@ -105,6 +105,99 @@ describe("format II — [op:6][reg2:5][imm5:5]", () => {
   });
 });
 
+describe("bit strings — [011111][00000][sub:5]", () => {
+  it("encodes the sub-opcode in the imm5 field with reg2 zero", () => {
+    // Sub-opcode numbers from v810_opt.h: searches 0-3, bitwise 8-15.
+    assert.deepEqual(
+      halfwords((asm) => asm.sch0bsu()),
+      [0x1f << 10],
+    );
+    assert.deepEqual(
+      halfwords((asm) => asm.sch1bsd()),
+      [(0x1f << 10) | 0x03],
+    );
+    assert.deepEqual(
+      halfwords((asm) => asm.orbsu()),
+      [(0x1f << 10) | 0x08],
+    );
+    assert.deepEqual(
+      halfwords((asm) => asm.movbsu()),
+      [(0x1f << 10) | 0x0b],
+    );
+    assert.deepEqual(
+      halfwords((asm) => asm.notbsu()),
+      [(0x1f << 10) | 0x0f],
+    );
+  });
+});
+
+describe("caxi — format VI [111010][reg2:5][reg1:5][disp16]", () => {
+  it("encodes like a load with the lock word at disp[reg1]", () => {
+    assert.deepEqual(
+      halfwords((asm) => asm.caxi(4, r7, r6)),
+      [(0x3a << 10) | (6 << 5) | 7, 0x0004],
+    );
+  });
+});
+
+describe("format VII — [111110][reg2:5][reg1:5][sub:6][rfu:10]", () => {
+  it("puts the sub-opcode in the top six bits of the second halfword", () => {
+    // v810_oploop.inc's DO_AM_FPP reads the sub-opcode as (second >> 10) & 0x3F.
+    assert.deepEqual(
+      halfwords((asm) => asm.cmpfS(r7, r6)),
+      [(0x3e << 10) | (6 << 5) | 7, 0x00 << 10],
+    );
+    assert.deepEqual(
+      halfwords((asm) => asm.cvtWs(r7, r6)),
+      [(0x3e << 10) | (6 << 5) | 7, 0x02 << 10],
+    );
+    assert.deepEqual(
+      halfwords((asm) => asm.cvtSw(r7, r6)),
+      [(0x3e << 10) | (6 << 5) | 7, 0x03 << 10],
+    );
+    assert.deepEqual(
+      halfwords((asm) => asm.addfS(r7, r6)),
+      [(0x3e << 10) | (6 << 5) | 7, 0x04 << 10],
+    );
+    assert.deepEqual(
+      halfwords((asm) => asm.subfS(r7, r6)),
+      [(0x3e << 10) | (6 << 5) | 7, 0x05 << 10],
+    );
+    assert.deepEqual(
+      halfwords((asm) => asm.mulfS(r7, r6)),
+      [(0x3e << 10) | (6 << 5) | 7, 0x06 << 10],
+    );
+    assert.deepEqual(
+      halfwords((asm) => asm.divfS(r7, r6)),
+      [(0x3e << 10) | (6 << 5) | 7, 0x07 << 10],
+    );
+    assert.deepEqual(
+      halfwords((asm) => asm.trncSw(r7, r6)),
+      [(0x3e << 10) | (6 << 5) | 7, 0x0b << 10],
+    );
+  });
+
+  it("encodes Nintendo's extended instructions", () => {
+    assert.deepEqual(
+      halfwords((asm) => asm.mpyhw(r7, r6)),
+      [(0x3e << 10) | (6 << 5) | 7, 0x0c << 10],
+    );
+    assert.deepEqual(
+      halfwords((asm) => asm.rev(r7, r6)),
+      [(0x3e << 10) | (6 << 5) | 7, 0x0a << 10],
+    );
+    // XB and XH work on reg2 alone; reg1 stays zero.
+    assert.deepEqual(
+      halfwords((asm) => asm.xb(r6)),
+      [(0x3e << 10) | (6 << 5), 0x08 << 10],
+    );
+    assert.deepEqual(
+      halfwords((asm) => asm.xh(r6)),
+      [(0x3e << 10) | (6 << 5), 0x09 << 10],
+    );
+  });
+});
+
 describe("format III — [100][cond:4][disp9]", () => {
   it("encodes a backward branch as a negative displacement from the branch itself", () => {
     const encoded = halfwords((asm) => {
