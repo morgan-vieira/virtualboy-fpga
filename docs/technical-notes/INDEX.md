@@ -109,6 +109,26 @@ source is authoritative, which none of these documents states.
 
 - The architecture summary gives add 24, sub 26, mul 27, div 44 [v810-architecture-summary, Floating Point Operations]. Seminar deck 1's execution-clock table matches those figures exactly, listing `addf.s` 24, `subf.s` 26, `mulf.s` 27, `divf.s` 44 [v810-seminar-slides-1, slide 16].
 - Seminar deck 1 elsewhere states a "26-44" range covering Add, Sub, Mul, Div and Compare [v810-seminar-slides-1, slide 25]. Neither document gives a figure for a floating compare, and deck 1 does not reconcile its slide 16 and slide 25 presentations [v810-seminar-slides-1, Stated gaps and ambiguities].
+- The scroll gives per-instruction ranges that overlap none of this cleanly: `ADDF.S` 9–28, `SUBF.S` 12–28, `MULF.S` 8–30, `CMPF.S` 7–10, `DIVF.S` 44 [vb-sacred-tech-scroll, CPU > Floating-Point]. The scroll additionally gives `TRNC.SW` as 9–14 where the architecture manual's Table 5-11 prints 8–14 [u10082, Table 5-11 (3/3) p.109]. `src/fpga/core/cpu.v` charges beetle-vb's point values, which sit at the bottom of each scroll range, and says so.
+
+### Whether an interrupt can abort a long-running instruction
+
+- The architecture manual is explicit that it can: Table 6-2 names DIV/DIVU, the floating-point operations and the bit string instructions as "Instructions Aborted by Interrupt" [u10082, Table 6-2 p.117], and Table 6-1's Note 3 gives the aborted case a restore PC of the current instruction [u10082, Table 6-1 Notes p.117].
+- The scroll states the opposite for everything but bit strings: "A requested interrupt is not accepted until the current CPU instruction, or a cache dump or restore operation, has finished" [vb-sacred-tech-scroll, CPU > Exceptions > Interrupt], with bit strings interruptible only because they re-execute per destination word without advancing PC [same, CPU > Bit Strings > Bitwise].
+- beetle-vb sides with the scroll: only bit strings are interrupted mid-instruction (`v810_oploop.inc`'s `in_bstr` path); DIV and the FPU run atomically.
+- `src/fpga/core/cpu.v` implements the manual — DIV/DIVU and the floating-point operations abort with restore at the instruction itself, nothing having committed — per issue #3's scope. The `cpu-longint` ROM's check 5 is written so Pocket hardware can settle it: a freeze there means real silicon never aborts a divide, and the core should revert to the scroll's reading.
+
+### Where a bit string search leaves its pointer after a find
+
+- The architecture manual stores "the bit address 1 bit before the 1 found first" into r30/r27, subtracting only the skipped bits from r28 [u10082, §5.3 SCH1BS p.88].
+- The scroll says r30/r27 "point to the next bit following the matched bit" [vb-sacred-tech-scroll, CPU > Bit Strings > Search].
+- beetle-vb implements the manual (`Do_BSTR_Search`'s fix-up steps one bit back against the search direction), and `src/fpga/core/cpu.v` follows both.
+
+### What DIVF.S stores on underflow
+
+- The architecture manual states a denormal number is stored to reg2 when DIVF.S underflows [u10082, §5.3 DIVF.S pp.59–60].
+- The scroll's FUD row states "zero is used as the result" for underflow generally [vb-sacred-tech-scroll, CPU > Floating-Point].
+- beetle-vb flushes every underflowed result to a signed zero (`FPU_Math_Template`), crediting hardware observation; `src/fpga/core/cpu_fpu.v` follows the scroll and beetle-vb.
 
 ## Within-document contradictions
 
