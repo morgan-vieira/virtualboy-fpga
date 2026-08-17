@@ -2,6 +2,10 @@
 
 // VIP control registers and interrupt latch.
 // Draw-time values are snapshotted because software writes are unsafe while XPBSY.
+//
+// Every write is a halfword write: a byte write to an even address uses the
+// full 16 bits on the bus, and a byte write to an odd address uses the high
+// lane shifted into place over a zero low byte [scroll, VIP I/O Registers].
 
 module vip_registers (
     input  logic        clk,
@@ -25,6 +29,8 @@ module vip_registers (
     input  logic [15:0] events,
     input  logic        draw_start,
     input  logic        first_group_done,
+    input  logic [7:0]  cta_l,
+    input  logic [7:0]  cta_r,
 
     output logic        display_enable,
     output logic        sync_enable,
@@ -59,14 +65,12 @@ module vip_registers (
     logic bkcol_pending;
     logic display_program, sync_program, fclk_q;
 
-    logic write_low, write_high;
-    logic [15:0] write_mask;
-    logic [15:0] write_current;
-    logic [15:0] merged;
+    logic [15:0] write_value;
 
-    assign write_low = sel && we && be[0];
-    assign write_high = sel && we && be[1];
-    assign write_mask = {{8{write_high}}, {8{write_low}}};
+    // The CPU routes an odd-address byte onto the high lane, so the mangled
+    // halfword is {DIN[15:8], 0}; even-address bytes carry the source
+    // register's full low 16 bits [scroll; MiSTer vip_host_beat_frontend].
+    assign write_value = be == 2'b10 ? {wdata[15:8], 8'h00} : wdata;
     assign irq = |(pending & enable);
     assign brta_level = brta;
     assign brtb_level = brtb;
@@ -86,7 +90,7 @@ module vip_registers (
             12'hC14: rdata = {8'd0, brtc};
             12'hC15: rdata = {8'd0, rest};
             12'hC17: rdata = {12'd0, frmcyc};
-            12'hC18: rdata = 16'hFAFA;
+            12'hC18: rdata = {cta_r, cta_l};
             12'hC20: rdata = {draw_sbout, 2'd0, draw_sbcount, 3'd0,
                               draw_overtime, draw_busy && draw_buffer,
                               draw_busy && !draw_buffer,
@@ -110,18 +114,8 @@ module vip_registers (
     end
 
     always_comb begin
-        write_current = rdata;
-        unique case (addr)
-            12'hC11: write_current = {5'd0, column_lock, sync_program,
-                                      refresh_enable, 6'd0,
-                                      display_program, 1'b0};
-            12'hC21: write_current = {3'd0, sbcmp, 6'd0,
-                                      draw_enable, 1'b0};
-            default: begin end
-        endcase
-        merged = (write_current & ~write_mask) | (wdata & write_mask);
-        display_reset = sel && we && addr == 12'hC11 && merged[0];
-        draw_reset = sel && we && addr == 12'hC21 && merged[0];
+        display_reset = sel && we && addr == 12'hC11 && write_value[0];
+        draw_reset = sel && we && addr == 12'hC21 && write_value[0];
     end
 
     always_ff @(posedge clk or negedge reset_n) begin
@@ -155,41 +149,41 @@ module vip_registers (
             fclk_q <= fclk;
             // Hardware events win a same-cycle software clear.
             pending <= (((pending & ~(sel && we && addr == 12'hC02 ?
-                         (wdata & write_mask & INT_MASK) : 16'd0)) |
+                         (write_value & INT_MASK) : 16'd0)) |
                         (events & INT_MASK)) & INT_MASK);
 
             if (sel && we) begin
                 unique case (addr)
-                    12'hC01: enable <= merged & INT_MASK;
+                    12'hC01: enable <= write_value & INT_MASK;
                     12'hC11: begin
-                        column_lock <= merged[10];
-                        sync_program <= merged[9];
-                        refresh_enable <= merged[8];
-                        display_program <= merged[1];
+                        column_lock <= write_value[10];
+                        sync_program <= write_value[9];
+                        refresh_enable <= write_value[8];
+                        display_program <= write_value[1];
                     end
-                    12'hC12: brta <= merged[7:0];
-                    12'hC13: brtb <= merged[7:0];
-                    12'hC14: brtc <= merged[7:0];
-                    12'hC15: rest <= merged[7:0];
-                    12'hC17: frmcyc <= merged[3:0];
+                    12'hC12: brta <= write_value[7:0];
+                    12'hC13: brtb <= write_value[7:0];
+                    12'hC14: brtc <= write_value[7:0];
+                    12'hC15: rest <= write_value[7:0];
+                    12'hC17: frmcyc <= write_value[3:0];
                     12'hC21: begin
-                        sbcmp <= merged[12:8];
-                        draw_enable <= merged[1];
+                        sbcmp <= write_value[12:8];
+                        draw_enable <= write_value[1];
                     end
-                    12'hC24: spt[9:0] <= merged[9:0];
-                    12'hC25: spt[19:10] <= merged[9:0];
-                    12'hC26: spt[29:20] <= merged[9:0];
-                    12'hC27: spt[39:30] <= merged[9:0];
-                    12'hC30: gplt[7:0] <= merged[7:0] & 8'hFC;
-                    12'hC31: gplt[15:8] <= merged[7:0] & 8'hFC;
-                    12'hC32: gplt[23:16] <= merged[7:0] & 8'hFC;
-                    12'hC33: gplt[31:24] <= merged[7:0] & 8'hFC;
-                    12'hC34: jplt[7:0] <= merged[7:0] & 8'hFC;
-                    12'hC35: jplt[15:8] <= merged[7:0] & 8'hFC;
-                    12'hC36: jplt[23:16] <= merged[7:0] & 8'hFC;
-                    12'hC37: jplt[31:24] <= merged[7:0] & 8'hFC;
+                    12'hC24: spt[9:0] <= write_value[9:0];
+                    12'hC25: spt[19:10] <= write_value[9:0];
+                    12'hC26: spt[29:20] <= write_value[9:0];
+                    12'hC27: spt[39:30] <= write_value[9:0];
+                    12'hC30: gplt[7:0] <= write_value[7:0] & 8'hFC;
+                    12'hC31: gplt[15:8] <= write_value[7:0] & 8'hFC;
+                    12'hC32: gplt[23:16] <= write_value[7:0] & 8'hFC;
+                    12'hC33: gplt[31:24] <= write_value[7:0] & 8'hFC;
+                    12'hC34: jplt[7:0] <= write_value[7:0] & 8'hFC;
+                    12'hC35: jplt[15:8] <= write_value[7:0] & 8'hFC;
+                    12'hC36: jplt[23:16] <= write_value[7:0] & 8'hFC;
+                    12'hC37: jplt[31:24] <= write_value[7:0] & 8'hFC;
                     12'hC38: begin
-                        bkcol <= merged[1:0];
+                        bkcol <= write_value[1:0];
                         bkcol_pending <= 1'b1;
                     end
                     default: begin end

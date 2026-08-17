@@ -614,8 +614,13 @@ module cpu (
                  : state == WA_HI    ? wa_wdata[31:16]
                  : state == MEM_HI   ? mem_data[31:16]
                  : state == FATAL_WR ? fatal_wdata
+                 // A byte store routes its byte onto the selected lane but
+                 // leaves the register's own bits 15:8 on the other one,
+                 // which is what the VIP's mangled byte writes observe
+                 // [scroll, VIP I/O Registers].
                  : mem_size == SIZE_B && state == MEM_LO
-                 ? {mem_data[7:0], mem_data[7:0]}
+                 ? (mem_ea[0] ? {mem_data[7:0], mem_data[7:0]}
+                              : mem_data[15:0])
                  : mem_data[15:0];
 
     assign dbg_pc     = pc;
