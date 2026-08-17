@@ -851,18 +851,32 @@ sizes, base rounding, >8 maps, overplane, END, overlap, palettes, byte-write
 mangling), `vip-objx` (groups, ordering, eyes, flips, JY, clipping, wrap),
 `vip-hbaff` (h-bias offsets and aliases, affine parallax, wraps, unaligned
 reject), `vip-sched` (XPEN/XPBSY/XPEND, FRMCYC, ownership, SBOUT/SBHIT, XPRST,
-overtime, DPRST). All built and Mednafen header-checked; the first three run
-to their success halts through the real core in `src/tests/vip_system.v`
-(vip-sched and vip-dpctrl are check-timed against the 20 ms frame, so their
-behavior is bench-covered via `vip_draw`/`vip_timing` instead).
+overtime, DPRST). All built and Mednafen header-checked, and all five run
+through the real core in `src/tests/vip_system.v` — vip-sched to its
+success halt and vip-dpctrl to its pass status — with the VIP's frame
+shrunk to 4 ms so the runs stay affordable; every draw still pays the full
+measured service budget.
 **Pass criterion:** recorded per ROM in `src/roms/README.md`; the conformance
 ROMs report through the status cells with Diagnostic Overlay on, and each
 expectation names the check where Mednafen freezes by design.
 **Watched and passed 2026-08-15:** `vip-bg`, `vip-obj`, `vip-affine`,
 `vip-affine-diag` and `vip-int` on Pocket hardware, on the pre-#4 renderer.
-The completed behavior above awaits the maintainer's run of the full VIP
-suite. Undocumented refresh, event-overlap and display-servo behavior remains
-isolated in issue #2.
+**Watched 2026-08-17** by morgan-vieira on the 0.9.0 bitstream, screenshots
+decoded pixel-exact: `vip-compose`, `vip-objx` and `vip-hbaff` each showed
+the filled square with status `0x600D` and a PC row matching its image's
+computed halt address exactly — `0x07000C78`, `0x070008EA`, `0x070011E4`
+(halt instruction plus two, the HALTED-state convention; screenshots
+`20260817_184343/184402/184420.png`) — so all three passes are
+authenticated. `vip-sched` failed at check 7 (`184442.png`, status
+`0x0007`, spin PC `0x0700045C` decoding to the SBOUT assertion): a ROM
+bug, not a core bug — SBCMP sat at zero through checks 1-6, so every
+earlier draw fired SBHIT at strip 0 and nothing cleared the stale pending,
+which check 7 then consumed with no draw running. Fixed by clearing
+`0x6000` when arming, and `vip-sched` plus `vip-dpctrl` now also run in
+`src/tests/vip_system.v` — the end-to-end gap that let the bug through.
+The fixed `vip-sched` and the still-unwatched `vip-dpctrl` await the
+maintainer's re-run. Undocumented refresh, event-overlap and display-servo
+behavior remains isolated in issue #2.
 
 ---
 

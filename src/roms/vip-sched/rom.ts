@@ -206,10 +206,14 @@ export default defineRom({
     expectEq(a, r20, 0xffff);
 
     // 7: SBHIT fires when the compared group starts, while SBOUT holds and
-    // well before XPEND.
+    // well before XPEND. SBCMP sat at zero through every earlier draw, so
+    // each of them fired SBHIT at strip 0; clear the stale pending when
+    // arming or this check sees it instantly with no draw running — the
+    // hardware failure the 2026-08-17 run caught.
     progress(a);
     a.loadImm(0x0502, r20);
     a.stH(r20, 0x42, r7);
+    intclr(a, 0x6000);
     waitPending(a, 0x2000);
     a.ldH(0, r7, r20);
     a.andi(0x4000, r20, r20);
