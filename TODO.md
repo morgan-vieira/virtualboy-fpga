@@ -498,7 +498,7 @@ the VIP gets built directly in this domain.
 - [~] **Halt until something happens.** `HALT` stops the CPU until an interrupt is
       accepted. With everything masked it never resumes, and that's correct behavior
       rather than a hang to guard against. Benched both ways.
-- [~] **Trap on an address.** With a breakpoint register loaded and a flag set, the CPU
+- [x] **Trap on an address.** With a breakpoint register loaded and a flag set, the CPU
       raises an exception when the program counter matches, checked before the fetch.
       Wired 2026-08-17, the last CPU-local feature: 0xFFC0 with restore at
       current PC and AE cleared on entry, checked in FETCH1 after the
@@ -506,7 +506,11 @@ the VIP gets built directly in this domain.
       MiSTer orders them the other way, and the scroll wins with a comment).
       MiSTer proves the shape — beetle-vb stores ADTRE and never checks it, so
       Mednafen freezes `cpu-adtre` at check 1 by design. Sim-proven by the
-      bench's E8 scenario and the `cpu-adtre` ROM; awaits its Pocket watch.
+      bench's E8 scenario, and **watched and passed 2026-08-17** by
+      morgan-vieira on the 0.8.1 bitstream: `cpu-adtre` showed the filled
+      square with status 0x600D and its PC row decoding to the image's
+      computed halt address 0x070000AC exactly (screenshot
+      `20260817_125504.png`).
 
 ### Feature: cache instructions
 
@@ -655,7 +659,11 @@ design, and a Pocket freeze there would be the finding that real silicon does
 not abort DIV). A sixth followed on 2026-08-17: `cpu-adtre` (the address
 trap fires before the armed instruction with 0xFFC0 and AE stripped, and
 stays quiet with AE clear — Mednafen freezes at check 1 by design, since
-beetle-vb never checks ADTRE), built, sim-proven, awaiting its watch.
+beetle-vb never checks ADTRE), built, sim-proven, and **watched and passed
+2026-08-17** on the 0.8.1 bitstream with its PC row authenticated at
+0x070000AC. Every CPU-local feature is now hardware-watched; what remains
+of section 3 is the VIP-dependent wait handshake and the residue in
+`CAVEATS.md`.
 **Pass criterion:** the on-screen status cells read `0x600D` with the halt square
 filled; a failure shows the failing check's number instead (the status convention
 in `src/roms/README.md`).
