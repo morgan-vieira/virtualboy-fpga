@@ -72,10 +72,11 @@ export default defineRom({
     "square fills solid red (CPU halted) and the top row of 16 status cells reads " +
     "0x600D (0110 0000 0000 1101, lit = 1). Failure: the square stays hollow and " +
     "the cells show the failing check's number. Mednafen freezes at check 5 by " +
-    "design: beetle-vb never aborts a divide mid-flight. If the Pocket freezes at " +
-    "check 5, real silicon does not abort DIV either -- record that finding and " +
-    "the core follows the scroll's between-instructions rule instead of the V810 " +
-    "manual's Table 6-2.",
+    "design: beetle-vb never aborts a divide mid-flight, where this core follows " +
+    "the V810 manual's Table 6-2. A Pocket pass proves the core's abort end to " +
+    "end; whether NEC's silicon really aborts can only be settled by running " +
+    "this ROM on an actual Virtual Boy, where a check-5 freeze would be that " +
+    "finding.",
   handlers: { timer: "onTimer" },
   program: (a) => {
     let bstrAddr = 0;

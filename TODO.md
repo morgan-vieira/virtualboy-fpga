@@ -386,21 +386,21 @@ the VIP gets built directly in this domain.
 
 ### Feature: execute the floating-point instructions
 
-- [~] **Eight operations sharing one opcode.** Add, subtract, multiply, divide,
+- [x] **Eight operations sharing one opcode.** Add, subtract, multiply, divide,
       compare, both conversions and truncate, distinguished by sub-opcode. Conversion
       rounds to nearest while truncation rounds toward zero. Landed as
       `core/cpu_fpu.v` (2026-08-17): round-to-nearest-even throughout, semantics
       matched to beetle-vb's softfloat including the hardware-observed overflow
       that wraps the exponent by -192 and still writes the result. Proven by
       `src/tests/cpu_fpu.v`'s vector suite and the `cpu-float` ROM in simulation.
-- [~] **Reject what the hardware rejects.** Only normal reals and zero are accepted.
+- [x] **Reject what the hardware rejects.** Only normal reals and zero are accepted.
       NaNs, indefinites and non-zero denormals are invalid operands and raise an
       exception rather than propagating, which is the opposite of IEEE behavior a
       modern reader expects. In: the reserved-operand check runs before any
       arithmetic, and a result below the normal range flushes to a signed zero
       with FUD and FPR (the scroll and beetle-vb, against the manual's denormal
       claim — INDEX.md records it).
-- [~] **Raise one condition, not several.** Six status conditions exist in priority
+- [x] **Raise one condition, not several.** Six status conditions exist in priority
       order, four of which have exception codes. When an operation satisfies more than
       one — dividing a NaN by zero, say — only the highest-priority one is processed,
       and flags land in the status word before the exception is raised. In, and
@@ -409,7 +409,7 @@ the VIP gets built directly in this domain.
 
 ### Feature: execute bit string instructions
 
-- [~] **Eight bitwise operations and four searches.** They share one opcode and are
+- [x] **Eight bitwise operations and four searches.** They share one opcode and are
       told apart by sub-opcode, operating on runs of bits defined by a word address, a
       bit offset and a length, with length zero valid. Landed in `cpu.v`
       (2026-08-17), proven by the bench's string scenarios and the
@@ -418,7 +418,7 @@ the VIP gets built directly in this domain.
       searches cross words whole (beetle crosses one bit early), and the search
       pointer lands one bit before a find (the scroll's "next bit following"
       disagrees; INDEX.md records both).
-- [~] **Process one word per invocation.** This is the important part: the instruction
+- [x] **Process one word per invocation.** This is the important part: the instruction
       updates its five operand registers and then *does not* advance the program
       counter until the whole string is done. That's what makes a multi-thousand-bit
       operation interruptible, and modelling it as one atomic step would break
@@ -426,11 +426,11 @@ the VIP gets built directly in this domain.
       exactly that way: each invocation computes one destination word (or scans
       one source word), writes r26-r30 back, and leaves PC on itself, so FETCH1's
       ordinary interrupt check services the string with restore at current PC.
-- [~] **Wrap at both ends of the address space.** A string running off the top of
+- [x] **Wrap at both ends of the address space.** A string running off the top of
       memory continues at the bottom and vice versa. Structural — the descriptor
       registers are full 32-bit values — and pinned both directions by
       `cpu-bitstring`'s wrap checks through the top of ROM and VIP word zero.
-- [~] **Reproduce the read-buffering artifact.** Overlapping source and destination
+- [x] **Reproduce the read-buffering artifact.** Overlapping source and destination
       only corrupts the source when the destination starts 64 or more bits after it.
       That's a consequence of buffering inside the CPU, and it's the spec. The
       buffer is two source words topped up before each destination write, which
@@ -444,7 +444,7 @@ the VIP gets built directly in this domain.
       taking 12 cycles. They occupy the same opcodes NEC later gave to `EI` and `DI` on
       the V830, where the same operations take only 2 cycles. The flag behavior is in;
       the 12 cycles belong to the timing feature below.
-- [~] **Four extended instructions.** Multiply-halfword, bit reverse, byte exchange and
+- [x] **Four extended instructions.** Multiply-halfword, bit reverse, byte exchange and
       halfword exchange. Multiply-halfword sign-extends the low *17* bits of its
       operand, not 16. In `cpu.v` (2026-08-17): MPYHW rides the existing
       multiplier and writes reg2 alone, no flags from any of the four; the
@@ -478,7 +478,7 @@ the VIP gets built directly in this domain.
       `src/tests/cpu.v` and **watched on hardware 2026-08-15** — interrupts
       accepted, acknowledged and RETI'd through 0xFE10 on the Pocket; the
       priority encoder proper waits for a second source.
-- [~] **Check between instructions, not during — except where the manual says
+- [x] **Check between instructions, not during — except where the manual says
       otherwise.** An interrupt can never coincide with an instruction exception,
       and a pending interrupt waits for a cache dump or restore to finish. For
       DIV/DIVU and the floating-point operations the manual's Table 6-2 makes
@@ -486,10 +486,12 @@ the VIP gets built directly in this domain.
       between-instructions only, and beetle-vb sides with the scroll; issue #3
       scoped the abort in, so `cpu.v` implements the manual (2026-08-17) —
       nothing commits before the abort, so the rerun is clean and the remaining
-      cycle budget is forgiven. INDEX.md records the contradiction, and
-      `cpu-longint`'s check 5 is written so the Pocket can settle it: a freeze
-      there means real silicon never aborts a divide, and the scroll's reading
-      should come back.
+      cycle budget is forgiven. Watched via `cpu-longint` on 2026-08-17, which
+      proves the core's abort end to end. It cannot settle what NEC's silicon
+      does — the Pocket runs this core — so INDEX.md's contradiction stays
+      open until someone runs that ROM on a real Virtual Boy, where a check-5
+      freeze would mean the NVC never aborts and the scroll's reading should
+      come back.
 - [~] **Halt until something happens.** `HALT` stops the CPU until an interrupt is
       accepted. With everything masked it never resumes, and that's correct behavior
       rather than a hang to guard against. Benched both ways.
@@ -499,7 +501,7 @@ the VIP gets built directly in this domain.
 
 ### Feature: cache instructions
 
-- [~] **Look up and fill.** One kilobyte holds 128 entries of 8 bytes each, indexed by
+- [x] **Look up and fill.** One kilobyte holds 128 entries of 8 bytes each, indexed by
       seven address bits, tagged with the upper 22 and a valid bit. A miss reads memory
       and fills the entry. Landed in `cpu.v` (2026-08-17) with beetle-vb's
       per-4-byte-subblock valid refinement, in MLABs because the M10K budget is
@@ -507,12 +509,12 @@ the VIP gets built directly in this domain.
       always bypass. The cached fetch walk paces exactly like the bus walk, so
       the ICE-off machine is untouched; `cpu.v`'s header derives the one timing
       wrinkle (a cached one-cycle instruction is walk-limited at two clocks).
-- [~] **Clear a range of entries.** Software gives a first entry and a count. Counts
+- [x] **Clear a range of entries.** Software gives a first entry and a count. Counts
       above 128 clamp, a starting entry of 128 or more does nothing at all, and
       clearing always stops at the last entry rather than wrapping. In: a walker
       clears tag and data per entry, so cleared entries dump as zeros the way
       beetle-vb's memset leaves them.
-- [~] **Dump and restore.** The whole cache spills to a software-chosen address as 128
+- [x] **Dump and restore.** The whole cache spills to a software-chosen address as 128
       eight-byte blocks followed by 128 four-byte tags, 1,536 bytes in total. Interrupts
       are postponed until it finishes. Asking for more than one of clear, dump and
       restore at once is undefined, so pick one and say which in a comment. In:
@@ -640,9 +642,19 @@ in `src/roms/README.md`).
 and `timer` on the Pocket across the 0.2.1 through 0.5.0 builds as recorded
 above. Issue #3's floating-point, bit-string, `CAXI`, extended-instruction,
 cache and long-instruction interruption work is implemented, benched (ten
-deliberate mutations each caught before the benches were trusted) and
-sim-proven as of 2026-08-17; the five completion ROMs await their maintainer
-run on the Pocket, which is what closes the issue.
+deliberate mutations each caught before the benches were trusted), sim-proven,
+and **watched and passed 2026-08-17** by morgan-vieira on the 0.8.0 bitstream:
+all five completion ROMs showed the filled square with status `0x600D`
+(screenshots `20260817_120807`/`120821`/`120836`/`120852`/`120911.png`), and
+every PC row decoded to its image's computed halt address exactly —
+`cpu-float` `0x070003C8`, `cpu-ext` `0x070001BA`, `cpu-bitstring`
+`0x07000456`, `cpu-cache` `0x07000166`, `cpu-longint` `0x070000FA` — so each
+screen is authenticated rather than plausible. The same session re-ran the
+regression sweep (`cpu-alu` `0x07000806`, `cpu-branch` `0x070002DC`,
+`cpu-except` `0x070001E0`, `busmap` `0x07000144`, `halt` `0x07000014` at
+status `0xBEEF`, `timer` counting with the hollow square and its loop PC, and
+`vip-bg`'s full field of bars; screenshots `120928` through `121131.png`),
+every PC row again matching today's images.
 **Delivery:** through the APF dataslot loader (section 9's first feature, landed
 same day at Morgan's request): `.vb` files in `Assets/virtualboy/common/`, picked
 at core launch, reloadable from the Interact menu. One bitstream serves every ROM.
