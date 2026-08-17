@@ -74,6 +74,58 @@ implementation, not the silicon â€” running that ROM on a real Virtual Boy is
 the experiment: a check-5 freeze there means the NVC never aborts, and the
 core should revert to the scroll's reading.
 
+## VIP
+
+### Active worlds render at engine speed, not the measured per-tile figures
+
+The strip scheduling reproduces MiSTer's measured coordinator exactly — 32
+ce of setup, 2,033/1,949 ce strip service budgets that pause while a world
+is processed, 11 ce END and 21/20 ce dummy intervals, totalling the scroll's
+~2.8 ms erase-only frame — but the time an *active* world adds is our
+engine's own. Normal and h-bias worlds blend a character row per line-bank
+write at roughly twice MiSTer's measured per-tile cost, and affine worlds
+walk per pixel at slightly under MiSTer's measured four ce per output pixel,
+so a frame full of background worlds reaches OVERTIME at roughly half the
+world count real silicon tolerates. Closing it means porting MiSTer's
+per-engine tick model (91 ce per tile-row load, 2 ce per tile and per
+character row, the per-object probe and setup charges). Adopt it if a game
+is ever shown to care.
+
+### VIP register accesses cost one cycle more than measured
+
+MiSTer measures a register access at 2 total 20 MHz cycles
+(`LOCAL_TOTAL_CE`); the Development Manual's Table 4-4-3 documents a two-wait
+minimum for the VIP region, which `cpu.v` charges as its budget, making our
+register access 3. Memory accesses use the measured figures (3 ce writes,
+7 ce reads). The document wins over the measurement until hardware says
+otherwise.
+
+### The column table walks the documented window, not the measured cadence
+
+The scroll's display procedure consumes one column-table entry per four
+columns across the 5 ms eye window — exactly 2,080 clocks per group in the
+39.936 MHz domain, which is what CTA reads reflect here. MiSTer measures a
+1,392-ce group cadence, under which the ninety-six groups outrun the
+documented window and the eye actually ends when group 95 completes rather
+than at the documented 8 ms / 18 ms marks (its `CTA_TIMED_EYE_END`).
+Following the measurement would move LFBEND and RFBEND off their documented
+times, so the document wins; the measured servo behavior belongs to the
+issue #2 investigation.
+
+### SBOUT holds the formal 56 us, not the measured worst case
+
+The scroll's formal figure is 56 us; its own testing saw up to 120 us,
+unreconciled. beetle-vb and MiSTer both implement 1,120 cycles = 56 us, and
+so do we. The scroll itself calls SBOUT unreliable for detecting progress.
+
+### Display-side memory contention is not modeled
+
+On real hardware the display serving steals VIP memory slots from the CPU.
+MiSTer's only display-side port-A client is the CTA fetch — one 16-bit read
+per four columns — and this core serves those from a shadow copy, so CPU
+accesses never stall against display activity. The undocumented refresh
+arbitration is issue #2's.
+
 ## Adjacent, tracked elsewhere
 
 - VIP data accesses charge the documented minimum wait of 2 until the real

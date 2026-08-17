@@ -39,6 +39,8 @@ Anything below a sub-feature is small enough to explain in a sentence, so explai
 2. **Editing generated files.** `src/fpga/output_files/` is Quartus output, `output/bitstream.rbf_r` is derived from it, and `.roms/` is built from `src/roms/`. Regenerate them, never hand-edit them. A hand-patched artifact passes review and fails on hardware.
 3. **Trusting your memory over `.repos/`.** Instruction encodings, ROM layout, and timing come from the vendored references — the V810 decoder in `.repos/beetle-vb-libretro/mednafen/hw_cpu/v810/`, the linker script in `.repos/vuengine-studio/`. Read them. Never edit them, never import from them. An assembler bug and a core bug look identical from the outside.
 
+Reference priority (Morgan, 2026-08-17): the documents are the spec wherever they establish a behavior. Where they run out or hedge, resolve from `.repos/mister-virtualboy` first — it is RTL, the closest shape to ours — and cross-check `.repos/beetle-vb-libretro`. Comment which source decided and that it is an implementation choice; take the pattern, never the code.
+
 ## Prove it before it ships
 
 A module that compiles isn't a module that works. Every module takes the same route:

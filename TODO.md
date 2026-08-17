@@ -19,18 +19,16 @@ unless noted; cross-document disagreements live in `docs/technical-notes/INDEX.m
 
 Where the documents run out, two implementations already had to answer the question:
 
-- `.repos/beetle-vb-libretro` — the RetroArch emulator, and the one to prefer. It
-  has been corrected against a large game library over many years.
-- `.repos/mister-virtualboy` — the MiSTer FPGA port. Closer to our problem shape,
-  being RTL rather than C, but younger.
+- `.repos/mister-virtualboy` — the MiSTer FPGA port. The one to check first: it
+  is RTL, the closest shape to ours (Morgan, 2026-08-17).
+- `.repos/beetle-vb-libretro` — the RetroArch emulator, corrected against a large
+  game library over many years. The cross-check.
 
 Take the behavior, comment which file it came from and that it's an implementation
 choice rather than documented hardware, and never copy code across — `.repos/` is
 read-only, and an imported bug looks exactly like a core bug from the outside.
-Where the two disagree, follow beetle-vb and say so in the comment — except for
-cycle counts, where MiSTer carries hardware-measured Cycle Test figures that
-beetle-vb lacks, and is checked first (Morgan, 2026-08-17). Deviations that no
-source resolves at all are collected in `CAVEATS.md`.
+Where the two disagree, follow MiSTer and say so in the comment. Deviations that
+no source resolves at all are collected in `CAVEATS.md`.
 
 ---
 
@@ -592,9 +590,10 @@ why); revisit if a later peripheral can.
 - [~] ? **Memory latency per device.** The scroll says it needs research, but the
       Development Manual's Table 4-4-3 documents wait states per region, and that is
       what `region_wait` in `cpu.v` charges — ROM and expansion 2 (1 with the WCR
-      bit), everything else 1, VIP pinned at its documented minimum of 2 until the
-      VIP's variable handshake exists. What stays unresearched is the exact
-      fetch/execute interleave; our max() model is the approximation.
+      bit), everything else 1, VIP budgeted at its documented minimum of 2. The
+      VIP's variable handshake now exists (issue #4): its memory answers at the
+      measured service times on top of that budget. What stays unresearched is
+      the exact fetch/execute interleave; our max() model is the approximation.
 - [~] ? Input and output instruction costs "may be identical to" load and store costs,
       unconfirmed. Resolved per MiSTer (2026-08-17), which follows Table
       5-11's flat figures: IN charges 5 with no context discount and never
@@ -697,67 +696,103 @@ bisection tool if the loader itself is ever the suspect.
 Builds one frame buffer. Separate module from display, because the two run
 concurrently against the same memory and have separate control registers.
 
+**Issue #4 completion (2026-08-17):** every documented or consistently
+reference-defined item below is implemented and sim-proven — the module
+benches plus `src/tests/vip_system.v`, which runs the `vip-compose`,
+`vip-objx` and `vip-hbaff` conformance ROMs through the real CPU, bus, VIP
+and a pocket_sram-shaped DRAM model to their success halts. The `[~]` marks
+below wait only on the maintainer's hardware pass of the new ROM suite.
+Undocumented silicon behavior stays in issue #2; deliberate deviations no
+source resolves are in `CAVEATS.md`.
+
 ### Feature: draw a background world
 
 - [~] **Decode a world's attributes.** Thirty-two worlds of 32 bytes each, processed
       from 31 down to 0 so that lower indexes draw in front. Each carries per-eye
       enables, a type, a destination rectangle, a source position and a parallax offset
-      that is subtracted for the left eye and added for the right.
+      that is subtracted for the left eye and added for the right. Field widths
+      match the scroll's tables exactly (GX/GP 10-bit signed, GY 16, MX/MY 13,
+      MP 15, W 13-bit signed, H 16-bit signed plus one with an eight-row
+      minimum for normal and h-bias worlds); MiSTer's decoder agrees bit for
+      bit. A negative W draws nothing.
 - [~] **Assemble a background from maps.** A background is 1 to 8 maps of 64×64
       characters, arranged left to right then top to bottom, with width and height
       given as powers of two. The base map index rounds *down* to a multiple of the
       total map count. Asking for more than 8 maps is documented as unintended but
-      well-defined, and games can rely on it, so it gets implemented rather than
-      rejected.
+      well-defined — the tallest 8-map background of the given height, repeated
+      horizontally — and both are implemented as the scroll documents them.
+      beetle-vb composes the base with OR instead, so `vip-compose`'s checks
+      14-15 freeze under Mednafen by design.
 - [~] **Read characters.** Each is 8×8 pixels at 2 bits per pixel packed into 16 bytes,
       spread across four tables that sit in the gaps between frame buffers. A
       contiguous mirror exists specifically so software can address all 2,048 as one
-      run, and the address arithmetic goes through that mirror.
+      run, and the address arithmetic goes through that mirror. Normal and
+      h-bias worlds blend one character row — eight pixels — per line-bank
+      write, the throughput that keeps a full-width world inside the frame.
 - [~] **Apply palettes and transparency.** Pixel value 0 in a character is transparent
       and leaves the frame buffer untouched, which is why the palettes only have three
       entries. Background and object uses draw from separate palette sets even for the
       same character.
 - [~] **Handle running off the edge.** A background either repeats indefinitely or
       substitutes a designated character outside its bounds, selected by one bit.
+      The Overplane Character register names a DRAM cell — the cell is fetched,
+      not used literally (both references agree).
 - [ ] ? That designated character may have restrictions on which characters it can
-      reach; the reference says some experimentation is in order.
+      reach; the reference says some experimentation is in order. MiSTer only
+      flags the suspicious range (top three bits set) as unresolved telemetry,
+      so the plain fetch stands and the restriction stays with issue #2.
 
 ### Feature: draw an h-bias world
 
 - [~] **Shift each row independently.** One 4-byte parameter per pixel row supplies a
       separate horizontal offset for each eye, added to that eye's source position.
-- [ ] ? The right eye's offset appears to be addressed by OR-ing 2 into the left one's
-      address rather than adding. If the parameter base isn't divisible by 4, the left
-      offset silently serves both eyes.
+      The parameter index wraps at sixteen bits, pinned by `vip-hbaff` check 8.
+- [~] **The right eye's offset is addressed by OR-ing 2 into the left one's
+      address rather than adding.** If the parameter base isn't divisible by 4, the
+      left offset silently serves both eyes. Implemented as the scroll and
+      MiSTer's provisional rule state; `vip-hbaff` check 2 pins the alias.
 
 ### Feature: draw an affine world
 
 - [~] **Walk a source vector per row.** One 16-byte parameter per row gives a starting
-      source coordinate in 13.3 fixed point and a per-column delta in 7.9, which is
-      what makes rotation, scaling and cheap perspective possible.
+      source coordinate in 13.3 fixed point and a per-column delta in 7.9, with
+      26-bit accumulators matching MiSTer's DDA. Per-pixel rendering, which is
+      also roughly the measured hardware cost for affine.
 - [~] **Apply parallax to one eye only.** The sign decides which: negative applies to
       the left eye, non-negative to the right. It shifts which column's output is
-      produced rather than shifting the result.
-- [~] **Require 16-byte alignment.** The VIP appears to compute some field addresses by
-      OR-ing and others by adding, so a misaligned parameter base corrupts the
-      following parameters. The reference marks this IMPORTANT.
-- [ ] ? Which bits of parameter memory the VIP uses as scratch, and how.
+      produced rather than shifting the result. `vip-hbaff` checks 4-5 pin both
+      signs against frame-buffer readback of both eyes.
+- [~] **Require 16-byte alignment.** Field addresses are element base OR field
+      index, and an unaligned Param Base is rejected — the row draws nothing —
+      following MiSTer, which refuses to guess at the documented corruption.
+      beetle-vb masks the base to alignment instead, so `vip-hbaff` check 9
+      freezes under Mednafen by design.
+- [ ] ? Which bits of parameter memory the VIP uses as scratch, and how. MiSTer
+      disables its work writes as "silicon unknown"; ours never writes them.
+      Stays with issue #2.
 
 ### Feature: draw objects
 
 - [~] **Place a character anywhere.** Each of 1,024 objects is 8 bytes: a signed
       horizontal position, a parallax offset applied per eye, a vertical position,
       per-eye enables, both flips, a palette selector and a character number.
+      JLON/JRON alone pick the eyes; the world's LON/RON only decide whether the
+      world was a dummy (the scroll and MiSTer; beetle-vb ANDs them, so
+      `vip-objx` check 11 freezes under Mednafen by design).
 - [~] **Serve objects in groups.** Four registers give each group's *end* index; a
       group's start is one past the previous group's end, and group 0 starts at zero.
       Objects draw in reverse from end to start, and if end is below start the walk
-      wraps through object 1,023 rather than drawing nothing.
+      wraps through object 1,023 rather than drawing nothing — boundaries are
+      ten-bit arithmetic throughout, matching MiSTer's group tracker.
 - [~] **Cycle groups within a frame.** An internal counter starts at 3, decrements
       after each object world drawn, and wraps back to 3, so the same group can be
       drawn more than once per frame. A world with both eye enables clear is skipped
-      *without* consuming a group.
-- [ ] ? The vertical position field's exact range is unknown, because part of it lands
-      off-screen and can't be observed.
+      *without* consuming a group. beetle-vb saturates the counter at zero
+      instead, so `vip-objx` check 10 freezes under Mednafen by design.
+- [~] **The vertical position field.** JY is the low eight bits of a signed value:
+      0xF9-0xFF reach -7..-1, and MiSTer classifies 0xE0-0xF8 as off-screen
+      and unresolved — which the mod-256 row arithmetic here reproduces.
+      The unobservable part of the range stays with issue #2.
 
 ### Feature: compose the frame buffer
 
@@ -766,42 +801,68 @@ concurrently against the same memory and have separate control registers.
       initialized to the background color, then every world from 31 down to 0 draws
       into it, then it's stored — and each location is written exactly once per frame.
 - [~] **Stop early on a control world.** A world with its end flag set terminates the
-      walk, and every lower-indexed world is skipped.
+      walk, and every lower-indexed world is skipped, after the measured 11 ce
+      interval.
 - [~] **Delay background-color changes.** A write doesn't take effect until after the
       first eight rows of the *next* frame are drawn.
-- [~] **Alternate frame buffers.** Drawing swaps between buffer 0 and 1 each pass so
-      one can be displayed while the other is filled. Only the top 224 of the 256 stored
-      rows are ever drawn or shown; the rest is functional memory the VIP never touches.
-- [ ] ? Exactly when the active buffer toggles is unknown — "it may occur when the frame
-      clock goes high."
-- [ ] ? Whether buffer 0 is necessarily the default after reset.
+- [~] **Alternate frame buffers.** A completed draw waits as pending; the display
+      switches to it at the next game-frame start with XPEN set, and the new
+      draw targets the other buffer. Both references agree on this model, which
+      resolves the two open questions below: the toggle happens at the
+      game-frame boundary (the "FCLK goes high" guess was right), and reset
+      displays buffer 0 with the first draw landing in buffer 1. Only the top
+      224 of the 256 stored rows are ever drawn or shown. `vip-sched` checks
+      5-6 pin the rotation by frame-buffer readback.
+- [~] **Arbitrate the shared memory.** CPU and drawing-engine accesses are owned
+      transactions — a draw request can no longer hijack an in-flight CPU
+      access, the deadlock class the 2026-08-16 vip-affine black screen came
+      from. Fresh grants prefer the drawing engine (MiSTer's DP > XP > CPU
+      order), and CPU accesses complete at the measured service times: three
+      20 MHz cycles for a write, seven for a read — the variable handshake
+      section 3's memory-latency note was waiting for. VIP register reads are
+      latched at the access, fixing a latent bug where the combinational
+      answer evaporated before the CPU's capture cycle (no watched ROM had
+      ever read a VIP register).
 
 ### Feature: report drawing status and raise interrupts
 
-- [~] **Expose progress in eight-row groups.** Software can read which group is being
-      drawn and ask for an interrupt when a chosen group starts.
-- [~] **Report overrun.** If the previous pass is still running when the next should
-      start, an overtime flag sets and a separate interrupt condition fires.
-- [ ] ? The flag marking the start of a row group is documented as clearing after 56 µs
-      but measured persisting up to 120 µs, overrunning into the next group. The
-      reference calls it unreliable for detecting progress and doesn't reconcile the
-      two figures.
-- [ ] ? **How long drawing actually takes is not established.** The only datum is
-      roughly 2.8 ms for a frame that merely erases. Affine worlds are called out as
-      unable to fill the screen without dropping frames. Everything about overrun
-      behavior depends on a number nobody has measured.
+- [~] **Expose progress in eight-row groups.** SBCOUNT reads the strip being drawn,
+      SBOUT holds for the formal 56 us from each strip start (beetle-vb and
+      MiSTer both use 1,120 cycles; the measured-120 us anomaly is recorded in
+      CAVEATS.md), and SBHIT fires when the compared group starts while SBOUT
+      is clear.
+- [~] **Report overrun.** OVERTIME is a level: raised with TIMEERR when a game
+      frame starts while drawing is still busy, held until the draw completes,
+      cleared at completion and at draw start. XPRST aborts the draw through a
+      24 ce recovery window during which XPBSY stays up, clears XPEN and the
+      drawing interrupts, and leaves buffer ownership alone (MiSTer;
+      beetle-vb swaps on XPRST and never raises TIMEERR or SBHIT, so
+      `vip-sched` freezes at check 7 under Mednafen by design).
+- [~] **Pace the frame.** Scheduling follows MiSTer's measured coordinator: 32 ce
+      of setup and per-strip service budgets of 2,033/1,949 ce that pause while
+      worlds are processed — 54,688 cycles total, the scroll's ~2.8 ms
+      erase-only frame, pinned exactly by `src/tests/vip_draw.v`. Active-world
+      time is engine-natural rather than MiSTer's per-tile figures
+      (CAVEATS.md).
 
-**ROMs:** `vip-bg` (one normal world, known character and palette), `vip-obj` (objects
-across a group boundary, both flips, parallax), `vip-affine` (rotation and scale against
-a reference frame), `vip-int` (each interrupt condition raised and acknowledged alone).
-All four are built, and their paths pass `vip_draw` or `vip_registers` simulation.
-`vip-affine-diag` isolates affine completion from coordinate errors.
-**Pass criterion:** recorded per ROM in `src/roms/README.md`.
+**ROMs:** `vip-bg`, `vip-obj`, `vip-affine`, `vip-affine-diag`, `vip-int` — watched
+2026-08-15 — plus the issue #4 conformance suite: `vip-compose` (world decode,
+sizes, base rounding, >8 maps, overplane, END, overlap, palettes, byte-write
+mangling), `vip-objx` (groups, ordering, eyes, flips, JY, clipping, wrap),
+`vip-hbaff` (h-bias offsets and aliases, affine parallax, wraps, unaligned
+reject), `vip-sched` (XPEN/XPBSY/XPEND, FRMCYC, ownership, SBOUT/SBHIT, XPRST,
+overtime, DPRST). All built and Mednafen header-checked; the first three run
+to their success halts through the real core in `src/tests/vip_system.v`
+(vip-sched and vip-dpctrl are check-timed against the 20 ms frame, so their
+behavior is bench-covered via `vip_draw`/`vip_timing` instead).
+**Pass criterion:** recorded per ROM in `src/roms/README.md`; the conformance
+ROMs report through the status cells with Diagnostic Overlay on, and each
+expectation names the check where Mednafen freezes by design.
 **Watched and passed 2026-08-15:** `vip-bg`, `vip-obj`, `vip-affine`,
-`vip-affine-diag` and `vip-int` on Pocket hardware. These prove the current
-renderer paths, not every edge case marked `[~]`. Completing all documented and
-reference-defined VIP behavior is tracked by GitHub issue #4. Undocumented
-refresh, event-overlap and display-servo behavior remains isolated in issue #2.
+`vip-affine-diag` and `vip-int` on Pocket hardware, on the pre-#4 renderer.
+The completed behavior above awaits the maintainer's run of the full VIP
+suite. Undocumented refresh, event-overlap and display-servo behavior remains
+isolated in issue #2.
 
 ---
 
@@ -814,20 +875,30 @@ Ships finished frame buffers to the screen. Fixed timing, unlike drawing.
 - [~] **Follow the fixed schedule.** Every frame is 20 ms: the frame clock rises at 0,
       the left buffer displays from 3 to 8 ms, the clock falls at 10, and the right
       buffer displays from 13 to 18. This is the timing games actually synchronize
-      against, and unlike drawing it's specified exactly.
+      against, and unlike drawing it's specified exactly. (MiSTer's measured
+      column cadence would end the eyes later; the document wins — CAVEATS.md.)
 - [~] **Require both enables.** Two separate bits must be set before anything appears,
-      and one of them also gates sync signals to the display servo.
+      and one of them also gates sync signals to the display servo. DPSTTS reads
+      the FCLK-latched active values, matching MiSTer.
 - [~] **Report which buffer is busy.** Four status bits, one per buffer, that software
-      polls to work out what double-buffering is doing.
-- [ ] ? There's no software-visible way to choose which buffer displays; the only
-      documented handle on double buffering is to use the drawing engine.
+      polls to work out what double-buffering is doing. `vip-dpctrl` check 3
+      pins the windows.
+- [~] **Choose which buffer displays.** Resolved by both references: there is no
+      direct control — the displayed buffer is whichever completed draw was
+      consumed at the last game-frame start, exactly the drawing-engine handle
+      the scroll describes.
 
 ### Feature: shape emission per column
 
 - [~] **Walk the column table.** Each eye has 256 entries, one consumed per four
       columns of pixels, walking from higher addresses to lower — lower addresses are
-      further *right*. A lock bit freezes the pointer, which is the only way software
-      can hold a column configuration still.
+      further *right*. The pointer reloads the measured 0xFA field-start value at
+      each eye start (MiSTer's servo constant) and decrements once per 2,080
+      clocks — the documented 96 groups across the 5 ms window. CTA reads the
+      live pointers; LOCK freezes the decrement, so a locked frame serves the
+      0xFA entry to every column, which `vip-dpctrl` turns into a visible
+      alternation. DPCTRL.RE stores and reads back; the refresh behavior it
+      gates is issue #2's.
 - [~] **Give each column a duration and a repeat count.** Emission time is in 200 ns
       units and the repeat count multiplies it, so apparent brightness is the product of
       the two. Past roughly 128 the user can't see any further increase.
@@ -835,7 +906,7 @@ Ships finished frame buffers to the screen. Fixed timing, unlike drawing.
       time exceeds the column's allotted window, emission stops and moves on rather
       than stretching the frame.
 - [ ] ? Which entries the servo actually uses shifts frame to frame; the VIP prefers the
-      middle 96 and keeps the rest as slack for the physical mirror.
+      middle 96 and keeps the rest as slack for the physical mirror. Issue #2.
 
 ### Feature: set brightness
 
@@ -849,17 +920,26 @@ Ships finished frame buffers to the screen. Fixed timing, unlike drawing.
       finished, mirrors-unstable, and the drawing-overran condition shared with the
       drawing engine. All of them, and the drawing-side ones, deliver the same interrupt
       code, so the handler always has to read the pending register to find out why.
+      FRAMESTART fires every frame regardless of the display enables (MiSTer;
+      beetle-vb gates it on the display being active); the eye-end conditions
+      require an eye to actually have displayed. SCANRDY always reads ready and
+      SCANERR never fires — there is no mirror servo here, MiSTer's choice too.
 - [~] **Latch pending regardless of enable.** A condition sets its pending bit whether
       or not it's enabled; the interrupt only fires when both the enable and the pending
       bit are set. Software acknowledges through a separate write-only register.
+- [~] **Mangle byte writes.** A byte write to an even register address performs a
+      halfword write with the source's full low sixteen bits; an odd address
+      shifts the low byte into the high lane over zeroes [scroll]. The CPU now
+      drives its untouched lane with the register's own bits 15:8 so the quirk
+      is observable; `vip-compose` checks 12-13 pin both shapes.
 
-**ROM:** `vip-display` — built; its brightness path passes `vip_display` simulation.
-**Pass criterion:** alternating four-pixel-wide dim and medium red vertical stripes
-fill the 384×224 field. Black, flat brightness, incorrectly sized stripes, or
-horizontal breaks fail.
-**Watched and passed 2026-08-15:** `vip-display` on Pocket hardware, alongside
-the drawing ROMs above. Documented display completion remains in issue #4;
-the silicon behavior that the available sources do not establish remains in #2.
+**ROMs:** `vip-display` — watched 2026-08-15 — plus `vip-dpctrl` (DPCTRL
+readback and latching, SCANRDY, DPBSY windows, FCLK, CTA movement, LOCK, RE),
+built and Mednafen header-checked, ending in a visible LOCK demonstration.
+**Pass criterion:** recorded per ROM in `src/roms/README.md`.
+**Watched and passed 2026-08-15:** `vip-display` on Pocket hardware. The
+issue #4 display completion above awaits the maintainer's run; the silicon
+behavior that the available sources do not establish remains in #2.
 
 ---
 
