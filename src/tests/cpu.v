@@ -12,10 +12,18 @@
 // the duplexed and fatal escalations, and HALT against every interrupt
 // acceptance condition -- ID, level masking, and the wake sequence.
 //
-// Then the built cpu-alu, cpu-branch and busmap images run to completion:
-// each writes check numbers to WRAM 0x05000000 as it goes and 0x600D on
-// success, so the bench reports the exact failing check when one spins.
-// Build them first: a missing hex fails with a message, not silence.
+// The completion scenarios (E1-E7, T2) cover the instruction groups issue
+// #3 added: the extended four, CAXI, the FPU through the CPU with its
+// exception codes and saved PCs, bitwise and search bit strings with the
+// documented two-word read buffer, interrupts aborting DIV and landing
+// inside strings, the instruction cache (a restored fabricated entry
+// executing in place of ROM is the proof fetches really come from the
+// arrays), and the charges for all of it.
+//
+// Then the built ROM images run to completion: each writes check numbers
+// to WRAM 0x05000000 as it goes and 0x600D on success, so the bench
+// reports the exact failing check when one spins. Build them first: a
+// missing hex fails with a message, not silence.
 //
 // Programs load at the reset vector's trampoline (the same three halfwords
 // the packer's jumpFar emits), so every run enters through the real reset
@@ -179,6 +187,7 @@ module cpu_tb;
     // ------------------------------------------------------------------
 
     integer dp;   // deposit pointer, in halfword indexes
+    integer gi;   // scenario loop index
 
     task automatic prog_h(input [15:0] value);
         begin
@@ -625,12 +634,877 @@ module cpu_tb;
         // taken branch 3, never-taken 1 under a 2-cycle fetch floor
         expect_delta(11, 5 + 7, "t1 branches");
 
+
+        // ------------------------------------------------------------------
+        // The completion scenarios: floating point, bit strings, CAXI, the
+        // extended four, the instruction cache, and long-instruction
+        // interruption. Programs are assembled by scripts/lib/v810.ts (the
+        // generator lives with the session notes); expected values are
+        // hand-derived from the scroll, the V810 manual and beetle-vb, per
+        // the citations in cpu.v.
+        // ------------------------------------------------------------------
+
+        // E1: XB, XH, REV and MPYHW compute the documented results and
+        // leave every PSW flag alone.
+        restart();
+        prog_h(16'h4140);  // 07000000
+        prog_h(16'h7145);  // 07000002
+        prog_h(16'h7800);  // 07000004
+        prog_h(16'hbd40);  // 07000006
+        prog_h(16'h1234);  // 07000008
+        prog_h(16'ha14a);  // 0700000a
+        prog_h(16'h5678);  // 0700000c
+        prog_h(16'hf940);  // 0700000e
+        prog_h(16'h2000);  // 07000010
+        prog_h(16'hbd60);  // 07000012
+        prog_h(16'h1234);  // 07000014
+        prog_h(16'ha16b);  // 07000016
+        prog_h(16'h5678);  // 07000018
+        prog_h(16'hf960);  // 0700001a
+        prog_h(16'h2400);  // 0700001c
+        prog_h(16'hbd80);  // 0700001e
+        prog_h(16'h1234);  // 07000020
+        prog_h(16'ha18c);  // 07000022
+        prog_h(16'h5678);  // 07000024
+        prog_h(16'hf9ac);  // 07000026
+        prog_h(16'h2800);  // 07000028
+        prog_h(16'ha1c0);  // 0700002a
+        prog_h(16'h03e8);  // 0700002c
+        prog_h(16'hbde0);  // 0700002e
+        prog_h(16'h0002);  // 07000030
+        prog_h(16'ha1ef);  // 07000032
+        prog_h(16'hffff);  // 07000034
+        prog_h(16'hf9cf);  // 07000036
+        prog_h(16'h3000);  // 07000038
+        prog_h(16'h421f);  // 0700003a
+        prog_h(16'h4221);  // 0700003c
+        prog_h(16'h0611);  // 0700003e
+        prog_h(16'hbe40);  // 07000040
+        prog_h(16'h1234);  // 07000042
+        prog_h(16'ha252);  // 07000044
+        prog_h(16'h5678);  // 07000046
+        prog_h(16'hfa40);  // 07000048
+        prog_h(16'h2000);  // 0700004a
+        prog_h(16'hfa40);  // 0700004c
+        prog_h(16'h2400);  // 0700004e
+        prog_h(16'hfa52);  // 07000050
+        prog_h(16'h2800);  // 07000052
+        prog_h(16'hfa51);  // 07000054
+        prog_h(16'h3000);  // 07000056
+        prog_h(16'h7665);  // 07000058
+        prog_h(16'h6800);  // 0700005a
+        go();
+        wait_halt(4000, "e1");
+        expect_gpr(10, 32'h1234_7856, "e1 xb swaps the low bytes");
+        expect_gpr(11, 32'h5678_1234, "e1 xh swaps the halfwords");
+        expect_gpr(13, 32'h1E6A_2C48, "e1 rev mirrors the bits");
+        expect_gpr(14, 32'hFFFF_FC18, "e1 mpyhw sign-extends 17 bits");
+        expect_gpr(19, 32'h0000_1009, "e1 none of the four touch a flag");
+
+        // E2: CAXI compares like CMP and writes either way: the exchange
+        // value on a match, the fetched word back on a mismatch.
+        restart();
+        prog_h(16'h4140);  // 07000000
+        prog_h(16'h7145);  // 07000002
+        prog_h(16'h7800);  // 07000004
+        prog_h(16'hbcc0);  // 07000006
+        prog_h(16'h0500);  // 07000008
+        prog_h(16'hbd40);  // 0700000a
+        prog_h(16'h1111);  // 0700000c
+        prog_h(16'ha14a);  // 0700000e
+        prog_h(16'h2222);  // 07000010
+        prog_h(16'hdd46);  // 07000012
+        prog_h(16'h0100);  // 07000014
+        prog_h(16'hbfc0);  // 07000016
+        prog_h(16'h3333);  // 07000018
+        prog_h(16'ha3de);  // 0700001a
+        prog_h(16'h4444);  // 0700001c
+        prog_h(16'he946);  // 0700001e
+        prog_h(16'h0100);  // 07000020
+        prog_h(16'h4962);  // 07000022
+        prog_h(16'hcd86);  // 07000024
+        prog_h(16'h0100);  // 07000026
+        prog_h(16'hbda0);  // 07000028
+        prog_h(16'h5555);  // 0700002a
+        prog_h(16'ha1ad);  // 0700002c
+        prog_h(16'h5555);  // 0700002e
+        prog_h(16'he9a6);  // 07000030
+        prog_h(16'h0100);  // 07000032
+        prog_h(16'h49c2);  // 07000034
+        prog_h(16'h49e1);  // 07000036
+        prog_h(16'hce06);  // 07000038
+        prog_h(16'h0100);  // 0700003a
+        prog_h(16'hbe20);  // 0700003c
+        prog_h(16'h1111);  // 0700003e
+        prog_h(16'ha231);  // 07000040
+        prog_h(16'h1111);  // 07000042
+        prog_h(16'hea26);  // 07000044
+        prog_h(16'h0100);  // 07000046
+        prog_h(16'h4a41);  // 07000048
+        prog_h(16'h6800);  // 0700004a
+        go();
+        wait_halt(6000, "e2");
+        expect_gpr(11, 32'h0000_0001, "e2 match sets Z");
+        expect_gpr(12, 32'h3333_4444, "e2 match stored the exchange value");
+        expect_gpr(14, 32'h0000_0000, "e2 mismatch clears Z");
+        expect_gpr(15, 32'h0000_0000, "e2 greater compare leaves CY clear");
+        expect_gpr(16, 32'h3333_4444, "e2 mismatch left memory alone");
+        expect_gpr(13, 32'h3333_4444, "e2 mismatch loaded reg2 with the word");
+        expect_gpr(17, 32'h3333_4444, "e2 lower mismatch loads reg2 too");
+        expect_gpr(18, 32'h0000_0001, "e2 the borrow sets CY");
+
+        // E3: the FPU through the CPU: conversions and arithmetic write
+        // reg2, FZD and FRO kill their result and vector through 0xFFFFFF60
+        // with the faulting instruction saved and the status flag latched
+        // before entry.
+        restart();
+        prog_h(16'ha800);  // 07000000
+        prog_h(16'h0020);  // 07000002
+        prog_h(16'h4e60);  // 07000004
+        prog_h(16'h940a);  // 07000006
+        prog_h(16'h7684);  // 07000008
+        prog_h(16'h76a0);  // 0700000a
+        prog_h(16'h76c5);  // 0700000c
+        prog_h(16'h8a08);  // 0700000e
+        prog_h(16'h7724);  // 07000010
+        prog_h(16'h7740);  // 07000012
+        prog_h(16'h7765);  // 07000014
+        prog_h(16'h4661);  // 07000016
+        prog_h(16'h7540);  // 07000018
+        prog_h(16'h4544);  // 0700001a
+        prog_h(16'h7140);  // 0700001c
+        prog_h(16'h6400);  // 0700001e
+        prog_h(16'h4140);  // 07000020
+        prog_h(16'h7145);  // 07000022
+        prog_h(16'h7800);  // 07000024
+        prog_h(16'h4260);  // 07000026
+        prog_h(16'h4165);  // 07000028
+        prog_h(16'hf98b);  // 0700002a
+        prog_h(16'h0800);  // 0700002c
+        prog_h(16'hbda0);  // 0700002e
+        prog_h(16'h3f80);  // 07000030
+        prog_h(16'hbdc0);  // 07000032
+        prog_h(16'h4000);  // 07000034
+        prog_h(16'hf9ae);  // 07000036
+        prog_h(16'h1000);  // 07000038
+        prog_h(16'hf9ec);  // 0700003a
+        prog_h(16'h0c00);  // 0700003c
+        prog_h(16'hbe00);  // 0700003e
+        prog_h(16'h40a0);  // 07000040
+        prog_h(16'h4220);  // 07000042
+        prog_h(16'hfa11);  // 07000044
+        prog_h(16'h1c00);  // 07000046
+        prog_h(16'hbe40);  // 07000048
+        prog_h(16'h7fc0);  // 0700004a
+        prog_h(16'hf9b2);  // 0700004c
+        prog_h(16'h1000);  // 0700004e
+        prog_h(16'h7785);  // 07000050
+        prog_h(16'h6800);  // 07000052
+        dp = 'h7FB0;   // handler 0xFFFFFF60
+        prog_h(16'hbc20); prog_h(16'h0700);
+        prog_h(16'ha021); prog_h(16'h0004);
+        prog_h(16'h1801);
+        go();
+        wait_halt(8000, "e3");
+        expect_gpr(12, 32'h40A0_0000, "e3 cvt.ws 5");
+        expect_gpr(13, 32'h4040_0000, "e3 addf 1+2, NaN add killed");
+        expect_gpr(15, 32'h0000_0005, "e3 cvt.sw back");
+        expect_gpr(16, 32'h40A0_0000, "e3 divf by zero left reg2 alone");
+        expect_gpr(19, 32'h0000_0002, "e3 both exceptions vectored");
+        expect_gpr(20, 32'h0000_FF68, "e3 FZD code");
+        expect_gpr(21, 32'h0700_0044, "e3 FZD saves the divf itself");
+        expect_gpr(22, 32'h0000_5081, "e3 FZD flag set before entry");
+        expect_gpr(25, 32'h0000_FF60, "e3 FRO code");
+        expect_gpr(26, 32'h0700_004C, "e3 FRO saves the addf itself");
+        expect_gpr(27, 32'h0000_5280, "e3 FRO joins the sticky FZD");
+        expect_gpr(28, 32'h0000_1280, "e3 the FP flags survive RETI");
+
+        // E4: bitwise bit strings across words and offsets, and the length
+        // zero invocation that only masks the registers.
+        restart();
+        prog_h(16'h4140);  // 07000000
+        prog_h(16'h7145);  // 07000002
+        prog_h(16'h7800);  // 07000004
+        prog_h(16'hbcc0);  // 07000006
+        prog_h(16'h0500);  // 07000008
+        prog_h(16'hbd40);  // 0700000a
+        prog_h(16'hf0f1);  // 0700000c
+        prog_h(16'ha14a);  // 0700000e
+        prog_h(16'hf0f0);  // 07000010
+        prog_h(16'hdd46);  // 07000012
+        prog_h(16'h0200);  // 07000014
+        prog_h(16'hbd40);  // 07000016
+        prog_h(16'h0001);  // 07000018
+        prog_h(16'ha14a);  // 0700001a
+        prog_h(16'haaaa);  // 0700001c
+        prog_h(16'hdd46);  // 0700001e
+        prog_h(16'h0204);  // 07000020
+        prog_h(16'hbd40);  // 07000022
+        prog_h(16'h1111);  // 07000024
+        prog_h(16'ha14a);  // 07000026
+        prog_h(16'h1111);  // 07000028
+        prog_h(16'hdd46);  // 0700002a
+        prog_h(16'h0300);  // 0700002c
+        prog_h(16'hbd40);  // 0700002e
+        prog_h(16'h2222);  // 07000030
+        prog_h(16'ha14a);  // 07000032
+        prog_h(16'h2222);  // 07000034
+        prog_h(16'hdd46);  // 07000036
+        prog_h(16'h0304);  // 07000038
+        prog_h(16'hbd40);  // 0700003a
+        prog_h(16'h3333);  // 0700003c
+        prog_h(16'ha14a);  // 0700003e
+        prog_h(16'h3333);  // 07000040
+        prog_h(16'hdd46);  // 07000042
+        prog_h(16'h0308);  // 07000044
+        prog_h(16'h4340);  // 07000046
+        prog_h(16'h4360);  // 07000048
+        prog_h(16'ha380);  // 0700004a
+        prog_h(16'h0030);  // 0700004c
+        prog_h(16'hbfa0);  // 0700004e
+        prog_h(16'h0500);  // 07000050
+        prog_h(16'ha3bd);  // 07000052
+        prog_h(16'h0300);  // 07000054
+        prog_h(16'hbfc0);  // 07000056
+        prog_h(16'h0500);  // 07000058
+        prog_h(16'ha3de);  // 0700005a
+        prog_h(16'h0200);  // 0700005c
+        prog_h(16'h7c0b);  // 0700005e
+        prog_h(16'hcd66);  // 07000060
+        prog_h(16'h0300);  // 07000062
+        prog_h(16'hcd86);  // 07000064
+        prog_h(16'h0304);  // 07000066
+        prog_h(16'h01ba);  // 07000068
+        prog_h(16'h01db);  // 0700006a
+        prog_h(16'h01fc);  // 0700006c
+        prog_h(16'h021d);  // 0700006e
+        prog_h(16'h023e);  // 07000070
+        prog_h(16'h4348);  // 07000072
+        prog_h(16'h4364);  // 07000074
+        prog_h(16'h438c);  // 07000076
+        prog_h(16'hbfa0);  // 07000078
+        prog_h(16'h0500);  // 0700007a
+        prog_h(16'ha3bd);  // 0700007c
+        prog_h(16'h0308);  // 0700007e
+        prog_h(16'hbfc0);  // 07000080
+        prog_h(16'h0500);  // 07000082
+        prog_h(16'ha3de);  // 07000084
+        prog_h(16'h0200);  // 07000086
+        prog_h(16'h7c0a);  // 07000088
+        prog_h(16'hce46);  // 0700008a
+        prog_h(16'h0308);  // 0700008c
+        prog_h(16'ha340);  // 0700008e
+        prog_h(16'hffff);  // 07000090
+        prog_h(16'hbf60);  // 07000092
+        prog_h(16'heeef);  // 07000094
+        prog_h(16'ha37b);  // 07000096
+        prog_h(16'heeee);  // 07000098
+        prog_h(16'h4380);  // 0700009a
+        prog_h(16'hbfa0);  // 0700009c
+        prog_h(16'h0500);  // 0700009e
+        prog_h(16'ha3bd);  // 070000a0
+        prog_h(16'h0303);  // 070000a2
+        prog_h(16'hbfc0);  // 070000a4
+        prog_h(16'h0500);  // 070000a6
+        prog_h(16'ha3de);  // 070000a8
+        prog_h(16'h0202);  // 070000aa
+        prog_h(16'h7c0b);  // 070000ac
+        prog_h(16'h027a);  // 070000ae
+        prog_h(16'h029b);  // 070000b0
+        prog_h(16'h02bd);  // 070000b2
+        prog_h(16'h02de);  // 070000b4
+        prog_h(16'h6800);  // 070000b6
+        go();
+        wait_halt(12000, "e4");
+        expect_gpr(11, 32'hF0F0_F0F0, "e4 aligned word moved");
+        expect_gpr(12, 32'h2222_AAAA, "e4 partial tail merged");
+        expect_gpr(13, 32'd16, "e4 r26 ends at the next free bit");
+        expect_gpr(14, 32'd16, "e4 r27 likewise");
+        expect_gpr(15, 32'd0, "e4 r28 drained");
+        expect_gpr(16, 32'h0500_0304, "e4 r29 on the tail word");
+        expect_gpr(17, 32'h0500_0204, "e4 r30 past the consumed word");
+        expect_gpr(18, 32'h333C_3C33, "e4 offset xor merged");
+        expect_gpr(19, 32'd31, "e4 length zero masks r26");
+        expect_gpr(20, 32'd14, "e4 length zero masks r27");
+        expect_gpr(21, 32'h0500_0300, "e4 length zero masks r29");
+        expect_gpr(22, 32'h0500_0200, "e4 length zero masks r30");
+
+        // E4b: the read-buffer artifact. A destination 32 bits after the
+        // source copies cleanly -- 64 bits of buffering covers it -- and a
+        // destination 64 bits after corrupts the third word, exactly as
+        // documented [Scroll, CPU > Bit Strings > Bitwise].
+        restart();
+        prog_h(16'h4140);  // 07000000
+        prog_h(16'h7145);  // 07000002
+        prog_h(16'h7800);  // 07000004
+        prog_h(16'hbcc0);  // 07000006
+        prog_h(16'h0500);  // 07000008
+        prog_h(16'hbd40);  // 0700000a
+        prog_h(16'hdeae);  // 0700000c
+        prog_h(16'ha14a);  // 0700000e
+        prog_h(16'hbeef);  // 07000010
+        prog_h(16'hdd46);  // 07000012
+        prog_h(16'h0400);  // 07000014
+        prog_h(16'hbd40);  // 07000016
+        prog_h(16'hcaff);  // 07000018
+        prog_h(16'ha14a);  // 0700001a
+        prog_h(16'hf00d);  // 0700001c
+        prog_h(16'hdd46);  // 0700001e
+        prog_h(16'h0404);  // 07000020
+        prog_h(16'hbd40);  // 07000022
+        prog_h(16'h999a);  // 07000024
+        prog_h(16'ha14a);  // 07000026
+        prog_h(16'h9999);  // 07000028
+        prog_h(16'hdd46);  // 0700002a
+        prog_h(16'h0408);  // 0700002c
+        prog_h(16'h4340);  // 0700002e
+        prog_h(16'h4360);  // 07000030
+        prog_h(16'ha380);  // 07000032
+        prog_h(16'h0040);  // 07000034
+        prog_h(16'hbfa0);  // 07000036
+        prog_h(16'h0500);  // 07000038
+        prog_h(16'ha3bd);  // 0700003a
+        prog_h(16'h0404);  // 0700003c
+        prog_h(16'hbfc0);  // 0700003e
+        prog_h(16'h0500);  // 07000040
+        prog_h(16'ha3de);  // 07000042
+        prog_h(16'h0400);  // 07000044
+        prog_h(16'h7c0b);  // 07000046
+        prog_h(16'hcd66);  // 07000048
+        prog_h(16'h0404);  // 0700004a
+        prog_h(16'hcd86);  // 0700004c
+        prog_h(16'h0408);  // 0700004e
+        prog_h(16'hbd40);  // 07000050
+        prog_h(16'hdeae);  // 07000052
+        prog_h(16'ha14a);  // 07000054
+        prog_h(16'hbeef);  // 07000056
+        prog_h(16'hdd46);  // 07000058
+        prog_h(16'h0500);  // 0700005a
+        prog_h(16'hbd40);  // 0700005c
+        prog_h(16'hcaff);  // 0700005e
+        prog_h(16'ha14a);  // 07000060
+        prog_h(16'hf00d);  // 07000062
+        prog_h(16'hdd46);  // 07000064
+        prog_h(16'h0504);  // 07000066
+        prog_h(16'hbd40);  // 07000068
+        prog_h(16'h999a);  // 0700006a
+        prog_h(16'ha14a);  // 0700006c
+        prog_h(16'h9999);  // 0700006e
+        prog_h(16'hdd46);  // 07000070
+        prog_h(16'h0508);  // 07000072
+        prog_h(16'hbd40);  // 07000074
+        prog_h(16'h5555);  // 07000076
+        prog_h(16'ha14a);  // 07000078
+        prog_h(16'h5555);  // 0700007a
+        prog_h(16'hdd46);  // 0700007c
+        prog_h(16'h050c);  // 0700007e
+        prog_h(16'hdd46);  // 07000080
+        prog_h(16'h0510);  // 07000082
+        prog_h(16'h4340);  // 07000084
+        prog_h(16'h4360);  // 07000086
+        prog_h(16'ha380);  // 07000088
+        prog_h(16'h0060);  // 0700008a
+        prog_h(16'hbfa0);  // 0700008c
+        prog_h(16'h0500);  // 0700008e
+        prog_h(16'ha3bd);  // 07000090
+        prog_h(16'h0508);  // 07000092
+        prog_h(16'hbfc0);  // 07000094
+        prog_h(16'h0500);  // 07000096
+        prog_h(16'ha3de);  // 07000098
+        prog_h(16'h0500);  // 0700009a
+        prog_h(16'h7c0b);  // 0700009c
+        prog_h(16'hcda6);  // 0700009e
+        prog_h(16'h0508);  // 070000a0
+        prog_h(16'hcdc6);  // 070000a2
+        prog_h(16'h050c);  // 070000a4
+        prog_h(16'hcde6);  // 070000a6
+        prog_h(16'h0510);  // 070000a8
+        prog_h(16'h6800);  // 070000aa
+        go();
+        wait_halt(12000, "e4b");
+        expect_gpr(11, 32'hDEAD_BEEF, "e4b +32 first word");
+        expect_gpr(12, 32'hCAFE_F00D, "e4b +32 copies cleanly");
+        expect_gpr(13, 32'hDEAD_BEEF, "e4b +64 first word");
+        expect_gpr(14, 32'hCAFE_F00D, "e4b +64 second word");
+        expect_gpr(15, 32'hDEAD_BEEF, "e4b +64 third word corrupts");
+
+        // E5: searches, both directions, found and exhausted, with the
+        // documented one-bit-before pointer fix-up.
+        restart();
+        prog_h(16'h4140);  // 07000000
+        prog_h(16'h7145);  // 07000002
+        prog_h(16'h7800);  // 07000004
+        prog_h(16'hbcc0);  // 07000006
+        prog_h(16'h0500);  // 07000008
+        prog_h(16'hbd40);  // 0700000a
+        prog_h(16'h0001);  // 0700000c
+        prog_h(16'hdd46);  // 0700000e
+        prog_h(16'h0600);  // 07000010
+        prog_h(16'h4140);  // 07000012
+        prog_h(16'hdd46);  // 07000014
+        prog_h(16'h0604);  // 07000016
+        prog_h(16'hbd40);  // 07000018
+        prog_h(16'h8000);  // 0700001a
+        prog_h(16'hdd46);  // 0700001c
+        prog_h(16'h0608);  // 0700001e
+        prog_h(16'h4360);  // 07000020
+        prog_h(16'ha380);  // 07000022
+        prog_h(16'h0040);  // 07000024
+        prog_h(16'ha3a0);  // 07000026
+        prog_h(16'h0064);  // 07000028
+        prog_h(16'hbfc0);  // 0700002a
+        prog_h(16'h0500);  // 0700002c
+        prog_h(16'ha3de);  // 0700002e
+        prog_h(16'h0600);  // 07000030
+        prog_h(16'h7c02);  // 07000032
+        prog_h(16'h4962);  // 07000034
+        prog_h(16'h019b);  // 07000036
+        prog_h(16'h01bc);  // 07000038
+        prog_h(16'h01dd);  // 0700003a
+        prog_h(16'h01fe);  // 0700003c
+        prog_h(16'h4360);  // 0700003e
+        prog_h(16'ha380);  // 07000040
+        prog_h(16'h0020);  // 07000042
+        prog_h(16'h43a0);  // 07000044
+        prog_h(16'hbfc0);  // 07000046
+        prog_h(16'h0500);  // 07000048
+        prog_h(16'ha3de);  // 0700004a
+        prog_h(16'h0604);  // 0700004c
+        prog_h(16'h7c02);  // 0700004e
+        prog_h(16'h4a02);  // 07000050
+        prog_h(16'h023e);  // 07000052
+        prog_h(16'h025d);  // 07000054
+        prog_h(16'h4363);  // 07000056
+        prog_h(16'h438a);  // 07000058
+        prog_h(16'h43a5);  // 0700005a
+        prog_h(16'hbfc0);  // 0700005c
+        prog_h(16'h0500);  // 0700005e
+        prog_h(16'ha3de);  // 07000060
+        prog_h(16'h0604);  // 07000062
+        prog_h(16'h7c03);  // 07000064
+        prog_h(16'h4a62);  // 07000066
+        prog_h(16'h029e);  // 07000068
+        prog_h(16'h02bb);  // 0700006a
+        prog_h(16'h02dd);  // 0700006c
+        prog_h(16'ha360);  // 0700006e
+        prog_h(16'h001f);  // 07000070
+        prog_h(16'ha380);  // 07000072
+        prog_h(16'h0028);  // 07000074
+        prog_h(16'h43a0);  // 07000076
+        prog_h(16'hbfc0);  // 07000078
+        prog_h(16'h0500);  // 0700007a
+        prog_h(16'ha3de);  // 0700007c
+        prog_h(16'h0608);  // 0700007e
+        prog_h(16'h7c03);  // 07000080
+        prog_h(16'h4ae2);  // 07000082
+        prog_h(16'h031e);  // 07000084
+        prog_h(16'h033b);  // 07000086
+        prog_h(16'h00fc);  // 07000088
+        prog_h(16'h6800);  // 0700008a
+        go();
+        wait_halt(12000, "e5");
+        expect_gpr(11, 32'd0, "e5 up-find clears Z");
+        expect_gpr(12, 32'd15, "e5 up-find points one bit before");
+        expect_gpr(13, 32'd48, "e5 up-find keeps the found bit in r28");
+        expect_gpr(14, 32'd116, "e5 up-find adds the skips to r29");
+        expect_gpr(15, 32'h0500_0600, "e5 up-find r30");
+        expect_gpr(16, 32'd1, "e5 up-miss sets Z");
+        expect_gpr(17, 32'h0500_0608, "e5 up-miss walks past the string");
+        expect_gpr(18, 32'd32, "e5 up-miss counted every bit");
+        expect_gpr(19, 32'd1, "e5 down-miss sets Z");
+        expect_gpr(20, 32'h0500_05FC, "e5 down-miss crossed the word");
+        expect_gpr(21, 32'd31, "e5 down-miss offset past the edge");
+        expect_gpr(22, 32'd15, "e5 down-miss skip count");
+        expect_gpr(23, 32'd0, "e5 down-find clears Z");
+        expect_gpr(24, 32'h0500_060C, "e5 down-find wraps the pointer up");
+        expect_gpr(25, 32'd0, "e5 down-find offset");
+        expect_gpr(7, 32'd40, "e5 down-find keeps the length");
+
+        // E6: interrupts land inside long instructions. A bit string yields
+        // between destination words with its own address saved and resumes
+        // to a correct copy; a divide aborts mid-flight [manual Table 6-2]
+        // and reruns cleanly after RETI.
+        restart();
+        prog_h(16'ha800);  // 07000000
+        prog_h(16'h0018);  // 07000002
+        prog_h(16'h4e60);  // 07000004
+        prog_h(16'h9408);  // 07000006
+        prog_h(16'h7680);  // 07000008
+        prog_h(16'h02bc);  // 0700000a
+        prog_h(16'h8a08);  // 0700000c
+        prog_h(16'h4e61);  // 0700000e
+        prog_h(16'h9404);  // 07000010
+        prog_h(16'h76c0);  // 07000012
+        prog_h(16'h4661);  // 07000014
+        prog_h(16'h6400);  // 07000016
+        prog_h(16'h4140);  // 07000018
+        prog_h(16'h7145);  // 0700001a
+        prog_h(16'h5800);  // 0700001c
+        prog_h(16'hbcc0);  // 0700001e
+        prog_h(16'h0500);  // 07000020
+        prog_h(16'h4260);  // 07000022
+        prog_h(16'h4121);  // 07000024
+        prog_h(16'hd526);  // 07000026
+        prog_h(16'h0000);  // 07000028
+        prog_h(16'h4340);  // 0700002a
+        prog_h(16'h4360);  // 0700002c
+        prog_h(16'hbf80);  // 0700002e
+        prog_h(16'h0000);  // 07000030
+        prog_h(16'ha380);  // 07000032
+        prog_h(16'h0800);  // 07000034
+        prog_h(16'hbfa0);  // 07000036
+        prog_h(16'h0500);  // 07000038
+        prog_h(16'ha3bd);  // 0700003a
+        prog_h(16'h2000);  // 0700003c
+        prog_h(16'hbfc0);  // 0700003e
+        prog_h(16'h0500);  // 07000040
+        prog_h(16'ha3de);  // 07000042
+        prog_h(16'h1000);  // 07000044
+        prog_h(16'h7c0b);  // 07000046
+        prog_h(16'h4122);  // 07000048
+        prog_h(16'hd526);  // 0700004a
+        prog_h(16'h0000);  // 0700004c
+        prog_h(16'hbd40);  // 0700004e
+        prog_h(16'h3000);  // 07000050
+        prog_h(16'h4167);  // 07000052
+        prog_h(16'h4123);  // 07000054
+        prog_h(16'hd526);  // 07000056
+        prog_h(16'h0000);  // 07000058
+        prog_h(16'h254b);  // 0700005a
+        prog_h(16'h4124);  // 0700005c
+        prog_h(16'hd526);  // 0700005e
+        prog_h(16'h0000);  // 07000060
+        prog_h(16'h6800);  // 07000062
+        dp = 'h7F10;   // handler 0xFFFFFE20 (level 2)
+        prog_h(16'hbc20); prog_h(16'h0700);
+        prog_h(16'ha021); prog_h(16'h0004);
+        prog_h(16'h1801);
+        for (gi = 0; gi < 64; gi = gi + 1) begin
+            wram[('h1000 >> 1) + 2 * gi]     = 16'hA500 + gi[15:0];
+            wram[('h1000 >> 1) + 2 * gi + 1] = 16'h5A00 + gi[15:0];
+        end
+        go();
+        wait_status(16'h0001, 100000, "e6 approach");
+        repeat (100) @(negedge clk);
+        irq_level = 4'd2;
+        irq_valid = 1'b1;
+        repeat (40) @(negedge clk);
+        irq_valid = 1'b0;
+        wait_status(16'h0003, 100000, "e6 pre-divide");
+        // Fire only once the divide has executed: pc has moved past it and
+        // DIV_RUN is the only place a 6-clock pulse can land.
+        while (dbg_pc !== 32'h0700005C) @(negedge clk);
+        irq_valid = 1'b1;
+        repeat (6) @(negedge clk);
+        irq_valid = 1'b0;
+        wait_halt(100000, "e6");
+        expect_gpr(19, 32'd2, "e6 both interrupts serviced");
+        expect_gpr(20, 32'h0700_0046, "e6 the string's own address saved");
+        if (dut.gpr[21] === 32'd0 || dut.gpr[21] >= 32'h800
+            || dut.gpr[21][4:0] !== 5'd0)
+            $fatal(1, "e6: mid-string r28 was %0d, expected a word multiple inside (0,2048)",
+                   dut.gpr[21]);
+        expect_gpr(22, 32'h0700_005A, "e6 the divide aborted at itself");
+        expect_gpr(10, 32'h06DB_6DB6, "e6 the rerun divide is right");
+        expect_gpr(30, 32'd6, "e6 and so is the remainder");
+        for (gi = 0; gi < 64; gi = gi + 1) begin
+            if (wram[('h2000 >> 1) + 2 * gi] !== 16'hA500 + gi[15:0]
+                || wram[('h2000 >> 1) + 2 * gi + 1] !== 16'h5A00 + gi[15:0])
+                $fatal(1, "e6: copied word %0d is %04x%04x, expected %04x%04x",
+                       gi, wram[('h2000 >> 1) + 2 * gi + 1],
+                       wram[('h2000 >> 1) + 2 * gi],
+                       16'h5A00 + gi[15:0], 16'hA500 + gi[15:0]);
+        end
+
+        // E7: the instruction cache. A restored fabricated entry executes
+        // from the cache in place of ROM, a clear starting at entry 128
+        // clears nothing, a targeted clear refills from ROM, a cached loop
+        // runs correctly, the dump spills the documented 1,536-byte layout,
+        // and an interrupt raised mid-dump waits for the walk to finish.
+        restart();
+        prog_h(16'ha800);  // 07000000
+        prog_h(16'h0018);  // 07000002
+        prog_h(16'hffff);  // 07000004
+        prog_h(16'hffff);  // 07000006
+        prog_h(16'h4145);  // 07000008
+        prog_h(16'h181f);  // 0700000a
+        prog_h(16'hffff);  // 0700000c
+        prog_h(16'hffff);  // 0700000e
+        prog_h(16'hcec6);  // 07000010
+        prog_h(16'h35fc);  // 07000012
+        prog_h(16'h4261);  // 07000014
+        prog_h(16'h6400);  // 07000016
+        prog_h(16'h4140);  // 07000018
+        prog_h(16'h7145);  // 0700001a
+        prog_h(16'h7800);  // 0700001c
+        prog_h(16'hbcc0);  // 0700001e
+        prog_h(16'h0500);  // 07000020
+        prog_h(16'h4260);  // 07000022
+        prog_h(16'hafff);  // 07000024
+        prog_h(16'hffe4);  // 07000026
+        prog_h(16'h01ca);  // 07000028
+        prog_h(16'hbd60);  // 0700002a
+        prog_h(16'h0500);  // 0700002c
+        prog_h(16'ha16b);  // 0700002e
+        prog_h(16'h4022);  // 07000030
+        prog_h(16'h7178);  // 07000032
+        prog_h(16'hafff);  // 07000034
+        prog_h(16'hffd4);  // 07000036
+        prog_h(16'h01ea);  // 07000038
+        prog_h(16'hbd60);  // 0700003a
+        prog_h(16'h0810);  // 0700003c
+        prog_h(16'ha16b);  // 0700003e
+        prog_h(16'hff03);  // 07000040
+        prog_h(16'h7178);  // 07000042
+        prog_h(16'hafff);  // 07000044
+        prog_h(16'hffc4);  // 07000046
+        prog_h(16'h020a);  // 07000048
+        prog_h(16'hbd60);  // 0700004a
+        prog_h(16'h0010);  // 0700004c
+        prog_h(16'ha16b);  // 0700004e
+        prog_h(16'h0103);  // 07000050
+        prog_h(16'h7178);  // 07000052
+        prog_h(16'hafff);  // 07000054
+        prog_h(16'hffb4);  // 07000056
+        prog_h(16'h022a);  // 07000058
+        prog_h(16'h4140);  // 0700005a
+        prog_h(16'h418a);  // 0700005c
+        prog_h(16'h4541);  // 0700005e
+        prog_h(16'h459f);  // 07000060
+        prog_h(16'h95fc);  // 07000062
+        prog_h(16'h024a);  // 07000064
+        prog_h(16'h5800);  // 07000066
+        prog_h(16'hbd60);  // 07000068
+        prog_h(16'h0500);  // 0700006a
+        prog_h(16'ha16b);  // 0700006c
+        prog_h(16'h3012);  // 0700006e
+        prog_h(16'h7178);  // 07000070
+        prog_h(16'h7800);  // 07000072
+        prog_h(16'h4160);  // 07000074
+        prog_h(16'h7178);  // 07000076
+        prog_h(16'hafff);  // 07000078
+        prog_h(16'hff90);  // 0700007a
+        prog_h(16'h028a);  // 0700007c
+        prog_h(16'h6800);  // 0700007e
+        dp = 'h7F10;   // handler 0xFFFFFE20 (level 2)
+        prog_h(16'hbc20); prog_h(16'h0700);
+        prog_h(16'ha021); prog_h(16'h0010);
+        prog_h(16'h1801);
+        for (gi = 0; gi < 768; gi = gi + 1) wram[('h4000 >> 1) + gi] = 16'h0000;
+        wram['h2004] = 16'h4149;   // entry 1 subblock 0: movImm 9, r10
+        wram['h2005] = 16'h181F;   //                     jmp [r31]
+        wram['h2202] = 16'hC000;   // entry 1 tag: valid0 | (T >> 10)
+        wram['h2203] = 16'h0041;
+        go();
+        // The first dump write marks the walk running; hold the request up
+        // so acceptance can only come from the FETCH1 after it finishes.
+        while (!(req && we && a == 26'h2801800)) @(negedge clk);
+        irq_level = 4'd2;
+        irq_valid = 1'b1;
+        repeat (3000) @(negedge clk);
+        irq_valid = 1'b0;
+        wait_halt(100000, "e7");
+        expect_gpr(14, 32'd5, "e7 uncached runs the ROM");
+        expect_gpr(15, 32'd9, "e7 the restored entry executes from cache");
+        expect_gpr(16, 32'd9, "e7 a clear at entry 128 clears nothing");
+        expect_gpr(17, 32'd5, "e7 a targeted clear refills from ROM");
+        expect_gpr(18, 32'd10, "e7 the cached loop counts");
+        expect_gpr(20, 32'd5, "e7 disabled again, ROM wins");
+        expect_gpr(19, 32'd1, "e7 the mid-dump interrupt was serviced once");
+        expect_gpr(22, 32'd0, "e7 and only after the dump finished");
+        if (wram['h1804] !== 16'h4145 || wram['h1805] !== 16'h181F)
+            $fatal(1, "e7: dumped entry 1 data is %04x %04x, expected the ROM refill",
+                   wram['h1804], wram['h1805]);
+        if (wram['h1A02] !== 16'hC000 || wram['h1A03] !== 16'h0041)
+            $fatal(1, "e7: dumped entry 1 tag is %04x%04x, expected 0041c000",
+                   wram['h1A03], wram['h1A02]);
+        if (wram['h182E] !== 16'h418A || wram['h182F] !== 16'h4541)
+            $fatal(1, "e7: dumped loop subblock is %04x %04x",
+                   wram['h182E], wram['h182F]);
+        if (wram['h1A16] !== 16'hC000 || wram['h1A17] !== 16'h00C1)
+            $fatal(1, "e7: dumped loop tag is %04x%04x, expected 00c1c000",
+                   wram['h1A17], wram['h1A16]);
+        if (wram['h1AFE] !== 16'h0000 || wram['h1AFF] !== 16'h0000)
+            $fatal(1, "e7: entry 127 should dump as cleared zeros");
+
+        // T2: the new charges, measured the way T1 measures. Marker pairs
+        // cost 7 at one-wait ROM; each expected value is the instruction's
+        // charge from cpu.v's tables plus that 7.
+        restart();
+        mark_n = 0;
+        prog_h(16'h7800);  // 07000000
+        prog_h(16'hbcc0);  // 07000002
+        prog_h(16'h0500);  // 07000004
+        prog_h(16'h4120);  // 07000006
+        prog_h(16'hbd60);  // 07000008
+        prog_h(16'h0200);  // 0700000a
+        prog_h(16'ha16b);  // 0700000c
+        prog_h(16'h0024);  // 0700000e
+        prog_h(16'h4141);  // 07000010
+        prog_h(16'hd54b);  // 07000012
+        prog_h(16'h0000);  // 07000014
+        prog_h(16'hbda0);  // 07000016
+        prog_h(16'h3f80);  // 07000018
+        prog_h(16'hbdc0);  // 0700001a
+        prog_h(16'h4000);  // 0700001c
+        prog_h(16'hbe00);  // 0700001e
+        prog_h(16'h1111);  // 07000020
+        prog_h(16'ha210);  // 07000022
+        prog_h(16'h2222);  // 07000024
+        prog_h(16'hde06);  // 07000026
+        prog_h(16'h0100);  // 07000028
+        prog_h(16'h4200);  // 0700002a
+        prog_h(16'hde06);  // 0700002c
+        prog_h(16'h0700);  // 0700002e
+        prog_h(16'hbe00);  // 07000030
+        prog_h(16'hf0f1);  // 07000032
+        prog_h(16'ha210);  // 07000034
+        prog_h(16'hf0f0);  // 07000036
+        prog_h(16'hde06);  // 07000038
+        prog_h(16'h0200);  // 0700003a
+        prog_h(16'hde06);  // 0700003c
+        prog_h(16'h0204);  // 0700003e
+        prog_h(16'h4521);  // 07000040
+        prog_h(16'hd526);  // 07000042
+        prog_h(16'h0000);  // 07000044
+        prog_h(16'hf9e0);  // 07000046
+        prog_h(16'h2400);  // 07000048
+        prog_h(16'h4521);  // 0700004a
+        prog_h(16'hd526);  // 0700004c
+        prog_h(16'h0000);  // 0700004e
+        prog_h(16'hf9ee);  // 07000050
+        prog_h(16'h3000);  // 07000052
+        prog_h(16'h4521);  // 07000054
+        prog_h(16'hd526);  // 07000056
+        prog_h(16'h0000);  // 07000058
+        prog_h(16'hf9ee);  // 0700005a
+        prog_h(16'h2800);  // 0700005c
+        prog_h(16'h4521);  // 0700005e
+        prog_h(16'hd526);  // 07000060
+        prog_h(16'h0000);  // 07000062
+        prog_h(16'hea06);  // 07000064
+        prog_h(16'h0100);  // 07000066
+        prog_h(16'h4521);  // 07000068
+        prog_h(16'hd526);  // 0700006a
+        prog_h(16'h0000);  // 0700006c
+        prog_h(16'hf9ae);  // 0700006e
+        prog_h(16'h1000);  // 07000070
+        prog_h(16'h4521);  // 07000072
+        prog_h(16'hd526);  // 07000074
+        prog_h(16'h0000);  // 07000076
+        prog_h(16'hf9ae);  // 07000078
+        prog_h(16'h1c00);  // 0700007a
+        prog_h(16'h4521);  // 0700007c
+        prog_h(16'hd526);  // 0700007e
+        prog_h(16'h0000);  // 07000080
+        prog_h(16'h4340);  // 07000082
+        prog_h(16'h4360);  // 07000084
+        prog_h(16'ha380);  // 07000086
+        prog_h(16'h0040);  // 07000088
+        prog_h(16'hbfa0);  // 0700008a
+        prog_h(16'h0500);  // 0700008c
+        prog_h(16'ha3bd);  // 0700008e
+        prog_h(16'h0300);  // 07000090
+        prog_h(16'hbfc0);  // 07000092
+        prog_h(16'h0500);  // 07000094
+        prog_h(16'ha3de);  // 07000096
+        prog_h(16'h0200);  // 07000098
+        prog_h(16'h4521);  // 0700009a
+        prog_h(16'hd526);  // 0700009c
+        prog_h(16'h0000);  // 0700009e
+        prog_h(16'h7c0b);  // 070000a0
+        prog_h(16'h4521);  // 070000a2
+        prog_h(16'hd526);  // 070000a4
+        prog_h(16'h0000);  // 070000a6
+        prog_h(16'h4360);  // 070000a8
+        prog_h(16'ha380);  // 070000aa
+        prog_h(16'h0020);  // 070000ac
+        prog_h(16'h43a0);  // 070000ae
+        prog_h(16'hbfc0);  // 070000b0
+        prog_h(16'h0500);  // 070000b2
+        prog_h(16'ha3de);  // 070000b4
+        prog_h(16'h0700);  // 070000b6
+        prog_h(16'h4521);  // 070000b8
+        prog_h(16'hd526);  // 070000ba
+        prog_h(16'h0000);  // 070000bc
+        prog_h(16'h7c02);  // 070000be
+        prog_h(16'h4521);  // 070000c0
+        prog_h(16'hd526);  // 070000c2
+        prog_h(16'h0000);  // 070000c4
+        prog_h(16'h4380);  // 070000c6
+        prog_h(16'h4521);  // 070000c8
+        prog_h(16'hd526);  // 070000ca
+        prog_h(16'h0000);  // 070000cc
+        prog_h(16'h7c0b);  // 070000ce
+        prog_h(16'h4521);  // 070000d0
+        prog_h(16'hd526);  // 070000d2
+        prog_h(16'h0000);  // 070000d4
+        prog_h(16'h4182);  // 070000d6
+        prog_h(16'h4162);  // 070000d8
+        prog_h(16'h7178);  // 070000da
+        prog_h(16'h4521);  // 070000dc
+        prog_h(16'hd526);  // 070000de
+        prog_h(16'h0000);  // 070000e0
+        prog_h(16'hf9e0);  // 070000e2
+        prog_h(16'h2400);  // 070000e4
+        prog_h(16'hf9e0);  // 070000e6
+        prog_h(16'h2400);  // 070000e8
+        prog_h(16'hf9e0);  // 070000ea
+        prog_h(16'h2400);  // 070000ec
+        prog_h(16'hf9e0);  // 070000ee
+        prog_h(16'h2400);  // 070000f0
+        prog_h(16'hf9e0);  // 070000f2
+        prog_h(16'h2400);  // 070000f4
+        prog_h(16'hf9e0);  // 070000f6
+        prog_h(16'h2400);  // 070000f8
+        prog_h(16'hf9e0);  // 070000fa
+        prog_h(16'h2400);  // 070000fc
+        prog_h(16'hf9e0);  // 070000fe
+        prog_h(16'h2400);  // 07000100
+        prog_h(16'h459f);  // 07000102
+        prog_h(16'h95d8);  // 07000104
+        prog_h(16'h4521);  // 07000106
+        prog_h(16'hd526);  // 07000108
+        prog_h(16'h0000);  // 0700010a
+        prog_h(16'h6800);  // 0700010c
+        go();
+        wait_halt(60000, "t2");
+        if (mark_n !== 16)
+            $fatal(1, "t2: %0d markers, expected 16", mark_n);
+        // XH is fetch-bound: max(1, 4)
+        expect_delta(1, 4 + 7, "t2 xh");
+        expect_delta(2, 9 + 7, "t2 mpyhw");
+        expect_delta(3, 22 + 7, "t2 rev");
+        // CAXI: max(26, 4) plus one wait on each of its four accesses
+        expect_delta(4, 30 + 7, "t2 caxi");
+        expect_delta(5, 9 + 7, "t2 addf");
+        expect_delta(6, 44 + 7, "t2 divf");
+        // MOVBSU, 64 aligned WRAM bits: 22+16 first invocation, 2+12 next
+        expect_delta(8, 52 + 7, "t2 movbsu");
+        // SCH1BSU, 32 bits: 26 + one word read + the scan
+        expect_delta(10, 31 + 7, "t2 search");
+        // Length zero: the documented 20
+        expect_delta(12, 20 + 7, "t2 movbsu nothing");
+        // Cached warm pass: 8 XH at 2 each (hit fetches cost 1 per
+        // halfword), the loop exit (addImm 1, bne untaken 1, addImm 1) and
+        // the closing stH at 3 -- plus 5 for that closing marker's own
+        // subblock, the one fetch the first pass never warmed.
+        expect_delta(15, 22 + 5, "t2 cached warm pass");
+        if (marks[14] - marks[13] < marks[15] - marks[14] + 20)
+            $fatal(1, "t2 cold pass should pay the fills: cold %0d, warm %0d",
+                   marks[14] - marks[13], marks[15] - marks[14]);
+
         // The built images, run whole. Their own checks judge; the status
         // word carries the verdict and names the failing check on a spin.
         run_rom("cpu-alu", 2048, 200000);
         run_rom("cpu-branch", 1024, 200000);
         run_rom("busmap", 1024, 200000);
         run_rom("cpu-except", 1024, 200000);
+        run_rom("cpu-ext", 512, 200000);
+        run_rom("cpu-float", 1024, 400000);
+        run_rom("cpu-bitstring", 1024, 400000);
+        run_rom("cpu-cache", 512, 400000);
+        run_rom("cpu-longint", 512, 2000000);
 
         // The timer ROM's check phase, through the real timer and the
         // real interrupt path: its status 0x0000 write means every check
