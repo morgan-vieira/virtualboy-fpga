@@ -71,6 +71,11 @@
 // walker out of reset -- whether real hardware does is not established
 // [Scroll, System Reset > CPU]; beetle-vb zeroes it and we follow.
 //
+// The address trap is live: with PSW.AE set, a PC matching ADTRE raises
+// 0xFFC0 before the fetch, restore at current PC [Scroll, CPU >
+// Exceptions > Address Trap; MiSTer implements it, beetle-vb only stores
+// the register].
+//
 // Cached-fetch timing: a hit charges one cycle per halfword, a miss adds
 // the subblock fill at bus cost plus one [beetle RDCACHE's extra penalty],
 // and a taken branch to a subblock-odd target adds one cycle while the
@@ -387,22 +392,24 @@ module cpu (
     endfunction
 
     // Charged base cycles for the format VII group. The scroll documents
-    // only ranges for the floating-point set; the points are beetle-vb's
-    // (fpu_subop's costs plus the dispatch clock), which sit at each
-    // range's bottom. The extended four are the scroll's own figures.
+    // only ranges for the floating-point set; the points are the Cycle
+    // Test totals measured on real hardware, taken from MiSTer's
+    // fp_issue_cycles_fn, and every one sits inside its scroll range
+    // (beetle-vb instead guesses each range's bottom). The extended four
+    // are the scroll's own figures, which MiSTer matches.
     function automatic logic [7:0] vii_base(input logic [3:0] sub);
         case (sub)
             4'h0:    return 8'd7;    // CMPF.S   (scroll: 7-10)
-            4'h2:    return 8'd6;    // CVT.WS   (scroll: 5-16)
-            4'h3:    return 8'd9;    // CVT.SW   (scroll: 9-14)
-            4'h4:    return 8'd9;    // ADDF.S   (scroll: 9-28)
-            4'h5:    return 8'd12;   // SUBF.S   (scroll: 12-28)
-            4'h6:    return 8'd8;    // MULF.S   (scroll: 8-30)
+            4'h2:    return 8'd8;    // CVT.WS   (scroll: 5-16)
+            4'h3:    return 8'd14;   // CVT.SW   (scroll: 9-14)
+            4'h4:    return 8'd22;   // ADDF.S   (scroll: 9-28)
+            4'h5:    return 8'd26;   // SUBF.S   (scroll: 12-28)
+            4'h6:    return 8'd26;   // MULF.S   (scroll: 8-30)
             4'h7:    return 8'd44;   // DIVF.S   (scroll: 44)
             4'h8:    return 8'd6;    // XB
             4'h9:    return 8'd1;    // XH
             4'hA:    return 8'd22;   // REV
-            4'hB:    return 8'd8;    // TRNC.SW  (scroll: 9-14; manual: 8-14)
+            4'hB:    return 8'd13;   // TRNC.SW  (scroll: 9-14; manual: 8-14)
             default: return 8'd9;    // MPYHW
         endcase
     endfunction
@@ -830,6 +837,15 @@ module cpu (
                             // -- or is a bit string mid-flight, which left
                             // pc on itself, the documented current-PC case.
                             accept_irq(pc);
+                        end else if (psw_ae && pc[31:1] == adtre[31:1]) begin
+                            // The address trap, checked before the fetch
+                            // [Scroll, CPU > Exceptions > Address Trap].
+                            // Entry clears AE, and the handler must move
+                            // EIPC or the return re-traps -- documented, not
+                            // guarded against. The scroll's priority list
+                            // puts interrupts above the trap; MiSTer orders
+                            // them the other way, and we follow the scroll.
+                            raise(16'hFFC0, 32'hFFFF_FFC0, pc);
                         end else if (chcw_ice) begin
                             // The cache owns the fetch; the arrays answer
                             // next clock.
@@ -986,12 +1002,21 @@ module cpu (
                     end
 
                     WA_HI: if (ready) begin
-                        if (!wa_we) wa_rdata[15:0] <= rdata;
+                        // Reads of the CPU's own WCR answer WCR | 0xFC on
+                        // this path too, so CAXI and bit string sources see
+                        // the same readback loads do.
+                        if (!wa_we)
+                            wa_rdata[15:0] <= wa_a[26:24] == 3'd2
+                                              && wa_a[7:2] == 6'h09
+                                ? {8'd0, 6'b111111, wcr_exp1w, wcr_rom1w}
+                                : rdata;
                         state <= wa_we ? wa_ret : WA_END;
                     end
 
                     WA_END: begin
-                        wa_rdata[31:16] <= rdata;
+                        wa_rdata[31:16] <= wa_a[26:24] == 3'd2
+                                           && wa_a[7:2] == 6'h09
+                                         ? 16'd0 : rdata;
                         state <= wa_ret;
                     end
 
@@ -1436,10 +1461,15 @@ module cpu (
                             6'h18:               base = 8'd15;  // TRAP
                             6'h19:               base = 8'd10;  // RETI
                             6'h16, 6'h1E:        base = 8'd12;  // CLI/SEI
-                            6'h30, 6'h31, 6'h33,
-                            6'h38, 6'h39, 6'h3B:                // LD/IN
+                            6'h30, 6'h31, 6'h33:                // LD
                                 base = prev_muldiv ? 8'd1
                                      : prev_load   ? 8'd4 : 8'd5;
+                            // IN takes Table 5-11's flat figure with no
+                            // context discount [MiSTer
+                            // mem_load_tail_cycles_fn; resolves the
+                            // scroll's "may be identical" the manual's way]
+                            6'h38, 6'h39, 6'h3B:                // IN
+                                base = 8'd5;
                             6'h34, 6'h35, 6'h37,
                             6'h3C, 6'h3D, 6'h3F:                // ST/OUT
                                 base = store_streak >= 2'd2 ? 8'd4 : 8'd1;
@@ -1459,7 +1489,7 @@ module cpu (
                     // [1:0] != 2'b10 term excludes the holes and CAXI from
                     // both the load and store shapes.
                     prev_load   <= opcode[5:4] == 2'b11 && !opcode[2]
-                                   && opcode[1:0] != 2'b10;
+                                   && !opcode[3] && opcode[1:0] != 2'b10;
                     prev_muldiv <= opcode[5:2] == 4'b0010
                                    || opcode == 6'h3E;
                     store_streak <= opcode[5:4] == 2'b11 && opcode[2]

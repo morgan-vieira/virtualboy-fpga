@@ -38,6 +38,7 @@ export const vectors = {
   fpu: 0xffffff60,
   divideByZero: 0xffffff80,
   invalidOpcode: 0xffffff90,
+  addressTrap: 0xffffffc0,
   trap: 0xffffffa0,
   trapHigh: 0xffffffb0,
   duplexedException: 0xffffffd0,
