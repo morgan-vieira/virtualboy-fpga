@@ -182,10 +182,45 @@ module vip_system_tb;
         end
     endtask
 
+
+    task automatic run_rom_status(input string name, input integer hwords,
+                                  input [15:0] want,
+                                  input integer max_cycles);
+        integer fd, i;
+        string  path;
+        begin
+            reset_n = 1'b0;
+            status = 16'hffff;
+            path = {"../.roms/", name, ".hex"};
+            fd = $fopen(path, "r");
+            if (fd == 0)
+                $fatal(1, "%0s: cannot open %0s; run pnpm run build:roms first",
+                       name, path);
+            $fclose(fd);
+            $readmemh(path, rom);
+            rom_mask = hwords - 1;
+            for (i = 0; i < 65536; i = i + 1)
+                dram[i] = 16'h5a5a ^ i[15:0];
+            repeat (4) @(posedge clk);
+            reset_n = 1'b1;
+            i = 0;
+            while (status !== want && i < max_cycles) begin
+                @(posedge clk);
+                i = i + 1;
+            end
+            if (status !== want)
+                $fatal(1, "%0s: status %04x never became %04x in %0d cycles, pc %08x",
+                       name, status, want, max_cycles, dbg_pc);
+            $display("vip_system: %0s PASS", name);
+        end
+    endtask
+
     initial begin
         run_rom("vip-compose", 2048, 8000000);
         run_rom("vip-hbaff", 4096, 8000000);
         run_rom("vip-objx", 2048, 12000000);
+        run_rom("vip-sched", 2048, 60000000);
+        run_rom_status("vip-dpctrl", 1024, 16'h600d, 8000000);
         $display("vip_system: PASS");
         $finish;
     end
