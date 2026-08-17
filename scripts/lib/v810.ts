@@ -69,6 +69,38 @@ const COND_F = 0xd;
 const COND_GE = 0xe;
 const COND_GT = 0xf;
 
+// Bit string, CAXI and the format VII group share one opcode each; the
+// sub-opcode constants below tell the members apart [v810_opt.h].
+const OP_BSTR = 0x1f;
+const OP_CAXI = 0x3a;
+const OP_FPP = 0x3e;
+
+const SUB_SCH0BSU = 0x00;
+const SUB_SCH0BSD = 0x01;
+const SUB_SCH1BSU = 0x02;
+const SUB_SCH1BSD = 0x03;
+const SUB_ORBSU = 0x08;
+const SUB_ANDBSU = 0x09;
+const SUB_XORBSU = 0x0a;
+const SUB_MOVBSU = 0x0b;
+const SUB_ORNBSU = 0x0c;
+const SUB_ANDNBSU = 0x0d;
+const SUB_XORNBSU = 0x0e;
+const SUB_NOTBSU = 0x0f;
+
+const SUB_CMPF_S = 0x00;
+const SUB_CVT_WS = 0x02;
+const SUB_CVT_SW = 0x03;
+const SUB_ADDF_S = 0x04;
+const SUB_SUBF_S = 0x05;
+const SUB_MULF_S = 0x06;
+const SUB_DIVF_S = 0x07;
+const SUB_XB = 0x08;
+const SUB_XH = 0x09;
+const SUB_REV = 0x0a;
+const SUB_TRNC_SW = 0x0b;
+const SUB_MPYHW = 0x0c;
+
 const OP_MOV = 0x00;
 const OP_ADD = 0x01;
 const OP_SUB = 0x02;
@@ -550,6 +582,125 @@ export class Assembler {
 
   outW(src: Register, disp: number, base: Register): this {
     return this.#store(OP_OUT_W, src, disp, base);
+  }
+
+  // CAXI reads like a load — the lock word address is disp[base] — and the
+  // exchange value rides implicitly in r30.
+  caxi(disp: number, base: Register, dest: Register): this {
+    return this.#load(OP_CAXI, disp, base, dest);
+  }
+
+  // Bit string instructions take no operands: the string descriptors live in
+  // r26-r30 and the sub-opcode rides in the imm5 field.
+  #bitString(subop: number): this {
+    return this.halfword((OP_BSTR << 10) | subop);
+  }
+
+  sch0bsu(): this {
+    return this.#bitString(SUB_SCH0BSU);
+  }
+
+  sch0bsd(): this {
+    return this.#bitString(SUB_SCH0BSD);
+  }
+
+  sch1bsu(): this {
+    return this.#bitString(SUB_SCH1BSU);
+  }
+
+  sch1bsd(): this {
+    return this.#bitString(SUB_SCH1BSD);
+  }
+
+  orbsu(): this {
+    return this.#bitString(SUB_ORBSU);
+  }
+
+  andbsu(): this {
+    return this.#bitString(SUB_ANDBSU);
+  }
+
+  xorbsu(): this {
+    return this.#bitString(SUB_XORBSU);
+  }
+
+  movbsu(): this {
+    return this.#bitString(SUB_MOVBSU);
+  }
+
+  ornbsu(): this {
+    return this.#bitString(SUB_ORNBSU);
+  }
+
+  andnbsu(): this {
+    return this.#bitString(SUB_ANDNBSU);
+  }
+
+  xornbsu(): this {
+    return this.#bitString(SUB_XORNBSU);
+  }
+
+  notbsu(): this {
+    return this.#bitString(SUB_NOTBSU);
+  }
+
+  // Format VII: the sub-opcode occupies the top six bits of the second
+  // halfword, which are instruction bits 31-26 [v810_oploop.inc DO_AM_FPP].
+  #formatVII(subop: number, src: Register, dest: Register): this {
+    return this.halfword(
+      (OP_FPP << 10) | (checkRegister(dest, "dest") << 5) | checkRegister(src, "src"),
+      subop << 10,
+    );
+  }
+
+  cmpfS(src: Register, dest: Register): this {
+    return this.#formatVII(SUB_CMPF_S, src, dest);
+  }
+
+  cvtWs(src: Register, dest: Register): this {
+    return this.#formatVII(SUB_CVT_WS, src, dest);
+  }
+
+  cvtSw(src: Register, dest: Register): this {
+    return this.#formatVII(SUB_CVT_SW, src, dest);
+  }
+
+  addfS(src: Register, dest: Register): this {
+    return this.#formatVII(SUB_ADDF_S, src, dest);
+  }
+
+  subfS(src: Register, dest: Register): this {
+    return this.#formatVII(SUB_SUBF_S, src, dest);
+  }
+
+  mulfS(src: Register, dest: Register): this {
+    return this.#formatVII(SUB_MULF_S, src, dest);
+  }
+
+  divfS(src: Register, dest: Register): this {
+    return this.#formatVII(SUB_DIVF_S, src, dest);
+  }
+
+  trncSw(src: Register, dest: Register): this {
+    return this.#formatVII(SUB_TRNC_SW, src, dest);
+  }
+
+  mpyhw(src: Register, dest: Register): this {
+    return this.#formatVII(SUB_MPYHW, src, dest);
+  }
+
+  rev(src: Register, dest: Register): this {
+    return this.#formatVII(SUB_REV, src, dest);
+  }
+
+  // XB and XH operate on reg2 alone; the reg1 field is left zero, which is
+  // the encoding one source says the hardware requires.
+  xb(dest: Register): this {
+    return this.#formatVII(SUB_XB, r0, dest);
+  }
+
+  xh(dest: Register): this {
+    return this.#formatVII(SUB_XH, r0, dest);
   }
 
   // movea sign-extends its immediate, so a low half with bit 15 set subtracts
