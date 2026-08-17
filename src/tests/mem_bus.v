@@ -26,6 +26,7 @@ module mem_bus_tb;
   reg  [26:1] addr = 26'd0;
   reg         we = 1'b0;
   reg         vip_ready = 1'b1;
+  reg         cart_rom_ready = 1'b1;
   reg  [1:0]  be = 2'b00;
   reg  [15:0] wdata = 16'd0;
   wire [15:0] rdata;
@@ -52,7 +53,8 @@ module mem_bus_tb;
     .vip_ready      (vip_ready),
     .misc_rdata     (MISC_DATA),
     .cart_ram_rdata (CRAM_DATA),
-    .cart_rom_rdata (CROM_DATA)
+    .cart_rom_rdata (CROM_DATA),
+    .cart_rom_ready (cart_rom_ready)
   );
 
   always #5 clk = ~clk;
@@ -117,7 +119,7 @@ module mem_bus_tb;
     if (sels !== 6'b000000) $fatal(1, "selects asserted without req");
     if (rdata !== 16'd0)    $fatal(1, "rdata %04x out of reset, expected 0", rdata);
 
-    // Only VIP accesses inherit the external memory stall.
+    // Only VIP accesses inherit the VIP's memory stall.
     req = 1'b1;
     addr = 26'd0;
     vip_ready = 1'b0;
@@ -128,6 +130,18 @@ module mem_bus_tb;
     if (ready !== 1'b1) $fatal(1, "VIP stall escaped its region");
     req = 1'b0;
     vip_ready = 1'b1;
+
+    // And only cartridge ROM accesses inherit the SDRAM's.
+    req = 1'b1;
+    addr = 26'h3800000;
+    cart_rom_ready = 1'b0;
+    #1;
+    if (ready !== 1'b0) $fatal(1, "cartridge stall did not reach the CPU");
+    addr = 26'h3000000;
+    #1;
+    if (ready !== 1'b1) $fatal(1, "cartridge stall escaped its region");
+    req = 1'b0;
+    cart_rom_ready = 1'b1;
 
     // Each region hits exactly its own select, at both ends of the region.
     // Regions 3 (unmapped) and 5 (work RAM, internal) assert no select at all.

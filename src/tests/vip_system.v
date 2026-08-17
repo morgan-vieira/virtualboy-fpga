@@ -67,7 +67,8 @@ module vip_system_tb;
         .vip_rdata(vip_rdata), .vip_ready(vip_ready),
         .misc_rdata(16'd0),
         .cart_ram_rdata(16'd0),
-        .cart_rom_rdata(cart_rom_rdata)
+        .cart_rom_rdata(cart_rom_rdata),
+        .cart_rom_ready(1'b1)
     );
 
     // Behavioral cartridge: the built image, mirrored by its size mask,

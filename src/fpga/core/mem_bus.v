@@ -15,9 +15,14 @@
 // Timing contract: an access is one cycle of req, and rdata holds the answer
 // the following cycle -- the same shape block RAM gives, so external devices
 // answer exactly like the on-chip work RAM does. Between accesses rdata holds.
+// A device that cannot answer in a cycle lowers ready instead, and the
+// requester holds req and its payload until it rises; the VIP does that for
+// its memory and the cartridge does it for the SDRAM it lives in.
 //
 // Wait states are deliberately absent. The WCR lives with the CPU's bus
-// timing, where its only consumer is (see TODO section 2).
+// timing, where its only consumer is (see TODO section 2). Those are the
+// architectural waits the machine charges; what ready carries is the real
+// latency of the memory a device sits on, and the two are independent.
 //
 
 module mem_bus (
@@ -47,7 +52,8 @@ module mem_bus (
     input  wire         vip_ready,
     input  wire [15:0]  misc_rdata,
     input  wire [15:0]  cart_ram_rdata,
-    input  wire [15:0]  cart_rom_rdata
+    input  wire [15:0]  cart_rom_rdata,
+    input  wire         cart_rom_ready
 );
 
     wire [2:0] region = addr[26:24];
@@ -97,6 +103,9 @@ end
                    region_q == 3'd7 ? cart_rom_rdata :
                    16'd0;
 
-    assign ready = !req || region != 3'd0 || vip_ready;
+    assign ready = !req ? 1'b1
+                 : region == 3'd0 ? vip_ready
+                 : region == 3'd7 ? cart_rom_ready
+                 : 1'b1;
 
 endmodule

@@ -285,15 +285,7 @@ assign cram1_we_n = 1;
 assign cram1_ub_n = 1;
 assign cram1_lb_n = 1;
 
-assign dram_a = 'h0;
-assign dram_ba = 'h0;
-assign dram_dq = {16{1'bZ}};
-assign dram_dqm = 'h0;
-assign dram_clk = 'h0;
-assign dram_cke = 'h0;
-assign dram_ras_n = 'h1;
-assign dram_cas_n = 'h1;
-assign dram_we_n = 'h1;
+// the SDRAM is the cartridge's; pocket_sdram drives it, below
 
 assign dbg_tx = 1'bZ;
 assign user1 = 1'bZ;
@@ -506,8 +498,9 @@ core_bridge_cmd icb (
 // the CPU and its bus
 //
 // everything Virtual Boy computes in the clk_cpu domain: the CPU's state
-// machine, mem_bus, work RAM and the cartridge's read side run on the
-// 39.936 MHz clock, and cpu_clock_enable ticks architectural 20 MHz time
+// machine, mem_bus, work RAM, the cartridge's read side and the SDRAM the
+// cartridge lives in all run on the 39.936 MHz clock -- so a cartridge read
+// crosses no clock boundary at all -- and cpu_clock_enable ticks 20 MHz time
 // into the CPU -- 625 enables per 1248 clocks, which against the same-VCO
 // video clock is exactly 400,000 CPU cycles per 20 ms frame. the constants
 // are checked against the fit report's PLL counters (cpu_clock_enable.v
@@ -520,7 +513,8 @@ core_bridge_cmd icb (
 // in. devices that don't exist yet answer zero, matching mem_bus's unmapped
 // rule.
 
-    wire cart_load_wr = bridge_wr && bridge_addr[31:16] == 16'h0000;
+    // the cartridge decodes its own slot window off the raw bridge address;
+    // see cart_rom.v for why the size limit lives there and not here.
 
     wire dataslot_allcomplete_s;
 synch_3 s_dsac(dataslot_allcomplete, dataslot_allcomplete_s, clk_cpu);
@@ -545,6 +539,7 @@ cpu_clock_enable ce_gen (
 
     wire        cart_rom_sel;
     wire [15:0] cart_rom_rdata;
+    wire        cart_rom_ready;
 
     wire        vip_sel;
     wire [15:0] vip_rdata;
@@ -612,7 +607,8 @@ mem_bus vb_bus (
     .vip_ready              ( vip_ready ),
     .misc_rdata             ( misc_rdata ),
     .cart_ram_rdata         ( 16'd0 ),
-    .cart_rom_rdata         ( cart_rom_rdata )
+    .cart_rom_rdata         ( cart_rom_rdata ),
+    .cart_rom_ready         ( cart_rom_ready )
 );
 
     wire [1:0]  vip_display_pixel;
@@ -743,17 +739,78 @@ vsu vb_vsu (
     .sample_right           ( vsu_sample_right )
 );
 
+// the cartridge and the memory it lives in. the SDRAM controller runs in
+// the CPU's own domain, so a cartridge read never crosses a clock: see
+// pocket_sdram.v for why 39.936 MHz is the right clock for a bus that asks
+// for one halfword at a time. its reset comes from the PLL rather than from
+// reset_n, because APF holds reset_n low for the whole of every load and the
+// loader writes through the controller while it does -- resetting it there
+// would stall the load and re-run the 200 us init on every cartridge change.
+
+    wire        cart_mem_req;
+    wire [24:0] cart_mem_addr;
+    wire        cart_mem_we;
+    wire [15:0] cart_mem_wdata;
+    wire [15:0] cart_mem_rdata;
+    wire        cart_mem_ready;
+
+    wire        pll_core_locked_cpu;
+synch_3 s_lockcpu(pll_core_locked, pll_core_locked_cpu, clk_cpu);
+
 cart_rom vb_cart (
     .load_clk               ( clk_74a ),
     .load_begin             ( dataslot_requestwrite ),
-    .load_wr                ( cart_load_wr ),
+    .load_wr                ( bridge_wr ),
     .load_addr              ( bridge_addr ),
     .load_data              ( bridge_wr_data ),
 
     .clk                    ( clk_cpu ),
     .sel                    ( cart_rom_sel ),
     .addr                   ( cpu_addr ),
-    .rdata                  ( cart_rom_rdata )
+    .rdata                  ( cart_rom_rdata ),
+    .ready                  ( cart_rom_ready ),
+
+    .mem_req                ( cart_mem_req ),
+    .mem_addr               ( cart_mem_addr ),
+    .mem_we                 ( cart_mem_we ),
+    .mem_wdata              ( cart_mem_wdata ),
+    .mem_rdata              ( cart_mem_rdata ),
+    .mem_ready              ( cart_mem_ready )
+);
+
+pocket_sdram vb_cart_sdram (
+    .clk                    ( clk_cpu ),
+    .reset_n                ( pll_core_locked_cpu ),
+
+    .req                    ( cart_mem_req ),
+    .addr                   ( cart_mem_addr ),
+    .we                     ( cart_mem_we ),
+    .be                     ( 2'b11 ),
+    .wdata                  ( cart_mem_wdata ),
+    .rdata                  ( cart_mem_rdata ),
+    .ready                  ( cart_mem_ready ),
+
+    .dram_a                 ( dram_a ),
+    .dram_ba                ( dram_ba ),
+    .dram_dq                ( dram_dq ),
+    .dram_dqm               ( dram_dqm ),
+    .dram_cke               ( dram_cke ),
+    .dram_ras_n             ( dram_ras_n ),
+    .dram_cas_n             ( dram_cas_n ),
+    .dram_we_n              ( dram_we_n )
+);
+
+// the part's clock, an inverted copy of the controller's forwarded through
+// an output DDIO cell. the inversion is what puts the SDRAM's sampling edge
+// half a period after we launch a command and its data half a period before
+// we capture it; the cell keeps the pin's timing to the clock network rather
+// than to fabric routing. MiSTer's sdram.sdc records the same arrangement,
+// and core_constraints.sdc models the pin clock the same way.
+pin_ddio_clk vb_cart_sdram_clk (
+    .datain_h               ( 1'b0 ),
+    .datain_l               ( 1'b1 ),
+    .outclock               ( clk_cpu ),
+    .dataout                ( dram_clk )
 );
 
 // the test-ROM status convention (src/roms/README.md): ROMs report through

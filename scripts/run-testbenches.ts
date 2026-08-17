@@ -18,7 +18,16 @@ import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 // The compiled programs and any waveform dumps are disposable and land in a
 // gitignored directory at the root.
 export const testbenchSourceDirPath = ["src", "tests"] as const;
-export const moduleLibraryDirPath = ["src", "fpga", "core"] as const;
+// Synthesizable modules first, then the device models benches share. A model
+// only lives here when more than one bench needs it to behave identically --
+// two hand-rolled copies of the same handshake is how a bench stops matching
+// the hardware. The directory sits below the testbench directory rather than
+// beside it so discovery, which lists *.v files, never mistakes a model for a
+// testbench.
+export const moduleLibraryDirPaths = [
+  ["src", "fpga", "core"],
+  ["src", "tests", "models"],
+] as const;
 export const testbenchOutputDirName = ".sim";
 export const testbenchFileSuffix = ".v";
 
@@ -208,7 +217,7 @@ const runTool = Effect.fn("runTool")(function* (
  */
 export const runTestbench = Effect.fn("runTestbench")(function* (
   testbench: Testbench,
-  paths: { readonly moduleLibraryDir: string; readonly outputDir: string },
+  paths: { readonly moduleLibraryDirs: ReadonlyArray<string>; readonly outputDir: string },
   timeout: Duration.Duration,
 ) {
   const path = yield* Path.Path;
@@ -218,8 +227,7 @@ export const runTestbench = Effect.fn("runTestbench")(function* (
     "iverilog",
     [
       ...iverilogFlags,
-      moduleLibraryFlag,
-      paths.moduleLibraryDir,
+      ...paths.moduleLibraryDirs.flatMap((dir) => [moduleLibraryFlag, dir]),
       "-o",
       programPath,
       testbench.sourcePath,
@@ -279,7 +287,7 @@ export const runTestbenches = Effect.fn("runTestbenches")(function* (
 
   const rootDir = path.resolve(options.rootDir ?? process.cwd());
   const sourceDir = path.join(rootDir, ...testbenchSourceDirPath);
-  const moduleLibraryDir = path.join(rootDir, ...moduleLibraryDirPath);
+  const moduleLibraryDirs = moduleLibraryDirPaths.map((parts) => path.join(rootDir, ...parts));
   const outputDir = path.join(rootDir, testbenchOutputDirName);
   const timeout = Duration.seconds(options.timeoutSeconds ?? defaultTimeoutSeconds);
 
@@ -308,7 +316,7 @@ export const runTestbenches = Effect.fn("runTestbenches")(function* (
   const failedTestbenchNames: Array<string> = [];
 
   for (const testbench of testbenches) {
-    const outcome = yield* runTestbench(testbench, { moduleLibraryDir, outputDir }, timeout).pipe(
+    const outcome = yield* runTestbench(testbench, { moduleLibraryDirs, outputDir }, timeout).pipe(
       Effect.result,
     );
 
