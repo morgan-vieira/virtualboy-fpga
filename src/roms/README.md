@@ -83,6 +83,7 @@ Vectors the ROM does not name get a stub that halts and branches onto itself. A 
 | `cpu-longint`     | `cpu` long instructions       | Status cells read `0x600D` with the halt square filled. Timer interrupts land inside an 8,192-bit string and abort a divide mid-flight, both resuming to verified results. Mednafen freezes at check 5 by design (beetle-vb never aborts a divide where this core follows the manual). A Pocket pass proves the core; only a run on a real Virtual Boy could settle what the NVC silicon does.            |
 | `cpu-adtre`       | `cpu` address trap            | Status cells read `0x600D` with the halt square filled. An armed address traps before executing with code `0xFFC0`, AE stripped on entry, and the handler resuming past it; with AE clear the same address runs. Mednafen freezes at check 1 by design: beetle-vb stores ADTRE but never checks it.                                                                                                       |
 | `cart-size`       | `cart_rom` and `pocket_sdram` | Diagnostic Overlay on: square fills, cells read 0x600D. A 2MB image — thirty-two times what fit in block RAM — read back at markers spanning all four SDRAM banks and rows a megabyte apart, ascending then descending, alternating rows, across refreshes, and through the top-of-space mirror. Nothing on screen means the size mask, not the checks. |
+| `cart-ram`        | `cart_ram`                    | Diagnostic Overlay on: the square fills and the cells read `0x5A01` the first time the ROM is ever run, `0x5A02` after a Quit and relaunch, `0x5A03` after the next. That low byte is a boot count kept in save RAM, so a count stuck at `0x5A01` is the save not persisting. A failing check spins with its number: 1 a fresh save that was not `0xFF`, 2 a corrupt record, 3 cells that do not hold distinct bytes, 4 a byte store, 5 the `0xFF` upper byte, 6 mirroring, 7 the readback. Mednafen freezes at check 1 by design (beetle-vb zeroes cartridge RAM where APF fills a fresh save with `0xFF`). |
 | `vip-bg`          | `vip` background drawing      | A full 384×224 field of vertical red bars at three distinct brightness levels. Black, flat colour, missing bars, or the CPU diagnostic screen fails.                                                                                                                                                                                                                                                      |
 | `vip-obj`         | `vip` object drawing          | Fourteen rows of spaced bright 8×8 red squares on black; the first square is clipped four pixels by left-eye parallax. Missing, smeared, joined, or unshifted squares fail.                                                                                                                                                                                                                               |
 | `vip-affine`      | `vip` affine drawing          | Three-level bands slope smoothly down and right by half a pixel per scanline. Horizontal bands, eight-line stepping, flat colour, or black fails.                                                                                                                                                                                                                                                         |
@@ -121,7 +122,10 @@ verdict is a picture rather than a number.
 
 On the Pocket, built `.vb` images go in `Assets/virtualboy/common/` on the SD
 card; the core prompts for one at launch and can reload from the Interact menu.
-The cartridge slot tops out at 64KB until cartridge memory moves off-chip.
+The cartridge slot takes the full 16MB a game pak can hold, served out of the
+Pocket's SDRAM. A ROM that writes to game pak RAM also gets a `.sav` beside it
+in `Saves/virtualboy/common/`, named after the image and written back when the
+core shuts down.
 
 ## Where the format came from
 
