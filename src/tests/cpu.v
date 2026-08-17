@@ -32,7 +32,8 @@
 
 module cpu_tb;
 
-    localparam ROM_HWORDS  = 32768;   // 64KB, the directed-test ROM size
+    localparam ROM_HWORDS   = 32768;    // 64KB, the directed-test ROM size
+    localparam ROM_CAPACITY = 1048576;  // 2MB, the largest image built here
     localparam WRAM_HWORDS = 32768;
 
     reg clk = 1'b0;
@@ -138,7 +139,11 @@ module cpu_tb;
     // region 5 mirrored by its size, zero from everything else. Writes into
     // region 0 are captured for the fatal-exception check. The answer lands
     // the cycle after the access and holds, like mem_bus.
-    reg [15:0] rom  [0:ROM_HWORDS-1];
+    // Sized for the largest built image a run_rom can load, not for the
+    // directed tests: the cartridge is in SDRAM now, so an image can be a
+    // retail 2MB. ROM_HWORDS stays the directed tests' mask, which is what
+    // puts their hand-written reset trampoline within reach of 0xFFFFFFF0.
+    reg [15:0] rom  [0:ROM_CAPACITY-1];
     reg [15:0] wram [0:WRAM_HWORDS-1];
     reg [15:0] region0 [0:7];
     integer    rom_mask;
@@ -205,7 +210,7 @@ module cpu_tb;
             ready     = 1'b1;
             irq_valid = 1'b0;
             irq_level = 4'd0;
-            for (i = 0; i < ROM_HWORDS; i = i + 1) rom[i] = 16'hxxxx;
+            for (i = 0; i < ROM_CAPACITY; i = i + 1) rom[i] = 16'hxxxx;
             for (i = 0; i < WRAM_HWORDS; i = i + 1) wram[i] = 16'hxxxx;
             for (i = 0; i < 8; i = i + 1) region0[i] = 16'hxxxx;
             status   = 16'hxxxx;
@@ -1561,6 +1566,13 @@ module cpu_tb;
         run_rom("cpu-cache", 512, 400000);
         run_rom("cpu-longint", 512, 2000000);
         run_rom("cpu-adtre", 512, 200000);
+
+        // The 2MB cartridge, whose checks read markers placed for where they
+        // land in the SDRAM. Run here against the behavioral memory, this
+        // judges the ROM's own arithmetic -- its addresses, its constants and
+        // its mirror -- so a failing check on hardware points at the
+        // controller rather than at the program.
+        run_rom("cart-size", 1048576, 400000);
 
         // The timer ROM's check phase, through the real timer and the
         // real interrupt path: its status 0x0000 write means every check
