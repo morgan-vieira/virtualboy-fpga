@@ -1252,18 +1252,88 @@ noise and waveform locking with no popping or crackling.
       in `data.json` at bridge `0x00000000`, required so the Pocket spawns the file
       browser, user-reloadable, read-only, and with "reset core while loading" set
       so APF holds `reset_n` through every load; the CPU is additionally gated on
-      `dataslot_allcomplete`. Capped at 64KB of block RAM — plenty for test ROMs,
-      revisited when cartridge memory moves off-chip for commercial sizes (open
-      decision 1). Bridge byte order (file byte 0 in bits 31:24) is pinned by
-      `src/tests/cart_rom.v` and was confirmed on hardware 2026-08-14: three
-      images of two sizes picked from the Pocket's browser each booted through
-      the reset vector and ran to its success halt.
+      `dataslot_allcomplete`. Bridge byte order (file byte 0 in bits 31:24) is
+      pinned by `src/tests/cart_rom.v` and was confirmed on hardware 2026-08-14:
+      three images of two sizes picked from the Pocket's browser each booted
+      through the reset vector and ran to its success halt. The 64KB block-RAM
+      cap that allowance came with is gone; see below.
 - [x] **Mirror by masking.** Every commercial cart is a power of two in size, and
       addresses past the end have their upper bits masked, which is exactly why the
       header and vectors sit at the very top of the address space and land correctly for
       any ROM size. The mask is recovered from the load itself — highest word
       address written — and the bench proves the reset vector's top-of-space view
       lands on the image's own trailer, and that a reload shrinks the mask.
+- [x] **Hold a cartridge, not a test ROM.** Retail games are 512KB to 2MB and the
+      fabric has 384KB of block RAM, all of it spoken for — the fit report before
+      this change read 306 of 308 M10K blocks, 64 of them the old 64KB cartridge.
+      Now `core/pocket_sdram.v` serves the cartridge out of the Pocket's
+      AS4C32M16MSA-6BIN, `data.json` accepts up to the game pak's full 16MB
+      [Virtual Boy Development Manual 3.9], and the mask still comes from the
+      load. Settles open decision 1's second half.
+
+      The controller runs in the CPU's own 39.936 MHz domain rather than on the
+      PLL's spare 133 MHz outputs, so a cartridge read crosses no clock boundary;
+      the bus asks for one halfword at a time, so the bandwidth a faster clock
+      buys has nowhere to go, and a 25.04 ns period leaves the pin timing dull.
+      CAS latency 2, one row held open, refresh every 7.5 µs, and the mobile
+      part's extended mode register programmed to its defaults as
+      `docs/analogue/external-hardware.md` warns to. `dram_clk` is an inverted
+      copy of the CPU clock forwarded through `pin_ddio_clk`, and
+      `core_constraints.sdc` models it as a generated clock on the port the way
+      MiSTer's `rtl/Mem/sdram.sdc` does and for the reason recorded there.
+
+      What that costs the machine is measured, not assumed:
+      `src/tests/pocket_sdram.v` pins a page hit at 4 clocks and a row miss at 6,
+      which are exactly the one-wait and two-wait cartridge budgets `cpu.v`
+      already charges. Reads are answered from IDLE on a page hit specifically to
+      land inside the tighter one. `mem_bus` carries the stall through
+      `cart_rom_ready` for the first time; before this, only the VIP could hold
+      the bus.
+
+      The fit: 306 of 308 M10K blocks became 242, which is the 64 the old
+      cartridge held, for 29 ALMs. Every timing corner closed with TNS zero, and
+      the critical path of the whole core is now the SDRAM read capture at
+      0.169 ns of slack — thin, structurally so, and `pocket_sdram.v` records
+      why that half period is the entire budget and what the fallback costs.
+
+      **Watched and failed once, 2026-08-17.** morgan-vieira ran all three on the
+      0.10.0 build: `halt` read `0xBEEF` and `busmap` read `0x600D` with the halt
+      square filled, both passing, but `cart-size` halted with the status cells
+      at `0x0000` — no check number at all, meaning the CPU never reached check
+      1's status write. The cause was the bridge write decode, which lived in
+      `core_top.v` as `bridge_addr[31:16] == 16'h0000` and accepted only the
+      first 64KB of the slot. Raising `data.json`'s cap to 16MB without widening
+      it meant APF wrote all 2MB and the core kept the first 64KB, so the
+      recovered mask was 64KB and the reset vector at `0xFFFFFFF0` landed on
+      image byte `0xFFF0` — `0xFF` fill in a 2MB image, not the vector table.
+      The CPU executed fill from its first instruction. `halt` and `busmap` are
+      both under 64KB, which is why they were unaffected.
+
+      The decode now lives in `cart_rom.v` beside `HWORD_BITS`, so the size a
+      cartridge may be is stated once instead of in two files that drifted
+      apart, and `src/tests/cart_rom.v` covers a load past 64KB, the mask that
+      has to grow with it, and a bridge write outside the slot window that must
+      be ignored. Reinstating the 64KB decode makes that bench fail on the same
+      read the Pocket failed on.
+
+      **Watched and passed 2026-08-17** by morgan-vieira on the 0.10.1 build.
+      `halt` read `0xBEEF`, `busmap` read `0x600D` with its PC row on its known
+      halt address `0x07000144`, and `cart-size` read `0x600D` with the square
+      filled and its PC row on `0x0700024A` — the branch of its own success
+      `hang()`, which assembles at offset `0x248`. The CPU stopped where the
+      program says it should, not somewhere it wandered to: compare the failing
+      run, which halted at `0x0124` with the cells at `0x0000`.
+
+      That is a 2MB cartridge served out of SDRAM, read back at markers spanning
+      all four banks and rows a megabyte apart, ascending and descending, two
+      rows alternating, across refreshes, and through the top-of-space mirror.
+      Simulation backs it with all 18 benches, a device model that enforces the
+      initialization sequence, row activation, tRCD/tRP/tRFC and the refresh
+      interval, and drives read data tAC late on the inverted pin clock rather
+      than instantly.
+      `cart-size` is the one that matters: a 2MB image the old core could not
+      have held, with markers read back across every bank and rows a megabyte
+      apart.
 
 ### Feature: serve save RAM
 
@@ -1341,8 +1411,10 @@ Collected from above, split by whether a reference can answer them.
 ### Answerable from the implementations — I'll decide, not ask
 
 1. **On-chip versus SDRAM** for the 320 KiB of VIP and work RAM state — **decided:
-   on-chip, with cartridge ROM in SDRAM.** MiSTer keeps VIP working memory on-chip in
-   M10K (`rtl/VIP/vip_render_storage.sv` forwards same-address writes rather than
+   on-chip, with cartridge ROM in SDRAM.** Built 2026-08-17, section 9; the clock
+   it runs at was a second choice and is recorded there and in
+   `pocket_sdram.v`. MiSTer keeps VIP working memory on-chip in M10K
+   (`rtl/VIP/vip_render_storage.sv` forwards same-address writes rather than
    relying on M10K collision mode, which only makes sense for block RAM) and pushes
    cartridge ROM out to SDRAM and DDR (`rtl/Mem/vb_cart_sdram.sv`, `rtl/Mem/ddram.sv`).
    The Pocket's budget allows the same split, but not with much room — see below.
