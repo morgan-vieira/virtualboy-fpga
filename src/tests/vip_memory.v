@@ -1,9 +1,13 @@
 `timescale 1ns/1ps
 `default_nettype none
 
+// vip_memory: region decode, byte lanes, mirrors, the display port, and the
+// owned-transaction arbitration with its measured CPU service times.
+
 module vip_memory_tb;
     logic clk = 1'b0;
     logic reset_n = 1'b0;
+    logic ce = 1'b0;
     logic display_clk = 1'b0;
     logic cpu_sel = 1'b0;
     logic [26:1] cpu_addr = '0;
@@ -25,9 +29,11 @@ module vip_memory_tb;
     logic [1:0] dram_be;
     logic [15:0] dram_wdata;
     logic [15:0] dram_rdata;
-    logic dram_ready = 1'b1;
+    logic dram_ready;
     logic display_eye = 1'b0;
     logic display_buffer = 1'b0;
+    logic column_lock = 1'b0;
+    logic [7:0] cta_locked = '0;
     logic [8:0] display_x = '0;
     logic [7:0] display_y = '0;
     logic [1:0] display_pixel;
@@ -40,14 +46,44 @@ module vip_memory_tb;
 
     always #5 clk = ~clk;
     always #7 display_clk = ~display_clk;
+    always @(posedge clk) ce <= ~ce;
+    integer ce_count = 0;
+    always @(posedge clk) if (ce) ce_count = ce_count + 1;
 
-    always_ff @(posedge clk) begin
-        if (dram_req) begin
-            if (dram_we && dram_be[0]) dram_lo[dram_addr] <= dram_wdata[7:0];
-            if (dram_we && dram_be[1]) dram_hi[dram_addr] <= dram_wdata[15:8];
-            dram_rdata <= {dram_hi[dram_addr], dram_lo[dram_addr]};
-        end
+    // pocket_sram's shape: three access cycles, a one-cycle ready pulse,
+    // then a release phase that insists the request drop first. An
+    // abandoned request parks here exactly as it parks the chip.
+    logic [2:0] sram_state = '0;
+    logic [15:0] sram_addr;
+    logic sram_we_q;
+    logic [15:0] sram_wdata_q;
+    logic [1:0] sram_be_q;
+    assign dram_ready = sram_state == 3'd4;
+    always @(posedge clk) begin
+        case (sram_state)
+            3'd0: if (dram_req) begin
+                sram_addr <= dram_addr;
+                sram_we_q <= dram_we;
+                sram_wdata_q <= dram_wdata;
+                sram_be_q <= dram_be;
+                sram_state <= 3'd1;
+            end
+            3'd1, 3'd2: sram_state <= sram_state + 3'd1;
+            3'd3: begin
+                if (sram_we_q) begin
+                    if (sram_be_q[0]) dram_lo[sram_addr] <= sram_wdata_q[7:0];
+                    if (sram_be_q[1]) dram_hi[sram_addr] <= sram_wdata_q[15:8];
+                end else begin
+                    dram_rdata <= {dram_hi[sram_addr], dram_lo[sram_addr]};
+                end
+                sram_state <= 3'd4;
+            end
+            3'd4: sram_state <= 3'd5;
+            default: if (!dram_req) sram_state <= 3'd0;
+        endcase
     end
+
+    integer t0;
 
     task automatic cpu_write(input logic [26:0] address, input logic [1:0] lanes,
                              input logic [15:0] data);
@@ -57,6 +93,8 @@ module vip_memory_tb;
         cpu_we = 1'b1;
         cpu_be = lanes;
         cpu_wdata = data;
+        @(posedge clk);
+        while (!ready) @(posedge clk);
         @(negedge clk);
         cpu_sel = 1'b0;
         cpu_we = 1'b0;
@@ -67,6 +105,8 @@ module vip_memory_tb;
         cpu_sel = 1'b1;
         cpu_addr = address[26:1];
         cpu_we = 1'b0;
+        @(posedge clk);
+        while (!ready) @(posedge clk);
         @(negedge clk);
         cpu_sel = 1'b0;
         @(negedge clk);
@@ -143,6 +183,12 @@ module vip_memory_tb;
         cpu_write(27'h003DEF4, 2'b11, 16'h5678);
         expect_column(1'b0, 8'h7A, 16'h1234);
         expect_column(1'b1, 8'h7A, 16'h5678);
+        // With LOCK the scanout serves the locked entry to every column.
+        cpu_write(27'h003DC02, 2'b11, 16'h9999);
+        column_lock = 1'b1;
+        cta_locked = 8'h01;
+        expect_column(1'b0, 8'h7A, 16'h9999);
+        column_lock = 1'b0;
 
         cpu_write(27'h0020100, 2'b11, 16'hAABB);
         cpu_write(27'h0020100, 2'b01, 16'hCCDD);
@@ -153,23 +199,70 @@ module vip_memory_tb;
         cpu_write(27'h0040000, 2'b11, 16'hDEAD);
         expect_read(27'h0040000, 16'h0000, "unmapped memory");
 
+        // CPU service times follow the measured figures: a BRAM write is
+        // ready inside three 20 MHz cycles, a read inside seven.
+        @(negedge clk);
+        cpu_sel = 1'b1; cpu_addr = 27'h0000100 >> 1; cpu_we = 1'b1;
+        cpu_be = 2'b11; cpu_wdata = 16'h7777;
+        t0 = ce_count;
+        @(posedge clk);
+        while (!ready) @(posedge clk);
+        if (ce_count - t0 < 2 || ce_count - t0 > 4)
+            $fatal(1, "write service time %0d ce", ce_count - t0);
+        @(negedge clk); cpu_sel = 1'b0; cpu_we = 1'b0;
+        @(negedge clk);
+        cpu_sel = 1'b1; cpu_we = 1'b0;
+        t0 = ce_count;
+        @(posedge clk);
+        while (!ready) @(posedge clk);
+        if (ce_count - t0 < 6 || ce_count - t0 > 8)
+            $fatal(1, "read service time %0d ce", ce_count - t0);
+        @(negedge clk); cpu_sel = 1'b0;
+
+        // Arbitration: a draw request raised mid-flight must not hijack the
+        // CPU's in-progress DRAM read; both transactions complete.
         @(negedge clk);
         cpu_sel = 1'b1;
-        cpu_addr = 27'h0020200 >> 1;
-        cpu_we = 1'b1;
-        cpu_be = 2'b11;
-        cpu_wdata = 16'h1111;
+        cpu_addr = 27'h0020000 >> 1;
+        cpu_we = 1'b0;
+        repeat (2) @(posedge clk);
+        @(negedge clk);
         draw_req = 1'b1;
         draw_addr = 19'h20200 >> 1;
         draw_we = 1'b1;
         draw_be = 2'b11;
         draw_wdata = 16'h2222;
+        @(posedge clk);
+        while (!ready) @(posedge clk);
         @(negedge clk);
         cpu_sel = 1'b0;
-        cpu_we = 1'b0;
+        @(negedge clk);
+        value = cpu_rdata;
+        if (value !== 16'hABCD)
+            $fatal(1, "draw hijacked an in-flight CPU read: %04x", value);
+        while (!draw_ready) @(posedge clk);
+        @(negedge clk);
         draw_req = 1'b0;
         draw_we = 1'b0;
-        expect_read(27'h0020200, 16'h2222, "drawing port priority");
+        expect_read(27'h0020200, 16'h2222, "queued draw write landed");
+
+        // Fresh grants prefer the drawing engine.
+        @(negedge clk);
+        cpu_sel = 1'b1;
+        cpu_addr = 27'h0020300 >> 1;
+        cpu_we = 1'b1; cpu_be = 2'b11; cpu_wdata = 16'h1111;
+        draw_req = 1'b1;
+        draw_addr = 19'h20300 >> 1;
+        draw_we = 1'b1; draw_be = 2'b11; draw_wdata = 16'h2222;
+        @(posedge clk);
+        while (!draw_ready) @(posedge clk);
+        @(negedge clk);
+        draw_req = 1'b0; draw_we = 1'b0;
+        @(posedge clk);
+        while (!ready) @(posedge clk);
+        @(negedge clk);
+        cpu_sel = 1'b0; cpu_we = 1'b0;
+        expect_read(27'h0020300, 16'h1111, "held CPU write landed second");
 
         expect_pixel(1'b0, 1'b0, 9'd0, 8'd0, 2'd0);
         expect_pixel(1'b0, 1'b0, 9'd0, 8'd1, 2'd1);
@@ -181,11 +274,12 @@ module vip_memory_tb;
 
         cpu_read(27'h0020000, value);
         if (value !== 16'hABCD) $fatal(1, "final read failed");
+        $display("vip_memory: PASS");
         $finish;
     end
 
     initial begin
-        #100_000;
+        #400_000;
         $fatal(1, "timed out");
     end
 endmodule

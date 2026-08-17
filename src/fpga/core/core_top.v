@@ -628,6 +628,7 @@ mem_bus vb_bus (
 vip vb_vip (
     .clk                    ( clk_cpu ),
     .reset_n                ( reset_n && dataslot_allcomplete_s ),
+    .ce                     ( cpu_ce ),
 
     .cpu_sel                ( vip_sel ),
     .cpu_addr               ( cpu_addr ),

@@ -21,6 +21,8 @@ module vip_registers_tb;
   reg [15:0] events = 0;
   reg draw_start = 0;
   reg first_group_done = 0;
+  reg [7:0] cta_l = 8'hFA;
+  reg [7:0] cta_r = 8'hFA;
   wire display_enable, sync_enable, refresh_enable, column_lock;
   wire draw_enable;
   wire [4:0] sbcmp;
@@ -58,15 +60,21 @@ module vip_registers_tb;
     if ({column_lock,sync_enable,refresh_enable,display_enable} !== 4'b1111)
       $fatal(1, "DPCTRL fields not stored");
 
-    // Byte writes preserve controls in the other lane.
-    wr(12'hC11, 2'b01, 16'h0000);
-    @(negedge clk); fclk=0; @(posedge clk);
-    @(negedge clk); fclk=1; @(posedge clk); #1;
-    if ({column_lock,sync_enable,refresh_enable,display_enable} !== 4'b1110)
-      $fatal(1, "DPCTRL byte merge failed");
-    wr(12'hC21, 2'b10, 16'h1B00);
-    wr(12'hC21, 2'b01, 16'h0002);
-    if (!draw_enable || sbcmp != 5'h1B) $fatal(1, "XPCTRL byte merge failed");
+    // A byte write to an even address performs a halfword write with the
+    // source's full low 16 bits [scroll, VIP I/O Registers].
+    wr(12'hC24, 2'b01, 16'h0123);
+    expect_reg(12'hC24, 16'h0123, "even byte write mangles to halfword");
+    // A byte write to an odd address writes the high lane over a zero low
+    // byte, so SBCMP lands and XPEN clears.
+    wr(12'hC21, 2'b10, 16'h1BFF);
+    if (draw_enable || sbcmp != 5'h1B)
+      $fatal(1, "odd byte write not mangled: sbcmp %02x en %b", sbcmp, draw_enable);
+    wr(12'hC21, 2'b11, 16'h0002);
+    if (!draw_enable) $fatal(1, "XPEN halfword write failed");
+
+    // CTA reflects the live column pointers.
+    cta_l = 8'h9C; cta_r = 8'hE1;
+    expect_reg(12'hC18, 16'hE19C, "CTA readback");
 
     wr(12'hC30, 2'b01, 16'h00FF);
     wr(12'hC34, 2'b01, 16'h006C);
