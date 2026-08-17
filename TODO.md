@@ -1337,22 +1337,95 @@ noise and waveform locking with no popping or crackling.
 
 ### Feature: serve save RAM
 
-- [ ] **Mirror the same way.** Cartridge RAM is also a power of two and also masks.
-- [ ] **Persist through a nonvolatile data slot.** Settled from
-      `docs/analogue/core-definition-files/data-json.md`. A second slot in `data.json`
-      marked `nonvolatile` is read back onto the file it came from when the core shuts
-      down — on Quit, on power off, and on sleep. Its size comes from the dataslot
-      size table in the core rather than from the JSON.
-- [ ] **Name the save after the ROM.** Parameters bit 2 clones the filename from slot 0
-      and appends this slot's extension, which is what turns `Game.vb` into `Game.sav`
-      without the core knowing anything about filenames.
-- [ ] **Fill a fresh save with `0xFF`.** Parameters bit 5 overwrites the slot with
-      `0xFF` up to its maximum size when no save file exists yet, which matches an
-      erased SRAM chip. Leaving it clear writes nothing at all, so a first boot would
-      read whatever the FPGA powered up with.
-- [ ] **Leave the read-only bit clear** (bit 3), or the file never gets written.
-- [ ] Note that `core.json` sets `sleep_supported: false` today, so the sleep flush
+- [x] **Mirror the same way.** Cartridge RAM is also a power of two and also masks.
+      Now `core/cart_ram.v`: 8192 cells of block RAM, the cell index taken from
+      address bits 13:1 and masked with the size recovered from the load, so a
+      smaller save mirrors sooner. The mask starts full and narrows, which keeps a
+      slot that never loads from collapsing to a four-cell mirror.
+- [x] **Eight bits per cell, not sixteen.** A game pak wires only D0-D7 to its RAM
+      module, so a halfword read answers `0xFF` above the byte and a halfword write
+      drops it; a byte store to an odd address selects the upper lane alone and does
+      nothing at all. No document we have says so — MiSTer models it in
+      `rtl/Mem/vb_cart_sdram.sv` and beetle-vb does not, so MiSTer decides. The
+      consequence for the file is one byte per cell, MiSTer's packed layout, which
+      is not the same bytes beetle-vb's save would hold.
+- [x] **Persist through a nonvolatile data slot.** `data.json` slot 1 at bridge
+      `0x01000000`, `nonvolatile`, parameters `0x24`: bit 2 clones the filename from
+      slot 0 so `Game.vb` becomes `Game.sav`, bit 5 fills a save that has no file yet
+      with `0xFF` the way erased silicon reads, bit 3 stays clear so the file can be
+      written. `core_top.v` answers bridge reads of `0x01xxxxxx` from the cells,
+      which is the flush APF performs at shutdown. How many bytes that flush writes
+      is the core's job to say; see below.
+- [x] **Qualify each load by slot id.** A second slot meant
+      `dataslot_requestwrite` stopped being unambiguous: unqualified, the save's load
+      would clear the size mask `cart_rom` had just recovered from the image, and
+      every cartridge would mirror its first halfword. `core_top.v` now compares
+      `dataslot_requestwrite_id` before handing either module its load.
+- [x] Note that `core.json` sets `sleep_supported: false` today, so the sleep flush
       doesn't apply to us yet — quit and power-off do.
+- [x] **Tell APF how much to write back.** The framework flushes a nonvolatile slot
+      by reading its own size table, and a save whose file does not exist yet is
+      loaded as zero bytes — so the flush wrote nothing, no file was ever created,
+      and the save could never come into being. `host-target-commands.md` says the
+      core may correct the entry, so `core/dataslot_size.v` walks the table for the
+      slot's id and writes the size `cart_ram` was actually handed. The table ports
+      were wired into `core_bridge_cmd` from Analogue's template and driven by
+      nothing until now.
+
+      **Watched and failed once, 2026-08-18.** morgan-vieira ran `cart-ram` on the
+      0.11.0 build four times — quit, relaunch, quit, relaunch, power off, relaunch
+      — and the status cells read `0x5A01` every time, halting at the same PC. Every
+      check passed on every boot, including check 1, which is the one that proves a
+      fresh save reads `0xFF`: the cells were being filled by parameter bit 5 on
+      each boot, so the slot was loading but never being written back. `Saves/`
+      on the card had no `virtualboy` directory at all, which is what separated
+      "the flush read the wrong bytes out of us" (that would have left an 8KB file
+      of `0xFF`) from "the flush never happened". `cart-size` and `halt` passed on
+      the same build, so the cartridge was unaffected. Every save slot on
+      morgan-vieira's card belonging to a core that does save was read for
+      comparison; parameters `0x24` matches what Spiritualized's GB/GBC/NES cores
+      and the NeoGeo memory card use, which ruled the parameter bits out and left
+      the size table.
+
+      `data.json`'s save slot also dropped its `size_exact: 0`. Every working
+      nonvolatile slot on that card either omits the field or sets it to `null`,
+      and Spiritualized's cores set `0` on the cartridge slot and `null` on the
+      save slot in the same file, which reads like the distinction is deliberate.
+      Not the cause — a slot with a size table of zero explains the failure on its
+      own — but no reason to keep the one difference from every core that works.
+
+- [x] **Watched and passed 2026-08-18** by morgan-vieira on the 0.11.1 build.
+      `cart-ram` read `0x5A01` on its first ever run, `0x5A02` and `0x5A03` after a
+      Quit and relaunch each, and `0x5A04` after the Pocket was powered off and
+      launched again — the boot count it keeps in save RAM advancing by one every
+      time, which it can only do if the save was written to the card on shutdown and
+      read back on launch. All seven checks passed on every boot, including the
+      `0xFF` upper byte and the region mirror, and the PC row sat on `0x070001A0` —
+      the program's own success `hang()` — rather than somewhere it wandered to.
+      `cart-size` read `0x600D` at `0x0700024A` on the same build, so the cartridge
+      is unaffected.
+
+      The file the Pocket wrote is the other half of the verdict, because it can be
+      read without the screen. `Saves/virtualboy/common/cart/cart-ram.sav` is exactly
+      8192 bytes; cells 0-3 hold `56 42 04 FB` — the magic, the boot count of 4, and
+      its complement — cells `0x100`-`0x102` hold the `A5 5A C3` the scratch checks
+      wrote, cell `0x1FFF` holds `3C`, and the other 8,184 bytes are still `0xFF`.
+      That is the packed one-byte-per-cell layout in file order, confirmed on disk
+      rather than inferred from the overlay.
+
+      Simulation covers what it can either side of the framework:
+      `src/tests/cart_ram.v` pins the cell width, the byte order through a bridge
+      round trip, the mask, and the size the flush is told to use;
+      `src/tests/cart_ram_system.v` runs the real CPU through three power cycles,
+      scribbling over the cells between them so only what went out through the bridge
+      can come back; `src/tests/dataslot_size.v` pins the table walk against a model
+      of the table's two-clock read, because a walk that compares a clock early
+      resizes another slot's file. None of them can reach APF itself, which is where
+      this feature failed the first time and why it took a hardware run to find.
+
+      One consequence worth knowing: the save slot takes its filename from whatever
+      is in slot 0, so every ROM launched now grows an 8KB `.sav` beside it under
+      `Saves/virtualboy/common/`. Correct behavior, untidy in the test-ROM folders.
 
 ### Feature: accept a cartridge interrupt
 
@@ -1360,7 +1433,9 @@ noise and waveform locking with no popping or crackling.
       commercial cart does. The expansion region is likewise unused by every commercial
       cart and decodes to nothing.
 
-**ROM:** the existing `halt` already exercises header parsing end to end.
+**ROM:** the existing `halt` already exercises header parsing end to end; `cart-size`
+is the 2MB image only SDRAM can hold, and `cart-ram` is the save that has to outlive
+the core being shut down.
 
 ---
 
