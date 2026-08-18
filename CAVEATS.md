@@ -133,9 +133,20 @@ for the rest, and what that pulse train should look like on an LCD is
 nobody's measurement. MiSTer runs exposure through a lookup table its own
 header calls presentation logic rather than Virtual Boy behavior
 (`rtl/VIP/vip_host_display.sv`); `vip_luma_curve` does the same with
-round(255 × (exposure/255) ^ (1.4/2.2)), which tracks MiSTer's SDR table to
-within 2/255. Both are absolute — full red needs an exposure of 255, so a
-game that dims itself gets a dimmer picture. Emulators normalize instead:
+round(255 × (exposure/255) ^ (1/2.2)), which is beetle-vb's encode
+(`mednafen/vb/vip.c` MakeColorLUT). An LED's output is linear in duty cycle,
+so exposure is linear light and that is the plain inverse of a 2.2 display:
+the physically neutral choice, and the one we take.
+
+We followed MiSTer's curve until 2026-08-18, as round(255 × (exposure/255) ^
+(1.4/2.2)) — the same encode against the 1.4 rendering gamma a dark surround
+wants, and a power law through MiSTer's SDR table to within 2/255. On the
+Pocket it was too dark to play, so we now depart from MiSTer deliberately
+[morgan-vieira, 2026-08-18]. That is a readability decision about a panel we
+can see, not a claim about the hardware. Neither curve is measured.
+
+Both are absolute — full red needs an exposure of 255, so a game that dims
+itself gets a dimmer picture. Emulators normalize instead:
 virtual-boy.com rendered a frame whose exposures were 33/66/132 as
 135/185/254, which is that frame's own top level scaled to full red and
 gamma-encoded. That photographs better and cannot represent a fade to dark.
