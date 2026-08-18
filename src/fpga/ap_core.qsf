@@ -759,6 +759,7 @@ set_global_assignment -name SYSTEMVERILOG_FILE core/vip_memory.v
 set_global_assignment -name SYSTEMVERILOG_FILE core/vip_registers.v
 set_global_assignment -name SYSTEMVERILOG_FILE core/vip_timing.v
 set_global_assignment -name SYSTEMVERILOG_FILE core/vip_display.v
+set_global_assignment -name SYSTEMVERILOG_FILE core/vip_luma_curve.v
 set_global_assignment -name SYSTEMVERILOG_FILE core/vip_draw.v
 set_global_assignment -name SYSTEMVERILOG_FILE core/vip_line_bank.v
 set_global_assignment -name SYSTEMVERILOG_FILE core/vip.v

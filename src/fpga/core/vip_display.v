@@ -20,6 +20,7 @@ module vip_display (
     logic [17:0] idle_cost;
     logic [18:0] active_budget;
     logic [18:0] apparent_level;
+    logic [7:0]  exposure;
 
     always_comb begin
         // MiSTer uses the measured 0xfa field-start value without a servo.
@@ -42,11 +43,12 @@ module vip_display (
         apparent_level = base_level * repeat_count;
         if (apparent_level > active_budget)
             apparent_level = active_budget;
-        if (apparent_level > 19'd255)
-            luma = 8'hFF;
-        else
-            luma = apparent_level[7:0];
+        // Full LED drive is one column's worth of exposure.
+        exposure = apparent_level > 19'd255 ? 8'hFF : apparent_level[7:0];
     end
+
+    // Exposure is a duty cycle; the panel wants it gamma-encoded.
+    vip_luma_curve curve (.exposure(exposure), .luma(luma));
 
 endmodule
 

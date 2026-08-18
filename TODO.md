@@ -132,11 +132,25 @@ because it needs no CPU, so it can be watched failing.
       A black right eye contributes nothing, making the shipped default a single red
       image. Anaglyph and side-by-side stay possible later through `interact.json`, the
       way both references expose them, but nothing depends on them now.
-- [~] **Turn emission duration into intensity.** The Virtual Boy's LEDs cannot vary
+- [x] **Turn emission duration into intensity.** The Virtual Boy's LEDs cannot vary
       brightness; a pixel looks brighter because it emits for longer. Four shades exist
       — black plus levels A, B and C — and level C's duration is the sum of all three
       brightness registers rather than an independent value, so the mapping to LCD
-      intensity is not linear in the register values.
+      intensity is not linear in the register values. `vip_display` sent the exposure
+      straight out as red, which put the brightest shade of a title screen at 132/255 —
+      half brightness, measured off the Pocket screenshot `20260818_010308.png` against
+      virtual-boy.com's render of the same frame. `core/vip_luma_curve.v` now
+      gamma-encodes it: round(255 × (exposure/255) ^ (1.4/2.2)), a power law through
+      MiSTer's SDR presentation table to within 2/255, generated from the formula rather
+      than copied and checked entry by entry by `src/tests/vip_luma_curve.v`. Absolute
+      rather than normalized, so a game that dims itself stays dim and the top shade
+      only reaches full red at a full-length exposure. Watched and passed 2026-08-18 by
+      morgan-vieira on the bitstream built that day: the same demo frame that had
+      measured 33/66/132 measured 66/107/165, pixel counts identical. That is the
+      table's 69/108/168 through the Pocket's five-bit-per-channel display path — every
+      level in both screenshots is an exact 8→5→8 fixed point, and six bits would have
+      given 69/109/170. So the top shade moved from bucket 16 of 31 to bucket 20, the
+      only units the panel can show.
 
 **ROM:** none. The pattern drives itself.
 **Pass criterion:** flat colour could not fail this test, so `core_top` draws a pattern

@@ -12,19 +12,25 @@ module vip_display_tb;
     logic [7:0] column_index;
     logic [7:0] luma;
 
+    // The table belongs to vip_luma_curve's bench; this one pins the exposure
+    // that reaches it.
+    logic [7:0] want_exposure = 8'd0;
+    logic [7:0] want_luma;
+
     vip_display dut (.*);
+    vip_luma_curve model (.exposure(want_exposure), .luma(want_luma));
 
     initial begin
         #1;
         if (column_index != 8'hFA || luma != 0)
             $fatal(1, "field start wrong");
 
-        pixel = 1; #1;
-        if (luma != 32) $fatal(1, "BRTA wrong: %0d", luma);
-        pixel = 2; #1;
-        if (luma != 64) $fatal(1, "BRTB wrong: %0d", luma);
-        pixel = 3; #1;
-        if (luma != 192) $fatal(1, "BRTC accumulation wrong: %0d", luma);
+        pixel = 1; want_exposure = 8'd32; #1;
+        if (luma != want_luma) $fatal(1, "BRTA wrong: %0d", luma);
+        pixel = 2; want_exposure = 8'd64; #1;
+        if (luma != want_luma) $fatal(1, "BRTB wrong: %0d", luma);
+        pixel = 3; want_exposure = 8'd192; #1;
+        if (luma != want_luma) $fatal(1, "BRTC accumulation wrong: %0d", luma);
 
         x = 9'd4; #1;
         if (column_index != 8'hF9) $fatal(1, "CTA did not walk");
@@ -32,10 +38,10 @@ module vip_display_tb;
         if (column_index != 8'h9B) $fatal(1, "CTA final index wrong");
 
         pixel = 1;
-        column = 16'h01FF; #1;
-        if (luma != 64) $fatal(1, "repeat multiplier wrong: %0d", luma);
-        column = 16'h0000; #1;
-        if (luma != 3) $fatal(1, "column cutoff wrong: %0d", luma);
+        column = 16'h01FF; want_exposure = 8'd64; #1;
+        if (luma != want_luma) $fatal(1, "repeat multiplier wrong: %0d", luma);
+        column = 16'h0000; want_exposure = 8'd3; #1;
+        if (luma != want_luma) $fatal(1, "column cutoff wrong: %0d", luma);
         rest = 3; #1;
         if (luma != 0) $fatal(1, "REST cutoff wrong: %0d", luma);
 

@@ -126,6 +126,21 @@ per four columns � and this core serves those from a shadow copy, so CPU
 accesses never stall against display activity. The undocumented refresh
 arbitration is issue #2's.
 
+### Emission time reaches the panel through a gamma curve
+
+A pixel's LED is lit for `exposure` ticks of its column's window and dark
+for the rest, and what that pulse train should look like on an LCD is
+nobody's measurement. MiSTer runs exposure through a lookup table its own
+header calls presentation logic rather than Virtual Boy behavior
+(`rtl/VIP/vip_host_display.sv`); `vip_luma_curve` does the same with
+round(255 × (exposure/255) ^ (1.4/2.2)), which tracks MiSTer's SDR table to
+within 2/255. Both are absolute — full red needs an exposure of 255, so a
+game that dims itself gets a dimmer picture. Emulators normalize instead:
+virtual-boy.com rendered a frame whose exposures were 33/66/132 as
+135/185/254, which is that frame's own top level scaled to full red and
+gamma-encoded. That photographs better and cannot represent a fade to dark.
+Closing this needs a photometer on real hardware.
+
 ## Adjacent, tracked elsewhere
 
 - VIP data accesses charge the documented minimum wait of 2 until the real
