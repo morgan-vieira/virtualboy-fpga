@@ -103,12 +103,15 @@ because it needs no CPU, so it can be watched failing.
       `core_top`. Named for the host raster on purpose: the real machine scans a
       mirror on the 20 ms schedule in section 5 and produces no raster at all, so
       conflating the two would be a mistake the first time section 5 lands.
-      `src/tests/host_video_timing.v` checks the raster cycle by cycle: a 384×224 data
-      enable with x and y correct on every active clock, hs pulses exactly 480
-      clocks apart and never on vs's clock, one vs per frame with neither sync
-      inside the active window, and a measured vs-to-vs of exactly 245,760 clocks.
-      Nine mutations of the module were each caught before the bench was trusted,
-      three of them invisible to every per-frame count.
+      `src/tests/host_video_timing.v` checks the raster cycle by cycle: a data
+      enable of the declared size with x and y correct on every active clock, hs
+      pulses exactly a line apart and never on vs's clock, one vs per frame with
+      neither sync inside the active window, and a measured vs-to-vs of exactly
+      h_total × v_total clocks. Nine mutations of the module were each caught
+      before the bench was trusted, three of them invisible to every per-frame
+      count. The active area became a runtime input when the stereo modes landed,
+      because they are not all the same shape; the bench drives all six rasters
+      and checks each one's period against the 20 ms the machine's frame takes.
 - [x] **Hand off to APF's scaler.** Analogue's contract is a pixel clock plus RGB,
       data-enable, hsync and vsync. Getting the polarity or the enable window wrong
       shows as a rolling or torn image rather than as a build failure.
@@ -123,6 +126,8 @@ because it needs no CPU, so it can be watched failing.
       at 4:3) rather than a considered choice. It now declares 384×224 at 12:7, matching
       beetle-vb's geometry in `libretro.cpp`. APF takes width and height as plain
       integers with the aspect ratio given separately, so no letterboxing is needed.
+      The stereo modes below fill the remaining seven scaler slots, and the core
+      names the one it wants in the end-of-line word after DE falls.
 
 ### Feature: show one image on one screen
 
@@ -132,6 +137,20 @@ because it needs no CPU, so it can be watched failing.
       A black right eye contributes nothing, making the shipped default a single red
       image. Anaglyph and side-by-side stay possible later through `interact.json`, the
       way both references expose them, but nothing depends on them now.
+- [x] **Show it however the user asks.** The eye choice is now one of seven modes in
+      Core Settings, and `core/vip_stereo.v` owns all of them: which eye a host pixel
+      comes from, the raster that mode needs, the `video.json` slot that describes it,
+      and the colour. Five are beetle-vb's — anaglyph with its six presets, Cyberscope,
+      side by side, and both line interleaves — taken from `mednafen/vb/vip.c` rather
+      than invented. The other two are 2D (left eye), the default and what this core
+      showed before, and 2D (right eye). Reaching the second eye meant the frame
+      buffers serving both every cycle (they are separate arrays, so it is free) and
+      the column table splitting into one array per eye (it was not). Brightness is per
+      eye because the column table is, so `vip.v` runs two `vip_display` instances.
+      `src/tests/vip_stereo.v` checks every mode's mapping at its corners and seams
+      against numbers read off beetle-vb, and the anaglyph composite against
+      hand-computed colours. The departures from beetle-vb, and the one raster that
+      cannot be exactly 20 ms, are in `CAVEATS.md`.
 - [x] **Turn emission duration into intensity.** The Virtual Boy's LEDs cannot vary
       brightness; a pixel looks brighter because it emits for longer. Four shades exist
       — black plus levels A, B and C — and level C's duration is the sum of all three
@@ -140,17 +159,22 @@ because it needs no CPU, so it can be watched failing.
       straight out as red, which put the brightest shade of a title screen at 132/255 —
       half brightness, measured off the Pocket screenshot `20260818_010308.png` against
       virtual-boy.com's render of the same frame. `core/vip_luma_curve.v` now
-      gamma-encodes it: round(255 × (exposure/255) ^ (1.4/2.2)), a power law through
-      MiSTer's SDR presentation table to within 2/255, generated from the formula rather
-      than copied and checked entry by entry by `src/tests/vip_luma_curve.v`. Absolute
-      rather than normalized, so a game that dims itself stays dim and the top shade
-      only reaches full red at a full-length exposure. Watched and passed 2026-08-18 by
-      morgan-vieira on the bitstream built that day: the same demo frame that had
-      measured 33/66/132 measured 66/107/165, pixel counts identical. That is the
-      table's 69/108/168 through the Pocket's five-bit-per-channel display path — every
-      level in both screenshots is an exact 8→5→8 fixed point, and six bits would have
-      given 69/109/170. So the top shade moved from bucket 16 of 31 to bucket 20, the
-      only units the panel can show.
+      gamma-encodes it: round(255 × (exposure/255) ^ (1/2.2)), which is beetle-vb's
+      encode, generated from the formula rather than copied and checked entry by entry
+      by `src/tests/vip_luma_curve.v`. Absolute rather than normalized, so a game that
+      dims itself stays dim and the top shade only reaches full red at a full-length
+      exposure.
+
+      The first curve here was MiSTer's, round(255 × (exposure/255) ^ (1.4/2.2)), a
+      power law through its SDR presentation table to within 2/255. Watched and passed
+      2026-08-18 by morgan-vieira on the bitstream built that day: the same demo frame
+      that had measured 33/66/132 measured 66/107/165, pixel counts identical. That is
+      the table's 69/108/168 through the Pocket's five-bit-per-channel display path —
+      every level in both screenshots is an exact 8→5→8 fixed point, and six bits would
+      have given 69/109/170. So the top shade moved from bucket 16 of 31 to bucket 20,
+      the only units the panel can show. Correct, and still too dark to play, so the
+      same day the curve moved to beetle-vb's on morgan-vieira's call. **That change
+      awaits its own watch:** a dark game scene and display_test_v1's grey ramps.
 
 **ROM:** none. The pattern drives itself.
 **Pass criterion:** flat colour could not fail this test, so `core_top` draws a pattern

@@ -30,15 +30,15 @@ module vip_memory_tb;
     logic [15:0] dram_wdata;
     logic [15:0] dram_rdata;
     logic dram_ready;
-    logic display_eye = 1'b0;
     logic display_buffer = 1'b0;
     logic column_lock = 1'b0;
-    logic [7:0] cta_locked = '0;
+    logic [7:0] cta_locked_left = '0;
+    logic [7:0] cta_locked_right = '0;
     logic [8:0] display_x = '0;
     logic [7:0] display_y = '0;
-    logic [1:0] display_pixel;
+    logic [1:0] display_pixel_left, display_pixel_right;
     logic [7:0] display_column_index = '0;
-    logic [15:0] display_column;
+    logic [15:0] display_column_left, display_column_right;
     logic [7:0] dram_lo [0:65535];
     logic [7:0] dram_hi [0:65535];
 
@@ -121,31 +121,39 @@ module vip_memory_tb;
             $fatal(1, "%s: read %04x, expected %04x", what, actual, expected);
     endtask
 
-    task automatic expect_pixel(input logic eye, input logic buffer_id,
+    // Both eyes come out together now, so every check names both: an eye
+    // wired to the other's frame buffer passes a one-eyed check.
+    task automatic expect_pixel(input logic buffer_id,
                                 input logic [8:0] x, input logic [7:0] y,
-                                input logic [1:0] expected);
+                                input logic [1:0] want_left,
+                                input logic [1:0] want_right);
         @(negedge display_clk);
-        display_eye = eye;
         display_buffer = buffer_id;
         display_x = x;
         display_y = y;
         @(negedge display_clk);
         #1;
-        if (display_pixel !== expected)
-            $fatal(1, "eye %0d buffer %0d (%0d,%0d): pixel %0d, expected %0d",
-                   eye, buffer_id, x, y, display_pixel, expected);
+        if (display_pixel_left !== want_left)
+            $fatal(1, "left buffer %0d (%0d,%0d): pixel %0d, expected %0d",
+                   buffer_id, x, y, display_pixel_left, want_left);
+        if (display_pixel_right !== want_right)
+            $fatal(1, "right buffer %0d (%0d,%0d): pixel %0d, expected %0d",
+                   buffer_id, x, y, display_pixel_right, want_right);
     endtask
 
-    task automatic expect_column(input logic eye, input logic [7:0] index,
-                                 input logic [15:0] expected);
+    task automatic expect_column(input logic [7:0] index,
+                                 input logic [15:0] want_left,
+                                 input logic [15:0] want_right);
         @(negedge display_clk);
-        display_eye = eye;
         display_column_index = index;
         repeat (3) @(negedge display_clk);
         #1;
-        if (display_column !== expected)
-            $fatal(1, "eye %0d column %0d: %04x, expected %04x",
-                   eye, index, display_column, expected);
+        if (display_column_left !== want_left)
+            $fatal(1, "left column %0d: %04x, expected %04x",
+                   index, display_column_left, want_left);
+        if (display_column_right !== want_right)
+            $fatal(1, "right column %0d: %04x, expected %04x",
+                   index, display_column_right, want_right);
     endtask
 
     initial begin
@@ -181,13 +189,14 @@ module vip_memory_tb;
 
         cpu_write(27'h003DCF4, 2'b11, 16'h1234);
         cpu_write(27'h003DEF4, 2'b11, 16'h5678);
-        expect_column(1'b0, 8'h7A, 16'h1234);
-        expect_column(1'b1, 8'h7A, 16'h5678);
-        // With LOCK the scanout serves the locked entry to every column.
+        expect_column(8'h7A, 16'h1234, 16'h5678);
+        // With LOCK each eye serves its own locked entry to every column.
         cpu_write(27'h003DC02, 2'b11, 16'h9999);
+        cpu_write(27'h003DE06, 2'b11, 16'h8888);
         column_lock = 1'b1;
-        cta_locked = 8'h01;
-        expect_column(1'b0, 8'h7A, 16'h9999);
+        cta_locked_left = 8'h01;
+        cta_locked_right = 8'h03;
+        expect_column(8'h7A, 16'h9999, 16'h8888);
         column_lock = 1'b0;
 
         cpu_write(27'h0020100, 2'b11, 16'hAABB);
@@ -264,13 +273,13 @@ module vip_memory_tb;
         cpu_sel = 1'b0; cpu_we = 1'b0;
         expect_read(27'h0020300, 16'h1111, "held CPU write landed second");
 
-        expect_pixel(1'b0, 1'b0, 9'd0, 8'd0, 2'd0);
-        expect_pixel(1'b0, 1'b0, 9'd0, 8'd1, 2'd1);
-        expect_pixel(1'b0, 1'b0, 9'd0, 8'd2, 2'd2);
-        expect_pixel(1'b0, 1'b0, 9'd0, 8'd3, 2'd3);
-        expect_pixel(1'b0, 1'b1, 9'd0, 8'd0, 2'd3);
-        expect_pixel(1'b1, 1'b0, 9'd0, 8'd0, 2'd2);
-        expect_pixel(1'b1, 1'b1, 9'd0, 8'd0, 2'd1);
+        // Buffer 0 holds E4E4 left against AAAA right, buffer 1 1B1B
+        // against 5555, so no pair of these agrees by accident.
+        expect_pixel(1'b0, 9'd0, 8'd0, 2'd0, 2'd2);
+        expect_pixel(1'b0, 9'd0, 8'd1, 2'd1, 2'd2);
+        expect_pixel(1'b0, 9'd0, 8'd2, 2'd2, 2'd2);
+        expect_pixel(1'b0, 9'd0, 8'd3, 2'd3, 2'd2);
+        expect_pixel(1'b1, 9'd0, 8'd0, 2'd3, 2'd1);
 
         cpu_read(27'h0020000, value);
         if (value !== 16'hABCD) $fatal(1, "final read failed");

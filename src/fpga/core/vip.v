@@ -35,11 +35,14 @@ module vip #(
     input  logic        dram_ready,
 
     input  logic        display_clk,
-    input  logic        display_eye,
     input  logic [8:0]  display_x,
     input  logic [7:0]  display_y,
-    output logic [1:0]  display_pixel,
-    output logic [7:0]  display_luma
+    // Both eyes, every cycle. Which one reaches the screen -- or how the
+    // two are mixed -- is vip_stereo's decision, not the VIP's.
+    output logic [1:0]  display_pixel_left,
+    output logic [1:0]  display_pixel_right,
+    output logic [7:0]  display_luma_left,
+    output logic [7:0]  display_luma_right
 );
 
     logic register_sel;
@@ -58,7 +61,7 @@ module vip #(
     logic [1:0] bkcol, active_bkcol;
     logic [7:0] brta_level, brtb_level, brtc_level, rest_level;
     logic [7:0] display_column_index;
-    logic [15:0] display_column;
+    logic [15:0] display_column_left, display_column_right;
     logic fclk, scan_ready;
     logic [3:0] display_busy;
     logic [15:0] events;
@@ -153,20 +156,34 @@ module vip #(
         .draw_ready(draw_ready), .dram_req(dram_req), .dram_addr(dram_addr),
         .dram_we(dram_we), .dram_be(dram_be), .dram_wdata(dram_wdata),
         .dram_rdata(dram_rdata), .dram_ready(dram_ready),
-        .display_clk(display_clk), .display_eye(display_eye),
+        .display_clk(display_clk),
         .display_buffer(display_buffer),
-        .column_lock(column_lock), .cta_locked(cta_l),
+        .column_lock(column_lock),
+        .cta_locked_left(cta_l), .cta_locked_right(cta_r),
         .display_x(display_x),
-        .display_y(display_y), .display_pixel(display_pixel),
+        .display_y(display_y),
+        .display_pixel_left(display_pixel_left),
+        .display_pixel_right(display_pixel_right),
         .display_column_index(display_column_index),
-        .display_column(display_column)
+        .display_column_left(display_column_left),
+        .display_column_right(display_column_right)
     );
 
-    vip_display display (
-        .x(display_x), .pixel(display_pixel), .brta(brta_level),
+    // Brightness is per eye, because the column table is: the same shade is
+    // a different exposure in each eye's window. Both instances derive the
+    // column index from the same x, so vip_memory only needs the one.
+    vip_display display_left (
+        .x(display_x), .pixel(display_pixel_left), .brta(brta_level),
         .brtb(brtb_level), .brtc(brtc_level), .rest(rest_level),
-        .column(display_column), .column_index(display_column_index),
-        .luma(display_luma)
+        .column(display_column_left), .column_index(display_column_index),
+        .luma(display_luma_left)
+    );
+
+    vip_display display_right (
+        .x(display_x), .pixel(display_pixel_right), .brta(brta_level),
+        .brtb(brtb_level), .brtc(brtc_level), .rest(rest_level),
+        .column(display_column_right), .column_index(),
+        .luma(display_luma_right)
     );
 
 endmodule

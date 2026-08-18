@@ -61,6 +61,110 @@
                         "name": "On"
                     }
                 ]
+            },
+            {
+                "name": "Stereo Mode",
+                "id": 4,
+                "type": "list",
+                "enabled": true,
+                "persist": true,
+                "address": "0x10000000",
+                "defaultval": 0,
+                "mask": "0xFFFFFFC7",
+                "options": [
+                    {
+                        "value": 0,
+                        "name": "2D (left eye)"
+                    },
+                    {
+                        "value": 8,
+                        "name": "2D (right eye)"
+                    },
+                    {
+                        "value": 16,
+                        "name": "Anaglyph"
+                    },
+                    {
+                        "value": 24,
+                        "name": "Cyberscope"
+                    },
+                    {
+                        "value": 32,
+                        "name": "Side-by-Side"
+                    },
+                    {
+                        "value": 40,
+                        "name": "Vertical Line Interleave"
+                    },
+                    {
+                        "value": 48,
+                        "name": "Horizontal Line Interleave"
+                    }
+                ]
+            },
+            {
+                "name": "Anaglyph Colours",
+                "id": 5,
+                "type": "list",
+                "enabled": true,
+                "persist": true,
+                "address": "0x10000000",
+                "defaultval": 0,
+                "mask": "0xFFFFFE3F",
+                "options": [
+                    {
+                        "value": 0,
+                        "name": "Red and Blue"
+                    },
+                    {
+                        "value": 64,
+                        "name": "Red and Cyan"
+                    },
+                    {
+                        "value": 128,
+                        "name": "Red and Electric Cyan"
+                    },
+                    {
+                        "value": 192,
+                        "name": "Red and Green"
+                    },
+                    {
+                        "value": 256,
+                        "name": "Green and Magenta"
+                    },
+                    {
+                        "value": 320,
+                        "name": "Yellow and Blue"
+                    }
+                ]
+            },
+            {
+                "name": "Side-by-Side Separation",
+                "id": 6,
+                "type": "list",
+                "enabled": true,
+                "persist": true,
+                "address": "0x10000000",
+                "defaultval": 0,
+                "mask": "0xFFFFF9FF",
+                "options": [
+                    {
+                        "value": 0,
+                        "name": "0 px"
+                    },
+                    {
+                        "value": 512,
+                        "name": "16 px"
+                    },
+                    {
+                        "value": 1024,
+                        "name": "32 px"
+                    },
+                    {
+                        "value": 1536,
+                        "name": "64 px"
+                    }
+                ]
             }
         ],
         "messages": []

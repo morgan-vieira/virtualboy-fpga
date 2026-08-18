@@ -44,15 +44,20 @@ module vip_memory (
     input  logic        dram_ready,
 
     input  logic        display_clk,
-    input  logic        display_eye,
     input  logic        display_buffer,
     input  logic        column_lock,
-    input  logic [7:0]  cta_locked,
+    input  logic [7:0]  cta_locked_left,
+    input  logic [7:0]  cta_locked_right,
     input  logic [8:0]  display_x,
     input  logic [7:0]  display_y,
-    output logic [1:0]  display_pixel,
+    // Both eyes every cycle. The four frame buffers are separate arrays and
+    // the column tables are one array each, so serving the pair costs the
+    // same as serving one and vip_stereo can mix them.
+    output logic [1:0]  display_pixel_left,
+    output logic [1:0]  display_pixel_right,
     input  logic [7:0]  display_column_index,
-    output logic [15:0] display_column
+    output logic [15:0] display_column_left,
+    output logic [15:0] display_column_right
 );
 
     // Measured CPU service times in 20 MHz cycles; the count includes the
@@ -71,9 +76,14 @@ module vip_memory (
 
     logic [7:0] chr_lo [0:16383];
     logic [7:0] chr_hi [0:16383];
-    (* ramstyle = "MLAB, no_rw_check" *) logic [7:0] column_lo [0:511];
-    (* ramstyle = "MLAB, no_rw_check" *) logic [7:0] column_hi [0:511];
-    logic column_written;
+    // One table per eye rather than one indexed by {eye, index}: the
+    // display reads both in the same cycle, which a single array cannot do.
+    // Same bits, split in two.
+    (* ramstyle = "MLAB, no_rw_check" *) logic [7:0] column_l_lo [0:255];
+    (* ramstyle = "MLAB, no_rw_check" *) logic [7:0] column_l_hi [0:255];
+    (* ramstyle = "MLAB, no_rw_check" *) logic [7:0] column_r_lo [0:255];
+    (* ramstyle = "MLAB, no_rw_check" *) logic [7:0] column_r_hi [0:255];
+    logic column_written_l, column_written_r;
 
     typedef enum logic [1:0] {
         OWNER_NONE,
@@ -243,7 +253,8 @@ module vip_memory (
 
     always_ff @(posedge clk) begin
         if (!reset_n) begin
-            column_written <= 1'b0;
+            column_written_l <= 1'b0;
+            column_written_r <= 1'b0;
         end else if (access_active) begin
             fb_l0_lo_q <= fb_l0_lo[fb_index];
             fb_l0_hi_q <= fb_l0_hi[fb_index];
@@ -282,14 +293,24 @@ module vip_memory (
                 default: begin end
             endcase
 
+            // 0x3DC00 is the left eye's table and 0x3DE00 the right, so
+            // the halfword index's bit 8 names the eye.
             if (target == DRAM && access_we &&
                 access_addr >= (19'h3DC00 >> 1) &&
                 access_addr < (19'h3E000 >> 1)) begin
-                if (access_be[0])
-                    column_lo[access_addr[9:1]] <= access_wdata[7:0];
-                if (access_be[1])
-                    column_hi[access_addr[9:1]] <= access_wdata[15:8];
-                column_written <= 1'b1;
+                if (access_addr[9]) begin
+                    if (access_be[0])
+                        column_r_lo[access_addr[8:1]] <= access_wdata[7:0];
+                    if (access_be[1])
+                        column_r_hi[access_addr[8:1]] <= access_wdata[15:8];
+                    column_written_r <= 1'b1;
+                end else begin
+                    if (access_be[0])
+                        column_l_lo[access_addr[8:1]] <= access_wdata[7:0];
+                    if (access_be[1])
+                        column_l_hi[access_addr[8:1]] <= access_wdata[15:8];
+                    column_written_l <= 1'b1;
+                end
             end
         end
     end
@@ -309,37 +330,55 @@ module vip_memory (
 
     logic [14:0] display_index;
     logic [2:0]  display_row;
-    logic [15:0] display_word;
-    logic [15:0] display_column_q;
-    logic column_written_q1, column_written_q2;
-    logic [7:0] effective_column_index;
+    logic [15:0] fb_l0_word, fb_l1_word, fb_r0_word, fb_r1_word;
+    logic        display_buffer_q;
+    logic [15:0] display_word_left, display_word_right;
+    logic [15:0] display_column_l_q, display_column_r_q;
+    logic column_written_l_q1, column_written_l_q2;
+    logic column_written_r_q1, column_written_r_q2;
+    logic [7:0] effective_index_left, effective_index_right;
 
     always_comb begin
         display_index = {display_x, 5'b00000} + display_y[7:3];
         // A locked pointer serves its frozen entry to every column
-        // [scroll, CTA]. The locked value is static, so it crosses into
-        // the display clock safely.
-        effective_column_index = column_lock ? cta_locked
-                                             : display_column_index;
+        // [scroll, CTA], and each eye has its own. The locked values are
+        // static, so they cross into the display clock safely.
+        effective_index_left  = column_lock ? cta_locked_left
+                                            : display_column_index;
+        effective_index_right = column_lock ? cta_locked_right
+                                            : display_column_index;
     end
 
     always_ff @(posedge display_clk) begin
         display_row <= display_y[2:0];
-        column_written_q1 <= column_written;
-        column_written_q2 <= column_written_q1;
-        display_column_q <= {column_hi[{display_eye, effective_column_index}],
-                             column_lo[{display_eye, effective_column_index}]};
-        unique case ({display_eye, display_buffer})
-            2'b00: display_word <= {fb_l0_hi[display_index], fb_l0_lo[display_index]};
-            2'b01: display_word <= {fb_l1_hi[display_index], fb_l1_lo[display_index]};
-            2'b10: display_word <= {fb_r0_hi[display_index], fb_r0_lo[display_index]};
-            2'b11: display_word <= {fb_r1_hi[display_index], fb_r1_lo[display_index]};
-        endcase
+        column_written_l_q1 <= column_written_l;
+        column_written_l_q2 <= column_written_l_q1;
+        column_written_r_q1 <= column_written_r;
+        column_written_r_q2 <= column_written_r_q1;
+        display_column_l_q <= {column_l_hi[effective_index_left],
+                               column_l_lo[effective_index_left]};
+        display_column_r_q <= {column_r_hi[effective_index_right],
+                               column_r_lo[effective_index_right]};
+        // Each buffer lands in its own register and the displayed one is
+        // chosen after. Selecting between two arrays on the register's input
+        // instead cost every frame buffer its M10K: Quartus called all eight
+        // reads asynchronous and synthesis ran out of registers.
+        fb_l0_word <= {fb_l0_hi[display_index], fb_l0_lo[display_index]};
+        fb_l1_word <= {fb_l1_hi[display_index], fb_l1_lo[display_index]};
+        fb_r0_word <= {fb_r0_hi[display_index], fb_r0_lo[display_index]};
+        fb_r1_word <= {fb_r1_hi[display_index], fb_r1_lo[display_index]};
+        display_buffer_q <= display_buffer;
     end
 
     always_comb begin
-        display_pixel = 2'(display_word >> {display_row, 1'b0});
-        display_column = column_written_q2 ? display_column_q : 16'h00FF;
+        display_word_left  = display_buffer_q ? fb_l1_word : fb_l0_word;
+        display_word_right = display_buffer_q ? fb_r1_word : fb_r0_word;
+        display_pixel_left  = 2'(display_word_left  >> {display_row, 1'b0});
+        display_pixel_right = 2'(display_word_right >> {display_row, 1'b0});
+        // Each eye's table stands in for itself until software writes it, so
+        // a ROM that programs only one eye does not read the other's garbage.
+        display_column_left  = column_written_l_q2 ? display_column_l_q : 16'h00FF;
+        display_column_right = column_written_r_q2 ? display_column_r_q : 16'h00FF;
     end
 
 endmodule

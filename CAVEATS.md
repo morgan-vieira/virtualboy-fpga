@@ -152,6 +152,41 @@ virtual-boy.com rendered a frame whose exposures were 33/66/132 as
 gamma-encoded. That photographs better and cannot represent a fade to dark.
 Closing this needs a photometer on real hardware.
 
+### Two eyes reach one screen however the user asks, and none of it is hardware
+
+The machine shows each eye its own image through its own mirror; a Pocket
+has one screen and no mirrors. Every answer to that is presentation, not
+Virtual Boy behavior, so `vip_stereo` takes beetle-vb's five — anaglyph,
+Cyberscope, side by side, and the two line interleaves — rather than
+inventing any, and adds the pair beetle-vb has no reason to offer: 2D
+(left eye), which is what this core showed before there were modes, and 2D
+(right eye). The geometry and the compositing follow `mednafen/vb/vip.c`.
+
+Two places where following it exactly was not possible or not useful:
+
+- **Side-by-side separation is four values, not a slider.** beetle-vb's
+  frame is 768 + separation wide and the separation is free; `video.json`
+  declares its widths ahead of time in at most eight slots. 0, 16, 32 and
+  64 pixels get a slot each and the rest of the range is not offered.
+- **Cyberscope's raster is three clocks long.** Every other mode's totals
+  multiply to the 245,760 clocks that make 20 ms at 12.288 MHz, so the
+  display buffer's swap point stays put. 245,760 has no factor pair that
+  leaves room for a 512x384 active area with porches, so that mode runs
+  581 x 423 = 245,763 and its swap point drifts a frame roughly every 27
+  minutes.
+
+beetle-vb also has a slow anaglyph path, for a channel that carries both
+eyes: sum the eyes' linear light and re-encode rather than OR their encoded
+colours. None of the six presets needs it — each splits the three channels
+between the eyes — and we do not offer the custom colours that would, so
+only the fast path exists here. `src/tests/vip_stereo.v` checks that
+invariant over every preset value rather than trusting it.
+
+Which eye is which, and whether the parallax reads as depth rather than
+inside out, is something only a maintainer with the ROM on hardware can
+say; `vip-stereo` exists to be that check.
+
+
 ## Adjacent, tracked elsewhere
 
 - VIP data accesses charge the documented minimum wait of 2 until the real

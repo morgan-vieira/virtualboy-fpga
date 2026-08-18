@@ -625,8 +625,8 @@ mem_bus vb_bus (
     .cart_rom_ready         ( cart_rom_ready )
 );
 
-    wire [1:0]  vip_display_pixel;
-    wire [7:0]  vip_display_luma;
+    wire [1:0]  vip_pixel_left, vip_pixel_right;
+    wire [7:0]  vip_luma_left, vip_luma_right;
     wire        vip_dram_req;
     wire [15:0] vip_dram_addr;
     wire        vip_dram_we;
@@ -658,11 +658,13 @@ vip vb_vip (
     .dram_ready             ( vip_dram_ready ),
 
     .display_clk            ( clk_core_12288 ),
-    .display_eye            ( 1'b0 ),
-    .display_x              ( vidout_x[8:0] ),
-    .display_y              ( vidout_y[7:0] ),
-    .display_pixel          ( vip_display_pixel ),
-    .display_luma           ( vip_display_luma )
+    // vip_stereo decides which VIP pixel this host pixel is.
+    .display_x              ( stereo_vb_x ),
+    .display_y              ( stereo_vb_y ),
+    .display_pixel_left     ( vip_pixel_left ),
+    .display_pixel_right    ( vip_pixel_right ),
+    .display_luma_left      ( vip_luma_left ),
+    .display_luma_right     ( vip_luma_right )
 );
 
 pocket_sram vip_dram_sram (
@@ -914,44 +916,129 @@ end
 
 // video generation
 //
-// the raster belongs to host_video_timing; everything here only supplies colour.
-// that module carries the reasoning for 480x512 at 12.288 MHz being the machine's
-// 20 ms frame.
+// the raster belongs to host_video_timing and its shape to vip_stereo;
+// everything here only supplies colour. those modules carry the reasoning for
+// 245,760 clocks at 12.288 MHz being the machine's 20 ms frame.
 
 assign video_rgb_clock = clk_core_12288;
 assign video_rgb_clock_90 = clk_core_12288_90deg;
-assign video_rgb = !video_de_q      ? 24'h000000 :
-                    overlay_on_q    ? overlay_rgb_q :
-                                      {vip_display_luma, 16'h0000};
+// The end-of-line word carries the scaler slot on the first clock after DE
+// falls: bits 23:13 the slot index, the rest zero for function code 0
+// [docs/analogue/bus-communication.md]. Sent once a line; only the last one
+// in a frame counts, and the mode holds still for a whole frame anyway.
+assign video_rgb = video_de_q       ? (overlay_on_q ? overlay_rgb_q : stereo_rgb) :
+                   video_endline    ? {8'd0, stereo_slot, 13'd0} :
+                                      24'h000000;
 assign video_de = video_de_q;
 assign video_skip = 1'b0;
 assign video_vs = video_vs_q;
 assign video_hs = video_hs_q;
 
+    // One eye's picture, which is what the overlay is drawn in. The host
+    // frame is a different shape in five of the seven stereo modes.
     localparam  VID_H_ACTIVE = 'd384;
     localparam  VID_V_ACTIVE = 'd224;
 
     wire        vidout_de;
     wire        vidout_vs;
     wire        vidout_hs;
-    wire [9:0]  vidout_x;
-    wire [9:0]  vidout_y;
+    wire [10:0] vidout_x;
+    wire [10:0] vidout_y;
     reg         video_de_q;
+    reg         video_de_q2;
     reg         video_vs_q;
     reg         video_hs_q;
 
-host_video_timing #(
-    .H_ACTIVE               ( VID_H_ACTIVE ),
-    .V_ACTIVE               ( VID_V_ACTIVE )
-) hvt (
+    wire        video_endline = video_de_q2 && !video_de_q;
+
+host_video_timing hvt (
     .clk                    ( clk_core_12288 ),
     .reset_n                ( reset_n ),
+
+    .h_active               ( stereo_h_active ),
+    .h_total                ( stereo_h_total ),
+    .v_active               ( stereo_v_active ),
+    .v_total                ( stereo_v_total ),
 
     .de                     ( vidout_de ),
     .hs                     ( vidout_hs ),
     .vs                     ( vidout_vs ),
     .x                      ( vidout_x ),
     .y                      ( vidout_y )
+);
+
+// stereo presentation
+//
+// The Virtual Boy has two pictures and the Pocket has one screen. vip_stereo
+// owns every answer to that: the raster, the scaler slot, which eye a host
+// pixel comes from, and the colour.
+//
+// Core Settings picks the mode, the anaglyph preset and the side-by-side
+// separation. All three are sampled once a frame, so a change made mid-picture
+// lands on a boundary together with the raster it implies.
+//
+// The two boundaries are one frame apart, and that is what makes the switch
+// clean. host_video_timing samples its geometry on the clock its counters
+// wrap; vs is registered, so this latch runs two clocks later and the frame
+// already in flight keeps the old raster. The slot word this frame carries is
+// therefore the new mode's, and APF applies it to the next frame -- the same
+// frame the new raster starts on.
+
+    reg  [2:0]  stereo_mode_m, stereo_mode_s;
+    reg  [2:0]  stereo_preset_m, stereo_preset_s;
+    reg  [1:0]  stereo_sep_m, stereo_sep_s;
+    reg  [2:0]  stereo_mode = 3'd0;
+    reg  [2:0]  stereo_preset = 3'd0;
+    reg  [1:0]  stereo_sep = 2'd0;
+
+always @(posedge clk_core_12288) begin
+    stereo_mode_m   <= core_cfg[5:3];
+    stereo_mode_s   <= stereo_mode_m;
+    stereo_preset_m <= core_cfg[8:6];
+    stereo_preset_s <= stereo_preset_m;
+    stereo_sep_m    <= core_cfg[10:9];
+    stereo_sep_s    <= stereo_sep_m;
+
+    if(vidout_vs) begin
+        stereo_mode   <= stereo_mode_s;
+        stereo_preset <= stereo_preset_s;
+        stereo_sep    <= stereo_sep_s;
+    end
+end
+
+    wire [10:0] stereo_h_active;
+    wire [10:0] stereo_h_total;
+    wire [10:0] stereo_v_active;
+    wire [10:0] stereo_v_total;
+    wire [2:0]  stereo_slot;
+    wire [8:0]  stereo_vb_x;
+    wire [7:0]  stereo_vb_y;
+    wire        stereo_mapped;
+    wire [23:0] stereo_rgb;
+
+vip_stereo vb_stereo (
+    .clk                    ( clk_core_12288 ),
+
+    .mode                   ( stereo_mode ),
+    .preset                 ( stereo_preset ),
+    .separation             ( stereo_sep ),
+
+    .h_active               ( stereo_h_active ),
+    .v_active               ( stereo_v_active ),
+    .h_total                ( stereo_h_total ),
+    .v_total                ( stereo_v_total ),
+    .scaler_slot            ( stereo_slot ),
+
+    .host_x                 ( vidout_x ),
+    .host_y                 ( vidout_y ),
+    .vb_x                   ( stereo_vb_x ),
+    .vb_y                   ( stereo_vb_y ),
+    .mapped                 ( stereo_mapped ),
+
+    .luma_left              ( vip_luma_left ),
+    .luma_right             ( vip_luma_right ),
+
+    .rgb                    ( stereo_rgb )
 );
 
 // the diagnostic overlay, off unless Core Settings turns it on
@@ -965,6 +1052,13 @@ host_video_timing #(
 // off by default because the VIP owns this screen now. a ROM that draws its
 // own picture -- every vip-* image, and pad -- would have this drawn on top
 // of it, and so would a game, so it is opt-in per ROM rather than furniture.
+//
+// drawn in one eye's 384x224 coordinates rather than the host frame's, so it
+// looks the same in the 384x224 modes as it always has and follows the
+// picture everywhere else: both halves side by side, both panels quarter-
+// turned under Cyberscope, interleaved into one readable copy under either
+// line interleave, and at zero parallax in anaglyph. it stays off the
+// side-by-side gap and Cyberscope's margins, which belong to no eye.
 
     localparam  SQUARE      = 'd112;
     localparam  SQUARE_X    = (VID_H_ACTIVE - SQUARE) / 2;
@@ -975,27 +1069,30 @@ host_video_timing #(
     localparam  PC_Y        = 'd184;
     localparam  CELL_H      = 'd16;
 
+    wire [9:0]  ovl_x = {1'b0, stereo_vb_x};
+    wire [9:0]  ovl_y = {2'b0, stereo_vb_y};
+
     wire        in_square =
-                    vidout_x >= SQUARE_X && vidout_x < SQUARE_X+SQUARE &&
-                    vidout_y >= SQUARE_Y && vidout_y < SQUARE_Y+SQUARE;
+                    ovl_x >= SQUARE_X && ovl_x < SQUARE_X+SQUARE &&
+                    ovl_y >= SQUARE_Y && ovl_y < SQUARE_Y+SQUARE;
 
     wire        square_edge = in_square &&
-                    (vidout_x == SQUARE_X || vidout_x == SQUARE_X+SQUARE-1 ||
-                     vidout_y == SQUARE_Y || vidout_y == SQUARE_Y+SQUARE-1);
+                    (ovl_x == SQUARE_X || ovl_x == SQUARE_X+SQUARE-1 ||
+                     ovl_y == SQUARE_Y || ovl_y == SQUARE_Y+SQUARE-1);
 
-    wire [9:0]  cell_x    = vidout_x - CELLS_X;
+    wire [9:0]  cell_x    = ovl_x - CELLS_X;
     wire [3:0]  cell_idx  = cell_x[7:4];
-    wire        in_cells  = vidout_x >= CELLS_X && vidout_x < CELLS_X + 16*16 &&
+    wire        in_cells  = ovl_x >= CELLS_X && ovl_x < CELLS_X + 16*16 &&
                             cell_x[3:0] < 14;   // 2px gap marks positions
-    wire        status_row = in_cells && vidout_y >= STATUS_Y &&
-                             vidout_y < STATUS_Y + CELL_H;
-    wire        pc_row     = in_cells && vidout_y >= PC_Y &&
-                             vidout_y < PC_Y + CELL_H;
+    wire        status_row = in_cells && ovl_y >= STATUS_Y &&
+                             ovl_y < STATUS_Y + CELL_H;
+    wire        pc_row     = in_cells && ovl_y >= PC_Y &&
+                             ovl_y < PC_Y + CELL_H;
 
     wire        status_bit = disp_status[4'd15 - cell_idx];
     wire        pc_bit     = disp_pc[4'd15 - cell_idx];
 
-    wire        overlay_on = disp_diag &&
+    wire        overlay_on = disp_diag && stereo_mapped &&
                     (square_edge || (in_square && disp_halted) ||
                      status_row || pc_row);
 
@@ -1012,11 +1109,13 @@ host_video_timing #(
 always @(posedge clk_core_12288 or negedge reset_n) begin
     if(~reset_n) begin
         video_de_q <= 1'b0;
+        video_de_q2 <= 1'b0;
         video_vs_q <= 1'b0;
         video_hs_q <= 1'b0;
         overlay_on_q <= 1'b0;
     end else begin
         video_de_q <= vidout_de;
+        video_de_q2 <= video_de_q;
         video_vs_q <= vidout_vs;
         video_hs_q <= vidout_hs;
         overlay_on_q <= overlay_on;

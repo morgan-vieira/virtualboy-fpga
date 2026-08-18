@@ -98,9 +98,10 @@ module vip_system_tb;
         .dram_req(dram_req), .dram_addr(dram_addr), .dram_we(dram_we),
         .dram_be(dram_be), .dram_wdata(dram_wdata), .dram_rdata(dram_rdata),
         .dram_ready(dram_ready),
-        .display_clk(clk), .display_eye(1'b0),
+        .display_clk(clk),
         .display_x(9'd0), .display_y(8'd0),
-        .display_pixel(), .display_luma()
+        .display_pixel_left(), .display_pixel_right(),
+        .display_luma_left(), .display_luma_right()
     );
 
     // pocket_sram's shape: three access cycles, a one-cycle ready pulse,
