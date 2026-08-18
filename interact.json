@@ -70,99 +70,75 @@
                 "persist": true,
                 "address": "0x10000000",
                 "defaultval": 0,
-                "mask": "0xFFFFFFC7",
+                "mask": "0xFFFFFF07",
                 "options": [
                     {
                         "value": 0,
-                        "name": "2D (left eye)"
+                        "name": "2D (Red/Black)"
                     },
                     {
                         "value": 8,
-                        "name": "2D (right eye)"
+                        "name": "2D (White/Black)"
                     },
                     {
                         "value": 16,
-                        "name": "Anaglyph"
+                        "name": "2D (Blue/Black)"
                     },
                     {
                         "value": 24,
-                        "name": "Cyberscope"
+                        "name": "2D (Cyan/Black)"
                     },
                     {
                         "value": 32,
-                        "name": "Side-by-Side"
+                        "name": "2D (El.Cyan/Black)"
                     },
                     {
                         "value": 40,
-                        "name": "Vertical Line Interleave"
+                        "name": "2D (Green/Black)"
                     },
                     {
                         "value": 48,
-                        "name": "Horizontal Line Interleave"
-                    }
-                ]
-            },
-            {
-                "name": "Anaglyph Colours",
-                "id": 5,
-                "type": "list",
-                "enabled": true,
-                "persist": true,
-                "address": "0x10000000",
-                "defaultval": 0,
-                "mask": "0xFFFFFE3F",
-                "options": [
+                        "name": "2D (Magenta/Black)"
+                    },
                     {
-                        "value": 0,
-                        "name": "Red and Blue"
+                        "value": 56,
+                        "name": "2D (Yellow/Black)"
                     },
                     {
                         "value": 64,
-                        "name": "Red and Cyan"
+                        "name": "Anaglyph (Red/Blue)"
+                    },
+                    {
+                        "value": 72,
+                        "name": "Anaglyph (Red/Cyan)"
+                    },
+                    {
+                        "value": 80,
+                        "name": "Anaglyph (Red/El.Cyan)"
+                    },
+                    {
+                        "value": 88,
+                        "name": "Anaglyph (Red/Green)"
+                    },
+                    {
+                        "value": 96,
+                        "name": "Anaglyph (Yellow/Blue)"
+                    },
+                    {
+                        "value": 104,
+                        "name": "Side By Side"
+                    },
+                    {
+                        "value": 112,
+                        "name": "CyberScope"
+                    },
+                    {
+                        "value": 120,
+                        "name": "Horizontal Line Interlaced"
                     },
                     {
                         "value": 128,
-                        "name": "Red and Electric Cyan"
-                    },
-                    {
-                        "value": 192,
-                        "name": "Red and Green"
-                    },
-                    {
-                        "value": 256,
-                        "name": "Green and Magenta"
-                    },
-                    {
-                        "value": 320,
-                        "name": "Yellow and Blue"
-                    }
-                ]
-            },
-            {
-                "name": "Side-by-Side Separation",
-                "id": 6,
-                "type": "list",
-                "enabled": true,
-                "persist": true,
-                "address": "0x10000000",
-                "defaultval": 0,
-                "mask": "0xFFFFF9FF",
-                "options": [
-                    {
-                        "value": 0,
-                        "name": "0 px"
-                    },
-                    {
-                        "value": 512,
-                        "name": "16 px"
-                    },
-                    {
-                        "value": 1024,
-                        "name": "32 px"
-                    },
-                    {
-                        "value": 1536,
-                        "name": "64 px"
+                        "name": "Vertical Line Interlaced"
                     }
                 ]
             }

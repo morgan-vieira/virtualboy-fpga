@@ -156,36 +156,53 @@ Closing this needs a photometer on real hardware.
 
 The machine shows each eye its own image through its own mirror; a Pocket
 has one screen and no mirrors. Every answer to that is presentation, not
-Virtual Boy behavior, so `vip_stereo` takes beetle-vb's five — anaglyph,
-Cyberscope, side by side, and the two line interleaves — rather than
-inventing any, and adds the pair beetle-vb has no reason to offer: 2D
-(left eye), which is what this core showed before there were modes, and 2D
-(right eye). The geometry and the compositing follow `mednafen/vb/vip.c`.
+Virtual Boy behavior, so `vip_stereo` takes beetle-vb's rather than
+inventing any: the geometry and compositing follow `mednafen/vb/vip.c`, the
+colours its Palette and `AnaglyphPreset_Colors` tables in `libretro.cpp`.
 
-Two places where following it exactly was not possible or not useful:
+beetle-vb reaches a pair of eye colours through three settings that fold
+together at `libretro.cpp:436` — a Palette that sets a left colour with the
+right one black, an anaglyph preset that overrides both, and four non-anaglyph
+3D modes that take the Palette's colour for both eyes. 2D is not a mode there
+and is not one here: it is the pair whose right colour is black.
 
-- **Side-by-side separation is four values, not a slider.** beetle-vb's
-  frame is 768 + separation wide and the separation is free; `video.json`
-  declares its widths ahead of time in at most eight slots. 0, 16, 32 and
-  64 pixels get a slot each and the rest of the range is not offered.
-- **Cyberscope's raster is three clocks long.** Every other mode's totals
-  multiply to the 245,760 clocks that make 20 ms at 12.288 MHz, so the
-  display buffer's swap point stays put. 245,760 has no factor pair that
-  leaves room for a 512x384 active area with porches, so that mode runs
-  581 x 423 = 245,763 and its swap point drifts a frame roughly every 27
-  minutes.
+Two departures, both Morgan's call on 2026-08-18:
+
+- **One flat menu instead of two settings.** Core Settings has a single
+  seventeen-row Stereo Mode list. It costs the thing two settings buy: the
+  four layout rows carry no colour of their own, so Side By Side, CyberScope
+  and the two interlaces are always red, where beetle-vb's Palette reaches
+  them. Nothing else is lost — the thirteen colour rows are the full cross
+  product of Palette and preset that anaglyph mode can express.
+- **No side-by-side separation.** beetle-vb's frame is 768 + separation wide
+  and the separation is free; `video.json` declares its widths ahead of time
+  in at most eight slots, and a slider would spend one per value. The two
+  pictures touch.
+
+Two of beetle-vb's own rows are also absent, and both are absences in its
+option list rather than in its tables: Green/Magenta, the one preset pair we
+do not offer, and any right-eye-only view, which neither list has. That
+second one matters for testing rather than for playing — `vip-stereo`
+proves the right eye through Side By Side and the anaglyph rows instead.
+
+CyberScope's raster is three clocks long. Every other layout's totals
+multiply to the 245,760 clocks that make 20 ms at 12.288 MHz, so the display
+buffer's swap point stays put. 245,760 has no factor pair that leaves room
+for a 512x384 active area with porches, so that layout runs 581 x 423 =
+245,763 and its swap point drifts a frame roughly every 27 minutes.
 
 beetle-vb also has a slow anaglyph path, for a channel that carries both
 eyes: sum the eyes' linear light and re-encode rather than OR their encoded
-colours. None of the six presets needs it — each splits the three channels
-between the eyes — and we do not offer the custom colours that would, so
-only the fast path exists here. `src/tests/vip_stereo.v` checks that
-invariant over every preset value rather than trusting it.
+colours. No row that puts both eyes on one pixel needs it — the 2D rows have
+a black right eye and each anaglyph pair splits the three channels — so only
+the fast path exists here. The four layout rows do put red in both colours,
+which is safe only because they never put both eyes on one pixel.
+`src/tests/vip_stereo.v` checks both halves of that over every row rather
+than trusting either.
 
 Which eye is which, and whether the parallax reads as depth rather than
 inside out, is something only a maintainer with the ROM on hardware can
 say; `vip-stereo` exists to be that check.
-
 
 ## Adjacent, tracked elsewhere
 

@@ -41,30 +41,6 @@
                 "aspect_h": 7,
                 "rotation": 0,
                 "mirror": 0
-            },
-            {
-                "width": 784,
-                "height": 224,
-                "aspect_w": 49,
-                "aspect_h": 14,
-                "rotation": 0,
-                "mirror": 0
-            },
-            {
-                "width": 800,
-                "height": 224,
-                "aspect_w": 25,
-                "aspect_h": 7,
-                "rotation": 0,
-                "mirror": 0
-            },
-            {
-                "width": 832,
-                "height": 224,
-                "aspect_w": 26,
-                "aspect_h": 7,
-                "rotation": 0,
-                "mirror": 0
             }
         ]
     }

@@ -56,18 +56,21 @@ export default defineRom({
     "bright 32x32 block in its top-left corner; the right eye is a clearly " +
     "brighter field with a bright block in its top-right corner. Both carry a " +
     "bright 8-pixel vertical bar, at x=176 on the left and x=208 on the right, " +
-    "so the bar sits 32 pixels apart between the eyes. Check every Core " +
-    "Settings > Stereo Mode. 2D (left eye): dim field, block top-left, bar left " +
-    "of centre. 2D (right eye): brighter field, block top-right, bar right of " +
-    "centre. Side-by-Side: those two pictures next to each other, left one on " +
-    "the left. Vertical Line Interleave: one field of fine vertical dither with " +
-    "both corner blocks and both bars. Horizontal Line Interleave: the same as " +
-    "horizontal dither. Cyberscope: two quarter-turned pictures, left one on " +
-    "the left half. Anaglyph: one field with the two bars 32 pixels apart in " +
-    "the preset's two colours. Identical pictures under the two 2D settings is " +
-    "one eye read twice; the dim field where the bright one belongs is the two " +
-    "eyes crossed; a missing corner block or a bar separation that is not 32 " +
-    "pixels is the mode's pixel mapping.",
+    "so the bar sits 32 pixels apart between the eyes. Walk Core Settings > " +
+    "Stereo Mode. The eight 2D rows show the left eye alone -- dim field, block " +
+    "top-left, bar left of centre -- each in the colour it names, on black. The " +
+    "five Anaglyph rows show one field with both bars, 32 pixels apart, each in " +
+    "its own eye's colour, and both corner blocks. Side By Side is twice as wide " +
+    "with the dim picture on the left and the bright one on the right, blocks at " +
+    "the two outer corners. CyberScope is taller than it is wide, with both " +
+    "pictures quarter-turned, the dim one on the left half, black margins " +
+    "between and outside, and the bars running horizontally. Horizontal and " +
+    "Vertical Line Interlaced show one field of fine dither, in rows and in " +
+    "columns, carrying both blocks and both bars. No row shows the right eye " +
+    "alone, so a duplicated eye shows as Side By Side having two identical " +
+    "halves or an Anaglyph row being one colour instead of two; a swapped field " +
+    "means the eyes are crossed; a bar separation that is not 32 pixels is the " +
+    "layout's pixel mapping.",
   program: (a) => {
     a.label("start");
     a.di();

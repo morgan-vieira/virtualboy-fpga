@@ -935,7 +935,7 @@ assign video_vs = video_vs_q;
 assign video_hs = video_hs_q;
 
     // One eye's picture, which is what the overlay is drawn in. The host
-    // frame is a different shape in five of the seven stereo modes.
+    // frame is a different shape in four of vip_stereo's five layouts.
     localparam  VID_H_ACTIVE = 'd384;
     localparam  VID_V_ACTIVE = 'd224;
 
@@ -973,9 +973,8 @@ host_video_timing hvt (
 // owns every answer to that: the raster, the scaler slot, which eye a host
 // pixel comes from, and the colour.
 //
-// Core Settings picks the mode, the anaglyph preset and the side-by-side
-// separation. All three are sampled once a frame, so a change made mid-picture
-// lands on a boundary together with the raster it implies.
+// Core Settings picks one of seventeen rows, sampled once a frame so a change
+// made mid-picture lands on a boundary together with the raster it implies.
 //
 // The two boundaries are one frame apart, and that is what makes the switch
 // clean. host_video_timing samples its geometry on the clock its counters
@@ -984,26 +983,14 @@ host_video_timing hvt (
 // therefore the new mode's, and APF applies it to the next frame -- the same
 // frame the new raster starts on.
 
-    reg  [2:0]  stereo_mode_m, stereo_mode_s;
-    reg  [2:0]  stereo_preset_m, stereo_preset_s;
-    reg  [1:0]  stereo_sep_m, stereo_sep_s;
-    reg  [2:0]  stereo_mode = 3'd0;
-    reg  [2:0]  stereo_preset = 3'd0;
-    reg  [1:0]  stereo_sep = 2'd0;
+    reg  [4:0]  stereo_mode_m, stereo_mode_s;
+    reg  [4:0]  stereo_mode = 5'd0;
 
 always @(posedge clk_core_12288) begin
-    stereo_mode_m   <= core_cfg[5:3];
-    stereo_mode_s   <= stereo_mode_m;
-    stereo_preset_m <= core_cfg[8:6];
-    stereo_preset_s <= stereo_preset_m;
-    stereo_sep_m    <= core_cfg[10:9];
-    stereo_sep_s    <= stereo_sep_m;
+    stereo_mode_m <= core_cfg[7:3];
+    stereo_mode_s <= stereo_mode_m;
 
-    if(vidout_vs) begin
-        stereo_mode   <= stereo_mode_s;
-        stereo_preset <= stereo_preset_s;
-        stereo_sep    <= stereo_sep_s;
-    end
+    if(vidout_vs) stereo_mode <= stereo_mode_s;
 end
 
     wire [10:0] stereo_h_active;
@@ -1020,8 +1007,6 @@ vip_stereo vb_stereo (
     .clk                    ( clk_core_12288 ),
 
     .mode                   ( stereo_mode ),
-    .preset                 ( stereo_preset ),
-    .separation             ( stereo_sep ),
 
     .h_active               ( stereo_h_active ),
     .v_active               ( stereo_v_active ),
@@ -1054,11 +1039,11 @@ vip_stereo vb_stereo (
 // of it, and so would a game, so it is opt-in per ROM rather than furniture.
 //
 // drawn in one eye's 384x224 coordinates rather than the host frame's, so it
-// looks the same in the 384x224 modes as it always has and follows the
-// picture everywhere else: both halves side by side, both panels quarter-
-// turned under Cyberscope, interleaved into one readable copy under either
-// line interleave, and at zero parallax in anaglyph. it stays off the
-// side-by-side gap and Cyberscope's margins, which belong to no eye.
+// looks the same in the thirteen native-size rows as it always has and
+// follows the picture everywhere else: both halves side by side, both panels
+// quarter-turned under CyberScope, interleaved into one readable copy under
+// either line interlace, and at zero parallax on an anaglyph row. it stays
+// off CyberScope's margins, which belong to no eye.
 
     localparam  SQUARE      = 'd112;
     localparam  SQUARE_X    = (VID_H_ACTIVE - SQUARE) / 2;

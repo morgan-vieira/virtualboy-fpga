@@ -9,10 +9,10 @@
 // h_total * v_total clocks. Together those pin every output on every clock: a
 // raster that passes cannot differ from the intended one anywhere.
 //
-// Every stereo mode gets its own raster now [vip_stereo], so every one of them is
-// driven here, and the frame period each promises is checked against the 20 ms
-// the machine's display frame takes. Cyberscope's is three clocks long and says
-// so; the rest are exact.
+// The stereo layouts do not all have the same shape [vip_stereo], so every raster
+// one of them asks for is driven here, and the frame period each promises is
+// checked against the 20 ms the machine's display frame takes. CyberScope's is
+// three clocks long and says so; the rest are exact.
 //
 // The clock here is 10 ns for arithmetic that is easy to read. The frame period is
 // checked in clocks rather than nanoseconds.
@@ -184,12 +184,11 @@ module host_video_timing_tb;
     repeat (4) @(posedge clk);
     reset_n = 1'b1;
 
-    check_mode("2D and anaglyph",  384, 480, 224, 512, 0);
-    check_mode("Cyberscope",       512, 581, 384, 423, 3);
-    check_mode("line interleave V", 768, 1024, 224, 240, 0);
-    check_mode("line interleave H", 384, 480, 448, 512, 0);
-    check_mode("side by side 0",   768, 1024, 224, 240, 0);
-    check_mode("side by side 64",  832, 1024, 224, 240, 0);
+    // One per layout in vip_stereo: the thirteen colour rows share the first.
+    check_mode("native",     384,  480, 224, 512, 0);
+    check_mode("CyberScope", 512,  581, 384, 423, 3);
+    check_mode("wide",       768, 1024, 224, 240, 0);   // side by side, VLI
+    check_mode("tall",       384,  480, 448, 512, 0);   // HLI
 
     $display("host_video_timing: PASS");
     $finish;

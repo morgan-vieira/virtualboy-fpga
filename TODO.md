@@ -137,20 +137,29 @@ because it needs no CPU, so it can be watched failing.
       A black right eye contributes nothing, making the shipped default a single red
       image. Anaglyph and side-by-side stay possible later through `interact.json`, the
       way both references expose them, but nothing depends on them now.
-- [x] **Show it however the user asks.** The eye choice is now one of seven modes in
-      Core Settings, and `core/vip_stereo.v` owns all of them: which eye a host pixel
-      comes from, the raster that mode needs, the `video.json` slot that describes it,
-      and the colour. Five are beetle-vb's — anaglyph with its six presets, Cyberscope,
-      side by side, and both line interleaves — taken from `mednafen/vb/vip.c` rather
-      than invented. The other two are 2D (left eye), the default and what this core
-      showed before, and 2D (right eye). Reaching the second eye meant the frame
-      buffers serving both every cycle (they are separate arrays, so it is free) and
-      the column table splitting into one array per eye (it was not). Brightness is per
-      eye because the column table is, so `vip.v` runs two `vip_display` instances.
-      `src/tests/vip_stereo.v` checks every mode's mapping at its corners and seams
-      against numbers read off beetle-vb, and the anaglyph composite against
-      hand-computed colours. The departures from beetle-vb, and the one raster that
-      cannot be exactly 20 ms, are in `CAVEATS.md`.
+- [x] **Show it however the user asks.** Core Settings has one seventeen-row Stereo
+      Mode list, and `core/vip_stereo.v` owns every row: the colour each eye gets,
+      which eye a host pixel comes from, the raster that layout needs, and the
+      `video.json` slot that describes it. It is all one shape — a left colour, a
+      right colour, and a layout — which is what beetle-vb reaches through three
+      settings that fold together at `libretro.cpp:436`. 2D is not a layout there and
+      is not one here: it is the pair whose right colour is black. Eight 2D rows carry
+      beetle-vb's Palette colours, five Anaglyph rows its preset pairs, and four rows
+      are the layouts — Side By Side, CyberScope, and both line interlaces — taken
+      from `mednafen/vb/vip.c` rather than invented.
+
+      Reaching the second eye meant the frame buffers serving both every cycle (they
+      are separate arrays, so it is free, but only if each buffer's read lands in its
+      own register) and the column table splitting into one array per eye (it was not
+      free). Brightness is per eye because the column table is, so `vip.v` runs two
+      `vip_display` instances. `src/tests/vip_stereo.v` checks every row's colours,
+      raster and slot, and every layout's mapping at its corners and seams, against
+      numbers read off beetle-vb. **Watched and passed 2026-08-18** by morgan-vieira,
+      on the seven-mode build that preceded this menu: the two 2D screenshots measured
+      pixel-exact, distinct fields at 107 and 165 with the blocks in opposite corners
+      and the bars exactly 32 apart. **The seventeen-row menu awaits its own watch.**
+      The departures from beetle-vb, and the one raster that cannot be exactly 20 ms,
+      are in `CAVEATS.md`.
 - [x] **Turn emission duration into intensity.** The Virtual Boy's LEDs cannot vary
       brightness; a pixel looks brighter because it emits for longer. Four shades exist
       — black plus levels A, B and C — and level C's duration is the sum of all three
