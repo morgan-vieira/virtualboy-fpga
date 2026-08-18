@@ -1005,13 +1005,23 @@ Ships finished frame buffers to the screen. Fixed timing, unlike drawing.
       drives its untouched lane with the register's own bits 15:8 so the quirk
       is observable; `vip-compose` checks 12-13 pin both shapes.
 
-**ROMs:** `vip-display` — watched 2026-08-15 — plus `vip-dpctrl` (DPCTRL
-readback and latching, SCANRDY, DPBSY windows, FCLK, CTA movement, LOCK, RE),
-built and Mednafen header-checked, ending in a visible LOCK demonstration.
+**ROMs:** `vip-display` plus `vip-dpctrl` (DPCTRL readback and latching,
+SCANRDY, DPBSY windows, FCLK, CTA movement, LOCK, RE), built and Mednafen
+header-checked, ending in a visible LOCK demonstration.
 **Pass criterion:** recorded per ROM in `src/roms/README.md`.
-**Watched and passed 2026-08-15:** `vip-display` on Pocket hardware. The
-issue #4 display completion above awaits the maintainer's run; the silicon
-behavior that the available sources do not establish remains in #2.
+**Watched and passed 2026-08-15:** `vip-display` on Pocket hardware.
+**Reported black 2026-08-18** by morgan-vieira, same ROM. It filled left
+buffer 1 alone, the buffer the display showed out of reset until `2f2d8653`
+swapped the pair to draw into 1 and display 0. Nothing in that ROM enables
+drawing, so the VIP never swaps, and the buffer it fills stopped being the one
+on screen: a black field, which is also what a core that never booted looks
+like. The ROM now fills both left buffers, so no reset choice can invalidate
+it, and `src/tests/vip_system.v` runs it through the real CPU and VIP and
+sweeps `display_luma` over the field for the four-column stripes at 106
+against 164. The old ROM fails that sweep. **Awaiting a re-watch on
+hardware.** The issue #4 display completion above awaits the maintainer's run;
+the silicon behavior that the available sources do not establish remains
+in #2.
 
 ---
 

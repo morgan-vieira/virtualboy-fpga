@@ -87,6 +87,18 @@ module vip_system_tb;
     reg  [15:0] dram_rdata;
     wire        dram_ready;
 
+    // vip-display's verdict is the picture, so the display port is driven.
+    reg  [8:0] disp_x = 9'd0;
+    reg  [7:0] disp_y = 8'd0;
+    wire [1:0] disp_pixel, disp_pixel_right;
+    wire [7:0] disp_luma, disp_luma_right;
+
+    // The stripe sweep pins the exposures the ROM produces, not the table
+    // entries they land in; vip_luma_curve's own bench owns the table.
+    reg  [7:0] want_exposure;
+    wire [7:0] want_luma;
+    vip_luma_curve curve_model (.exposure(want_exposure), .luma(want_luma));
+
     vip #(
         .FRAME_CYCLES(159744), .LEFT_START(24000), .LEFT_END(63936),
         .FCLK_END(79872), .RIGHT_START(104000), .RIGHT_END(143808)
@@ -99,9 +111,9 @@ module vip_system_tb;
         .dram_be(dram_be), .dram_wdata(dram_wdata), .dram_rdata(dram_rdata),
         .dram_ready(dram_ready),
         .display_clk(clk),
-        .display_x(9'd0), .display_y(8'd0),
-        .display_pixel_left(), .display_pixel_right(),
-        .display_luma_left(), .display_luma_right()
+        .display_x(disp_x), .display_y(disp_y),
+        .display_pixel_left(disp_pixel), .display_pixel_right(disp_pixel_right),
+        .display_luma_left(disp_luma), .display_luma_right(disp_luma_right)
     );
 
     // pocket_sram's shape: three access cycles, a one-cycle ready pulse,
@@ -217,12 +229,81 @@ module vip_system_tb;
         end
     endtask
 
+    // vip-display has no status word: it fills a frame buffer by hand and
+    // the picture is the verdict. Nothing enables the drawing engine, so
+    // the VIP never swaps buffers and either one can be the displayed one.
+    task automatic run_vip_display(input integer hwords,
+                                   input integer max_cycles);
+        integer fd, i, x, y;
+        reg [7:0] want;
+        string  path;
+        begin
+            reset_n = 1'b0;
+            path = "../.roms/vip-display.hex";
+            fd = $fopen(path, "r");
+            if (fd == 0)
+                $fatal(1, "vip-display: cannot open %0s; run pnpm run build:roms first",
+                       path);
+            $fclose(fd);
+            $readmemh(path, rom);
+            rom_mask = hwords - 1;
+            for (i = 0; i < 65536; i = i + 1)
+                dram[i] = 16'h5a5a ^ i[15:0];
+            disp_x = 9'd0;
+            disp_y = 8'd0;
+            repeat (4) @(posedge clk);
+            reset_n = 1'b1;
+            i = 0;
+            while (!dbg_halted && i < max_cycles) begin
+                @(posedge clk);
+                i = i + 1;
+            end
+            if (!dbg_halted)
+                $fatal(1, "vip-display: never halted in %0d cycles, pc %08x",
+                       max_cycles, dbg_pc);
+            // The ROM's own read-back of everything it programmed.
+            if (status !== 16'h00ff)
+                $fatal(1, "vip-display: read-back status %04x, expected 00ff",
+                       status);
+
+            for (i = 0; i < 12288; i = i + 512) begin
+                if ({u_vip.memory.fb_l0_hi[i], u_vip.memory.fb_l0_lo[i]} !== 16'h5555)
+                    $fatal(1, "vip-display: left buffer 0 word %0d is %04x, expected 5555",
+                           i, {u_vip.memory.fb_l0_hi[i], u_vip.memory.fb_l0_lo[i]});
+                if ({u_vip.memory.fb_l1_hi[i], u_vip.memory.fb_l1_lo[i]} !== 16'h5555)
+                    $fatal(1, "vip-display: left buffer 1 word %0d is %04x, expected 5555",
+                           i, {u_vip.memory.fb_l1_hi[i], u_vip.memory.fb_l1_lo[i]});
+            end
+
+            // Stripes four columns wide: the column table alternates the
+            // repeat count, so shade 1 lands on exposure 64 against 128.
+            for (y = 0; y < 224; y = y + 37) begin
+                for (x = 0; x < 384; x = x + 1) begin
+                    disp_x = x;
+                    disp_y = y;
+                    want_exposure = ((x >> 2) & 1) ? 8'd128 : 8'd64;
+                    repeat (2) @(posedge clk);
+                    #1;
+                    want = want_luma;
+                    if (disp_pixel !== 2'd1)
+                        $fatal(1, "vip-display: pixel at (%0d,%0d) is %0d, expected 1",
+                               x, y, disp_pixel);
+                    if (disp_luma !== want)
+                        $fatal(1, "vip-display: luma at (%0d,%0d) is %0d, expected %0d",
+                               x, y, disp_luma, want);
+                end
+            end
+            $display("vip_system: vip-display PASS");
+        end
+    endtask
+
     initial begin
         run_rom("vip-compose", 2048, 8000000);
         run_rom("vip-hbaff", 4096, 8000000);
         run_rom("vip-objx", 2048, 12000000);
         run_rom("vip-sched", 2048, 60000000);
         run_rom_status("vip-dpctrl", 1024, 16'h600d, 8000000);
+        run_vip_display(512, 20000000);
         $display("vip_system: PASS");
         $finish;
     end
