@@ -13,7 +13,10 @@ module vip_display_tb;
     logic [7:0] luma;
 
     // The table belongs to vip_luma_curve's bench; this one pins the exposure
-    // that reaches it.
+    // that reaches it. The numbers are after the MaxTime normalization --
+    // 128 ticks of a column is full drive, so a level's ticks reach the
+    // curve as round(ticks * 255 / 128), saturating -- which is what makes
+    // these match what RetroArch renders for the same registers.
     logic [7:0] want_exposure = 8'd0;
     logic [7:0] want_luma;
 
@@ -25,11 +28,11 @@ module vip_display_tb;
         if (column_index != 8'hFA || luma != 0)
             $fatal(1, "field start wrong");
 
-        pixel = 1; want_exposure = 8'd32; #1;
+        pixel = 1; want_exposure = 8'd63; #1;    // 32 ticks
         if (luma != want_luma) $fatal(1, "BRTA wrong: %0d", luma);
-        pixel = 2; want_exposure = 8'd64; #1;
+        pixel = 2; want_exposure = 8'd127; #1;   // 64 ticks
         if (luma != want_luma) $fatal(1, "BRTB wrong: %0d", luma);
-        pixel = 3; want_exposure = 8'd192; #1;
+        pixel = 3; want_exposure = 8'd255; #1;   // 192 ticks, past full drive
         if (luma != want_luma) $fatal(1, "BRTC accumulation wrong: %0d", luma);
 
         x = 9'd4; #1;
@@ -38,9 +41,9 @@ module vip_display_tb;
         if (column_index != 8'h9B) $fatal(1, "CTA final index wrong");
 
         pixel = 1;
-        column = 16'h01FF; want_exposure = 8'd64; #1;
+        column = 16'h01FF; want_exposure = 8'd127; #1;   // 32 ticks twice
         if (luma != want_luma) $fatal(1, "repeat multiplier wrong: %0d", luma);
-        column = 16'h0000; want_exposure = 8'd3; #1;
+        column = 16'h0000; want_exposure = 8'd5; #1;     // clipped to 3 ticks
         if (luma != want_luma) $fatal(1, "column cutoff wrong: %0d", luma);
         rest = 3; #1;
         if (luma != 0) $fatal(1, "REST cutoff wrong: %0d", luma);

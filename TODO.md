@@ -170,9 +170,9 @@ because it needs no CPU, so it can be watched failing.
       virtual-boy.com's render of the same frame. `core/vip_luma_curve.v` now
       gamma-encodes it: round(255 × (exposure/255) ^ (1/2.2)), which is beetle-vb's
       encode, generated from the formula rather than copied and checked entry by entry
-      by `src/tests/vip_luma_curve.v`. Absolute rather than normalized, so a game that
-      dims itself stays dim and the top shade only reaches full red at a full-length
-      exposure.
+      by `src/tests/vip_luma_curve.v`. Absolute rather than per-frame normalized, so a
+      game that dims itself stays dim; what counts as a full-length exposure is the
+      next paragraph.
 
       The first curve here was MiSTer's, round(255 × (exposure/255) ^ (1.4/2.2)), a
       power law through its SDR presentation table to within 2/255. Watched and passed
@@ -184,6 +184,26 @@ because it needs no CPU, so it can be watched failing.
       the only units the panel can show. Correct, and still too dark to play, so the
       same day the curve moved to beetle-vb's on morgan-vieira's call. **That change
       awaits its own watch:** a dark game scene and display_test_v1's grey ramps.
+
+      The encode was beetle-vb's but the exposure reaching it was not. `vip_display`
+      called 255 ticks full LED drive. beetle-vb accumulates a level's on-time against
+      `MaxTime`, 128 ticks, and hands the curve that duty scaled back out to 0-255
+      (`mednafen/vb/vip.c` RecalcBrightnessCache), so every level here rendered about
+      one step dark, level 3 landing where beetle puts level 2. `vip_display` now
+      normalizes the same way, saturating where beetle clamps to `MaxTime`. Across
+      every register combination that fits one column's drive, 91.4% of levels come out
+      byte-identical to beetle's and the worst is 7/255, from the one-tick gaps it
+      leaves between levels. Matching those too would mean taking its bookkeeping,
+      which renders level 2 black when BRTA alone fills the column, so we do not.
+
+      Watched and passed 2026-08-19 by morgan-vieira, VUEngine Sound Test's splash on
+      the bitstream built that day: 74/140/189 before, 99/189/255 after
+      (`20260819_153922.png`, `20260819_161349.png`). The demo drives BRTA/BRTB/BRTC of
+      16/64/48, which is 16, 64 and 128 ticks, so both screenshots are the model exactly
+      once the panel's five bits per channel are allowed for. Before was gamma(16/64/128)
+      = 72/136/186, after is gamma(31/127/255) = 98/186/255, and those quantize to what
+      was measured. RetroArch renders 98/186/254 for the same registers, identical at
+      levels 1 and 2 and 1/255 apart at the top.
 
 **ROM:** none. The pattern drives itself.
 **Pass criterion:** flat colour could not fail this test, so `core_top` draws a pattern

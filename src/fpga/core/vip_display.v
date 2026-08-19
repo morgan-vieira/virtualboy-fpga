@@ -20,6 +20,7 @@ module vip_display (
     logic [17:0] idle_cost;
     logic [18:0] active_budget;
     logic [18:0] apparent_level;
+    logic [26:0] normalized;
     logic [7:0]  exposure;
 
     always_comb begin
@@ -43,8 +44,16 @@ module vip_display (
         apparent_level = base_level * repeat_count;
         if (apparent_level > active_budget)
             apparent_level = active_budget;
-        // Full LED drive is one column's worth of exposure.
-        exposure = apparent_level > 19'd255 ? 8'hFF : apparent_level[7:0];
+        // Full LED drive is 128 ticks, not 255: beetle-vb accumulates a
+        // level's on-time against MaxTime and hands the curve that duty
+        // scaled back out to 0-255 [beetle-vb vip.c
+        // RecalcBrightnessCache]. Calling 255 ticks full drive instead
+        // renders every level about one step dark -- level 3 landed where
+        // beetle puts level 2, which is why VUEngine's splash peaked at 189
+        // on the Pocket where RetroArch shows 254. Saturating here is the
+        // same cut as beetle's clamp to MaxTime.
+        normalized = ({8'd0, apparent_level} * 27'd255) >> 7;
+        exposure = normalized > 27'd255 ? 8'hFF : normalized[7:0];
     end
 
     // Exposure is a duty cycle; the panel wants it gamma-encoded.

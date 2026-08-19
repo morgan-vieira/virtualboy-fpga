@@ -276,12 +276,14 @@ module vip_system_tb;
             end
 
             // Stripes four columns wide: the column table alternates the
-            // repeat count, so shade 1 lands on exposure 64 against 128.
+            // repeat count, so shade 1 lands on 64 ticks against 128. Those
+            // reach the curve normalized against MaxTime, 128 ticks being
+            // full drive, so 127 against a saturated 255.
             for (y = 0; y < 224; y = y + 37) begin
                 for (x = 0; x < 384; x = x + 1) begin
                     disp_x = x;
                     disp_y = y;
-                    want_exposure = ((x >> 2) & 1) ? 8'd128 : 8'd64;
+                    want_exposure = ((x >> 2) & 1) ? 8'd255 : 8'd127;
                     repeat (2) @(posedge clk);
                     #1;
                     want = want_luma;
