@@ -213,6 +213,7 @@ module cpu (
     } state_t;
 
     state_t state;
+    state_t state_q;      // last clock's state; state != state_q is entry
 
     // Architectural cycles still owed by retired work: charged at execute
     // (fetch, base and data waits all at once), drained one per tick. The
@@ -541,6 +542,18 @@ module cpu (
     // tag over a 32-bit space must [Scroll, CPU > Instruction Cache].
     wire logic [31:0] pcp2 = pc + 32'd2;
 
+    // A two-halfword access launches its second request from the state that
+    // still has the first answer on rdata. That answer only lives for that
+    // state's first clock: a device that inserts waits leaves rdata alone
+    // while it works and replaces it the moment its own access completes,
+    // so waiting for ready to take the earlier half reads the later one
+    // instead. Everything that needs the earlier answer takes it on entry.
+    wire logic first_clk = state != state_q;
+
+    // The low halfword of a 32-bit instruction, stable for the whole of
+    // FETCH_END so the second request cannot change what it decoded.
+    wire logic [15:0] fetch_lo = first_clk ? rdata : ir_lo_q;
+
     wire logic [15:0] ic_half  = pc[1]   ? ic_data_q[31:16] : ic_data_q[15:0];
     wire logic [15:0] ic_half2 = pcp2[1] ? ic_data_q[31:16] : ic_data_q[15:0];
     wire logic ic_hit1 = ic_tagv_q[21:0] == pc[31:10]
@@ -551,7 +564,7 @@ module cpu (
     // The instruction's first halfword: live off the bus or the cache for
     // a 16-bit execute, the captured copy once a 32-bit one moved on. ir2
     // is the second halfword, live from whichever source is holding it.
-    wire logic [15:0] ir1      = state == FETCH_END ? rdata
+    wire logic [15:0] ir1      = state == FETCH_END ? fetch_lo
                                : state == IC_CHK    ? ic_half
                                : ir_lo_q;
     wire logic [15:0] ir2      = state == IC_CHK2 ? ic_half2 : rdata;
@@ -578,7 +591,7 @@ module cpu (
     // With the cache enabled FETCH1 requests nothing; the lookup states
     // own the fetch and only a miss's fill walks the bus.
     wire logic req_c = state == FETCH1    ? !irq_ok && !chcw_ice
-                     : state == FETCH_END ? is_32bit(rdata)
+                     : state == FETCH_END ? is_32bit(fetch_lo)
                      : state == MEM_LO || state == MEM_HI
                        || state == WA_LO || state == WA_HI
                        || state == FATAL_WR;
@@ -798,6 +811,7 @@ module cpu (
             psw_z  <= 1'b0;
             ecr    <= 32'h0000_FFF0;
             state  <= RESET1;
+            state_q <= RESET1;
             owed         <= 8'd0;
             prev_load    <= 1'b0;
             prev_muldiv  <= 1'b0;
@@ -816,6 +830,7 @@ module cpu (
         end else begin
             // A write request lives exactly one clock, and so do the FPU
             // strobes.
+            state_q   <= state;
             wb_en     <= 1'b0;
             wb30_en   <= 1'b0;
             fpu_start <= 1'b0;
@@ -864,11 +879,10 @@ module cpu (
                     // requests the second; a 16-bit one holds here for the
                     // barrier and executes below. rdata holds between
                     // accesses, so the hold costs nothing but time.
-                    FETCH_END:
-                        if (is_32bit(rdata) && ready) begin
-                            ir_lo_q <= rdata;
-                            state   <= EXEC2;
-                        end
+                    FETCH_END: begin
+                        if (first_clk) ir_lo_q <= rdata;
+                        if (is_32bit(fetch_lo) && ready) state <= EXEC2;
+                    end
 
                     EXEC2: ;   // the barrier below owns this state
 
@@ -882,15 +896,17 @@ module cpu (
                                : mem_store ? FETCH1 : MEM_CAP;
                     end
 
-                    MEM_HI: if (ready) begin
+                    MEM_HI: begin
                         // A word load's low answer lands here while the
                         // high request goes out, keeping the two accesses
-                        // back-to-back on the bus.
-                        if (!mem_store)
+                        // back-to-back on the bus. It is taken on entry
+                        // because a waiting device overwrites it with its
+                        // own answer the moment ready arrives.
+                        if (first_clk && !mem_store)
                             mem_data[15:0] <= mem_wcr
                                 ? {8'd0, 6'b111111, wcr_exp1w, wcr_rom1w}
                                 : rdata;
-                        state <= mem_store ? FETCH1 : MEM_CAP;
+                        if (ready) state <= mem_store ? FETCH1 : MEM_CAP;
                     end
 
                     MEM_CAP: begin
@@ -1006,16 +1022,17 @@ module cpu (
                         state <= WA_HI;
                     end
 
-                    WA_HI: if (ready) begin
+                    WA_HI: begin
                         // Reads of the CPU's own WCR answer WCR | 0xFC on
                         // this path too, so CAXI and bit string sources see
-                        // the same readback loads do.
-                        if (!wa_we)
+                        // the same readback loads do. Taken on entry, for
+                        // the reason MEM_HI gives.
+                        if (first_clk && !wa_we)
                             wa_rdata[15:0] <= wa_a[26:24] == 3'd2
                                               && wa_a[7:2] == 6'h09
                                 ? {8'd0, 6'b111111, wcr_exp1w, wcr_rom1w}
                                 : rdata;
-                        state <= wa_we ? wa_ret : WA_END;
+                        if (ready) state <= wa_we ? wa_ret : WA_END;
                     end
 
                     WA_END: begin

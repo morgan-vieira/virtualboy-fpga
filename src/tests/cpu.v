@@ -111,6 +111,29 @@ module cpu_tb;
         .irq(pad_irq)
     );
 
+    // A device that answers late. The VIP's memory and the cartridge in
+    // SDRAM both hold ready down for several clocks per access, and that is
+    // the case a two-halfword access gets wrong: the earlier half's answer
+    // only sits on rdata for the first clock of the state that launches the
+    // next request. Off unless a scenario turns it on, so every other
+    // scenario keeps the timing it measures.
+    reg        waits_on  = 1'b0;
+    reg [2:0]  stall_cnt = 3'd0;
+    reg [26:1] stall_a   = {26{1'b1}};
+    wire       stall     = waits_on && stall_cnt != 3'd0;
+
+    always @(posedge clk) begin
+        if (!waits_on) begin
+            stall_cnt <= 3'd0;
+            stall_a   <= {26{1'b1}};
+        end else if (req && a != stall_a) begin
+            stall_a   <= a;          // a fresh access waits its turn
+            stall_cnt <= 3'd3;
+        end else if (stall_cnt != 3'd0) begin
+            stall_cnt <= stall_cnt - 3'd1;
+        end
+    end
+
     reg rd_misc = 1'b0;   // last access hit region 2: the timer answers
     always @(posedge clk) if (req) rd_misc <= a[26:24] == 3'd2;
 
@@ -128,7 +151,7 @@ module cpu_tb;
         .be(be),
         .wdata(wd),
         .rdata(rd_misc ? misc_rdata : rd),
-        .ready(ready),
+        .ready(ready && !stall),
         .irq_valid(irq_valid || timer_irq || pad_irq),
         .irq_level(irq_valid ? irq_level : timer_irq ? 4'd1 : 4'd0),
         .dbg_pc(dbg_pc),
@@ -1553,6 +1576,28 @@ module cpu_tb;
         if (marks[14] - marks[13] < marks[15] - marks[14] + 20)
             $fatal(1, "t2 cold pass should pay the fills: cold %0d, warm %0d",
                    marks[14] - marks[13], marks[15] - marks[14]);
+
+        // D-WAIT: a word load served by a device that answers late. Both
+        // halfword answers are correct on the bus; what the CPU may not do
+        // is wait for the second one before taking the first, because by
+        // then rdata carries the second. Taking it late reads the high half
+        // twice -- the pointer 0x050054b0 comes back as 0x05000500 -- which
+        // is what sent VUEngine's Game::start down its already-started
+        // branch and rebooted the machine into a black screen. The 32-bit
+        // instructions here are fetched through the same waits, so the
+        // fetch path's own two halfwords are on trial too.
+        restart();
+        prog_h(16'hbcc0); prog_h(16'h0500);   // movhi 0x0500, r0, r6
+        prog_h(16'ha0c6); prog_h(16'h0200);   // movea 0x0200, r6, r6
+        prog_h(16'hcd46); prog_h(16'h0000);   // ld.w  0[r6], r10
+        prog_h(16'h6800);                     // halt
+        wram['h0100] = 16'h54b0;              // 0x05000200, the low half
+        wram['h0101] = 16'h0500;              // 0x05000202, the high half
+        waits_on = 1'b1;
+        go();
+        wait_halt(20000, "dwait");
+        waits_on = 1'b0;
+        expect_gpr(10, 32'h0500_54b0, "dwait word load through wait states");
 
         // The built images, run whole. Their own checks judge; the status
         // word carries the verdict and names the failing check on a spin.

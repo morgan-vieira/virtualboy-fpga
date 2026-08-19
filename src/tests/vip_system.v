@@ -304,6 +304,13 @@ module vip_system_tb;
         run_rom("vip-sched", 2048, 60000000);
         run_rom_status("vip-dpctrl", 1024, 16'h600d, 8000000);
         run_vip_display(512, 20000000);
+        // Last on purpose. It needs none of the drawing machinery -- only a
+        // device that answers late, which is the case the CPU's
+        // two-halfword accesses got wrong -- and run_rom reloads the DRAM
+        // array between images but not the VIP's own block RAM, so a ROM
+        // inserted ahead of these changes what the timing-sensitive ones
+        // start from. vip-sched spins in its check 8 if this runs first.
+        run_rom("vip-word", 512, 2000000);
         $display("vip_system: PASS");
         $finish;
     end
