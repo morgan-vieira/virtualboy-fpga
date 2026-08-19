@@ -284,6 +284,17 @@ These differ per peripheral and are an easy source of bugs that only show up in 
       word access ignores bits 1 and 0. Nothing faults; the address just moves.
       Structural: bit 0 never leaves the CPU (`addr[26:1]`), and a word access is
       two halfword bus cycles, so the CPU's bus unit owns bit 1.
+- [x] **A word access keeps both of its answers.** Those two halfword cycles come back
+      one at a time, and the first answer is only on `rdata` for the clock the second
+      request goes out on. `cpu.v` took it when `ready` arrived instead, which is the
+      same clock for work RAM and for the cartridge in block RAM, and several clocks
+      late for the VIP's memory and for the cartridge in SDRAM. By then `rdata` carried
+      the second answer and the high halfword landed in both halves. `MEM_HI`, `WA_HI`
+      and `FETCH_END` now take it on entry. Nothing in the suite could see it: the VIP
+      ROMs read the frame buffer with `ldH`, so no word access ever crossed a device
+      that answers late. Watched and passed 2026-08-19 by morgan-vieira with the
+      `vip-word` ROM, which reads a word back out of BGMap and character memory; before
+      the fix it spins at check 1 with the pointer 0x050054B0 reading 0x05000500.
 
 ### Feature: insert cartridge wait states
 
