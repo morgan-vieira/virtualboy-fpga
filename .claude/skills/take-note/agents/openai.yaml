@@ -1,3 +1,0 @@
-interface:
-  display_name: "Take Note"
-  short_description: "Turn source documents into self-contained technical notes for another agent."
