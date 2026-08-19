@@ -43,7 +43,7 @@ Reference priority (Morgan, 2026-08-17): the documents are the spec wherever the
 
 ## Prove it before it ships
 
-A module that compiles isn't a module that works. Every module takes the same route:
+A module that compiles isn't a module that works. You aren't iterating on code here, you're synthesising a circuit — the loop is closer to taping out a chip than to running a test suite, and nobody spins the whole chip to find out whether it works. Every module takes the same route:
 
 Do not declare a module complete by pinning or deferring features that can be implemented within it. Missing behavior remains part of the module's work regardless of difficulty. A feature may be deferred only when a technical constraint is outside the control of the maintainers and agents, or when implementing it requires another unfinished module; record that dependency and return once it exists.
 
@@ -51,6 +51,9 @@ Do not declare a module complete by pinning or deferring features that can be im
 - **Build the ROM that proves it.** One ROM per module, written for that module's requirement. Video timing gets a ROM that stresses sync and refresh; the VSU gets one that plays known tones. A commercial game exercises everything at once and proves nothing in particular.
 - **Say what a pass looks like.** What shows on screen, what comes out of the speaker, what failure looks like instead. That's the `expectation` field in the ROM spec, and it gets written before the code. "Load it and see" is not an instruction.
 - **Ask for the hardware test.** Only a maintainer can watch the Pocket. Ask, wait for the verdict, and don't call the module done before it comes back.
+- **Then wire it to its nearest neighbours.** Passing alone doesn't mean passing in place. When a proven module joins the design, simulate it against the modules it actually touches, ask for hardware on that pair, and only then reach further out. Bugs live on the seams, and a seam is cheaper to debug two modules at a time than eight.
+
+A module that has been through this route is trusted, and everything after it gets built with it rather than around it. Done properly, the design grows out of a shelf of parts that already work and final integration is the dullest step, not the one where you find out.
 
 Diagnosis is the same road backwards. When a game misbehaves, don't patch the core and replay the game. Isolate the symptom to a module, pick or build the ROM that reproduces just it, fix it in simulation, ask for hardware again. A bug you can only reproduce inside a commercial game is a bug you haven't found yet.
 

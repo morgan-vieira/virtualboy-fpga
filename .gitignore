@@ -4,6 +4,7 @@ node_modules/
 .local/
 tools/
 tmp/
+.tmp/
 
 # Environment variables
 .env
