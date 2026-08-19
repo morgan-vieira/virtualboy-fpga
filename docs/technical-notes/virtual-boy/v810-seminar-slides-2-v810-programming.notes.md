@@ -3,31 +3,31 @@
 ## Source
 
 - File: `v810-seminar-slides-2-v810-programming.md`
-- Type: slides (presentation deck, transcribed to Markdown; several timing diagrams survive only as image references)
+- Type: slides. It is a presentation deck transcribed to Markdown. Several timing diagrams survive only as image references
 - Extent: 25 slides
 - Version or date stated in document: "February 21, 1995" on the title slide. Footer codes of the form `V-1123-0295-Ynn` appear on two slides. [slide 1, slides 4, 11]
-- Author or publisher stated in document: "NEC"; "Hitoshi Yamahata", "NEC Corporation" on the title slide; "NEC Electronics Inc." on the closing slide. [slides 1, 25]
+- Author or publisher stated in document: "NEC", "Hitoshi Yamahata" and "NEC Corporation" on the title slide, "NEC Electronics Inc." on the closing slide. [slides 1, 25]
 - Slide numbers used as anchors in these notes are 1-based positions in the deck. They agree with the deck's own footer codes where those survive: `V-1123-0295-Y04` on slide 4 and `V-1123-0295-Y11` on slide 11.
 - The transcription's first slide also carries the text "PLANET VIRTUAL BOY" and the URL `HTTP://WWW.VR32.DE`, which is not part of the NEC titling. [slide 1]
 
 ## Scope
 
-The deck is a programming and optimisation guide for the V810 processor, organised into four sections announced by divider slides: "Assembler Programming" [slide 2], "Pipelining" [slide 6], "System level Issue" [slide 12] and "Others" [slide 20]. It covers register conventions, assembler sections and small-data-area access, pipeline hazards with measured timings, interrupt enable/disable and handler coding, cache control, data alignment, the call/return convention, and branch-avoidance coding tricks.
+The deck is a programming and optimisation guide for the V810 processor, organised into four sections announced by divider slides: "Assembler Programming" [slide 2], "Pipelining" [slide 6], "System level Issue" [slide 12] and "Others" [slide 20]. It covers register conventions, assembler sections and small-data-area access, pipeline hazards with measured timings, enabling and disabling interrupts, handler coding, cache control, data alignment, the call and return convention, and branch-avoidance coding tricks.
 
 The deck is written around short assembler listings and measured execution times. It does not give instruction encodings, does not enumerate the system register file (only registers #5 and #24 are named), and does not describe the hardware outside the programmer's view.
 
 ## Key concepts
 
-- **hsp** — Handler Stack Pointer, register r2. [slide 3]
-- **sp** — Stack Pointer, register r3. [slide 3]
-- **gp** — Global Pointer, register r4. [slide 3]
-- **tp** — Text Pointer, register r5. [slide 3]
-- **lp** — Link Pointer, register r31; "'Jal' saves return address". [slide 3]
-- **SDA (Small Data Area)** — the `.sdata`/`.sbss` sections. [slide 4]
-- **CHCW** — Cache Control Word, system register #24. Its `ICE` bit enables and disables cache. [slide 18]
-- **PSW** — system register #5; bit 12 is the `ID` flag that disables interrupts. [slide 13]
-- **SETFcc** — "SETFcc reg": if conditions "cc" are satisfied then reg = 1 else reg = 0. [slide 24]
-- **ca732** — the toolchain whose section convention the example on slide 4 follows ("Section convention of this example are cases of 'ca732'"). [slide 4]
+- **hsp.** Handler Stack Pointer, register r2. [slide 3]
+- **sp.** Stack Pointer, register r3. [slide 3]
+- **gp.** Global Pointer, register r4. [slide 3]
+- **tp.** Text Pointer, register r5. [slide 3]
+- **lp.** Link Pointer, register r31. "'Jal' saves return address". [slide 3]
+- **SDA (Small Data Area).** The `.sdata` and `.sbss` sections. [slide 4]
+- **CHCW.** Cache Control Word, system register #24. Its `ICE` bit enables and disables cache. [slide 18]
+- **PSW.** System register #5. Bit 12 is the `ID` flag that disables interrupts. [slide 13]
+- **SETFcc.** "SETFcc reg". If conditions "cc" are satisfied then reg = 1 else reg = 0. [slide 24]
+- **ca732.** The toolchain whose section convention the example on slide 4 follows ("Section convention of this example are cases of 'ca732'"). [slide 4]
 
 ## Content
 
@@ -59,18 +59,18 @@ Verbatim table. [slide 3]
 
 - The address space is drawn from 0x00000000 at the top to 0xFFFFFFFF at the bottom, with `r4(gp) ->` and `r5(tp) ->` marking pointer positions into it. [slide 4]
 - Example source layout, verbatim: `.data` / `table:` / `.byte 0x11,0x12` / `.sdata` / `.sbss` / `.bss` / `.comm buf, 1024, 4` / `.lcomm tmp, 512, 4` / `.text` / `start:` / `mov 0,r10`. [slide 4]
-- ".text" section — Program Body. [slide 4]
-- ".data" section — Data with initial value; directives `.byte`, `.hword`, `.word`. [slide 4]
-- ".bss" section — Data without initial value; directives `.lcomm`, `.comm`. [slide 4]
-- SDA section (Small Data Area) — `.sdata`/`.sbss`. [slide 4]
+- ".text" section. Program Body. [slide 4]
+- ".data" section. Data with initial value. Directives are `.byte`, `.hword`, `.word`. [slide 4]
+- ".bss" section. Data without initial value. Directives are `.lcomm`, `.comm`. [slide 4]
+- SDA section (Small Data Area). `.sdata` and `.sbss`. [slide 4]
 - "Section convention of this example are cases of 'ca732'." [slide 4]
 
 #### Data access using "gp" (slide 5)
 
 - "Assembler knows 'gp' indirect mode by using '$' instead of '#'." [slide 5]
 - "'gp' indirect keeps displacement small enough to fit 16 bit length." [slide 5]
-- Ordinal Data listing, verbatim: direct access `ld.w #LINE_DX, r10` / `ld.w #LINE_DY, r11`; register indirect access `mov #LINE_DX, r20` / `ld.w [r20], r10` / `mov #LINE_DY, r20` / `ld.w [r20], r11`; data in `.data` with `.align 4`, `LINE_DX: .word 120`, `LINE_DY: .work 80`. Two lines of the register-indirect form are marked `<- (*)` in the source, with no footnote text for the marker. [slide 5]
-- "gp" Register Indirect listing, verbatim: direct access `ld.w $LINE_DX, r10` / `ld.w $LINE_DY, r11`; register indirect access `movea $LINE_DX, gp, r20` / `ld.w [r20], r10` / `movea $LINE_DY, gp, r20` / `ld.w [r20], r11`; data in `.sdata` with `.align 4`, `LINE_DX: .word 120`, `LINE_DY: .work 80`. [slide 5]
+- Ordinal Data listing, verbatim. Direct access is `ld.w #LINE_DX, r10` and `ld.w #LINE_DY, r11`. Register indirect access is `mov #LINE_DX, r20` / `ld.w [r20], r10` / `mov #LINE_DY, r20` / `ld.w [r20], r11`. The data sits in `.data` with `.align 4`, `LINE_DX: .word 120`, `LINE_DY: .work 80`. Two lines of the register-indirect form are marked `<- (*)` in the source, with no footnote text for the marker. [slide 5]
+- "gp" Register Indirect listing, verbatim. Direct access is `ld.w $LINE_DX, r10` and `ld.w $LINE_DY, r11`. Register indirect access is `movea $LINE_DX, gp, r20` / `ld.w [r20], r10` / `movea $LINE_DY, gp, r20` / `ld.w [r20], r11`. The data sits in `.sdata` with `.align 4`, `LINE_DX: .word 120`, `LINE_DY: .work 80`. [slide 5]
 
 ### Pipelining section (slides 6–11)
 
@@ -119,7 +119,16 @@ The divider lists two subtopics: Interrupt, Cache. [slide 12]
 
 - "Control is transferred to one of sixteen interrupt handlers according to INT level." [slide 14]
 - "-> ( INT level 'n' ; INTn -> 0xFFFFFFEn0)." (transcribed exactly, with nine hex digits) [slide 14]
-- Handler table, verbatim: `0xFFFFFE00  jr int_handler_0`; `0xFFFFFE10  jr int_handler_1`; `0xFFFFFE20  jr int_handler_2`; ellipsis; `0xFFFFFEF0  jr int_handler_f`. [slide 14]
+- Handler table, verbatim [slide 14]:
+
+  | Address      | Instruction        |
+  | ------------ | ------------------ |
+  | `0xFFFFFE00` | `jr int_handler_0` |
+  | `0xFFFFFE10` | `jr int_handler_1` |
+  | `0xFFFFFE20` | `jr int_handler_2` |
+  | ellipsis     | ellipsis           |
+  | `0xFFFFFEF0` | `jr int_handler_f` |
+
 - Annotation: "Not a handler address here! Use V810 instructions. (example: 'jr')". [slide 14]
 
 #### Saving Register in INT Handler (slide 15)
@@ -181,7 +190,7 @@ The divider lists three subtopics: Data Alignment, Call / Return, Advanced Techn
 
 - "Branch/Jump disturbs pipeline flow." [slide 24]
 - "-> avoid branch/jump by optimizing code (if possible)." [slide 24]
-- Worked example: get sign — "if ( r10 > 0 ) then r10 = 1 else if ( r10 == 0 ) then r10 = 0 else r10 = -1". [slide 24]
+- Worked example, get sign: "if ( r10 > 0 ) then r10 = 1 else if ( r10 == 0 ) then r10 = 0 else r10 = -1". [slide 24]
 - "SETFcc reg": if conditions "cc" are satisfied then reg = 1 else reg = 0. [slide 24]
 
 ### Closing (slide 25)
@@ -493,10 +502,10 @@ Assembler directives: `.text`, `.data`, `.sdata`, `.sbss`, `.bss`, `.byte`, `.hw
 
 ## Constraints and requirements
 
-- Registers used in an interrupt handler must be saved explicitly; the deck states this as a requirement, not a suggestion. [slide 15]
+- Registers used in an interrupt handler must be saved explicitly. The deck states the saving as a requirement, not a suggestion. [slide 15]
 - The deck warns specifically not to forget saving r1 (assembler work) and r30 (result of mul/div) in an interrupt handler. [slide 15]
 - Data must be aligned to each data size: word (32 bit) to a 32 bit boundary, half word (16 bit) to a 16 bit boundary. A misaligned address is truncated by hardware. [slide 21]
-- Registers r0 through r5 and r26 through r31 carry conventional roles; r1 through r5 are marked "Assembler, linker and System reserved. (depend on individual software tools)". [slide 3]
+- Registers r0 through r5 and r26 through r31 carry conventional roles. Registers r1 through r5 are marked "Assembler, linker and System reserved. (depend on individual software tools)". [slide 3]
 - r30 is used by `caxi`, `mul`, `mulu`, `div` and `divu` in addition to its bit-string role. [slide 3]
 - Some I/O devices must be accessed with `in` rather than `load`, because `load` causes a side effect on such devices by reading the port twice. [slide 17]
 - The interrupt vector locations hold instructions, not handler addresses: "Not a handler address here! Use V810 instructions. (example: 'jr')". [slide 14]
@@ -512,19 +521,19 @@ Assembler directives: `.text`, `.data`, `.sdata`, `.sbss`, `.bss`, `.byte`, `.hw
 ## Stated gaps and ambiguities
 
 - Slide 14 writes the vector formula as "INTn -> 0xFFFFFFEn0", which is nine hex digits, while the table on the same slide lists eight-digit addresses 0xFFFFFE00 through 0xFFFFFEF0. The deck does not reconcile the two forms. [slide 14]
-- Slide 21 states both results land in r10 — "after 'ld.h', r10=0x78ab" and "after 'ld.w', r10=0x345678ab" — but the listing loads the word into r11. The deck does not reconcile this. [slide 21]
+- Slide 21 states both results land in r10, "after 'ld.h', r10=0x78ab" and "after 'ld.w', r10=0x345678ab", but the listing loads the word into r11. The deck does not reconcile the two. [slide 21]
 - Slides 7, 8, 9 and 10 quote loop counts of 0x100000 while slide 11 quotes 0x10000. The deck does not explain the difference. [slides 7, 8, 9, 10, 11]
-- The sentences "Can avoid interlock by inserting other 'effective' instruction (if possible). (Nothing is better than inserting 'nop' instructions.)" appear on both hazard slides. As transcribed, the parenthetical reads as praise for `nop` while the surrounding advice is to insert useful instructions instead; the deck does not clarify. [slides 10, 11]
-- The "Others" divider lists three subtopics including "Advanced Technique", but no later slide carries that title; slides 23 and 24 are titled "Pipeline Coding Tip (1)" and "Pipeline Coding Tips (2)". [slides 20, 23, 24]
-- `LINE_DY: .work 80` appears in both listings on slide 5; the deck's own directive list on slide 4 includes `.word` but not `.work`. [slides 4, 5]
+- The sentences "Can avoid interlock by inserting other 'effective' instruction (if possible). (Nothing is better than inserting 'nop' instructions.)" appear on both hazard slides. As transcribed, the parenthetical reads as praise for `nop` while the surrounding advice is to insert useful instructions instead. The deck does not clarify. [slides 10, 11]
+- The "Others" divider lists three subtopics including "Advanced Technique", but no later slide carries that title. Slides 23 and 24 are titled "Pipeline Coding Tip (1)" and "Pipeline Coding Tips (2)". [slides 20, 23, 24]
+- `LINE_DY: .work 80` appears in both listings on slide 5. The deck's own directive list on slide 4 includes `.word` but not `.work`. [slides 4, 5]
 - Slide 5's "Ordinal Data" listing marks two lines with `<- (*)` but the slide contains no footnote text for the marker. [slide 5]
-- Slides 7, 8, 9, 10 and 11 each present measurement figures whose accompanying pipeline timing diagrams survive only as image references; for slides 7 and 8 no code listing survives at all, so the compared sequences behind those measurements are not recoverable from the text. [slides 7, 8]
-- Slide 17's example — the pipeline flow of `ld.b #io_addr, r10` — is carried entirely by two diagrams; only the conclusion "Read I/O port twice!" survives as text. [slide 17]
+- Slides 7, 8, 9, 10 and 11 each present measurement figures whose accompanying pipeline timing diagrams survive only as image references. For slides 7 and 8 no code listing survives at all, so the compared sequences behind those measurements are not recoverable from the text. [slides 7, 8]
+- Slide 17's example, the pipeline flow of `ld.b #io_addr, r10`, is carried entirely by two diagrams. Only the conclusion "Read I/O port twice!" survives as text. [slide 17]
 - Slide 4's address-space figure is transcribed as a table whose only populated cell holds the example source listing, with `0x00000000`, `r4(gp) ->`, `r5(tp) ->` and `0xFFFFFFFF` appearing outside it as loose lines. The positions of `gp` and `tp` relative to the sections are therefore not recoverable. [slide 4]
 - The deck names only two system registers by number: #5 (PSW) and #24 (CHCW). No other system register, and no other PSW bit beyond bit 12 (ID), is described. [slides 13, 18]
 - `CHCW.ICE` is set by writing the value 2 to CHCW, implying a bit position, but the deck never states which bit `ICE` is. [slide 18]
 - Slide 3 gives no role or note for r6 ~ r25. [slide 3]
 - Slide 3 lists `caxi` as a user of r30 but the deck never describes what `caxi` does. [slide 3]
 - Standalone digits "2", "3" and "4" appear in the transcription immediately before the "Pipelining", "System level Issue" and "Others" divider slides. The deck does not label what they number. [slides 6, 12, 20]
-- Footer codes survive on only two slides (4 and 11); the transcription carries no slide numbers of its own.
+- Footer codes survive on only two slides, 4 and 11. The transcription carries no slide numbers of its own.
 - Immediate operands in the timing listings are written without a radix marker (`movhi 0010, r0, r20`, `movea 1000, r0, r10`), and the deck does not state whether they are decimal or hexadecimal. [slides 9, 10, 11]

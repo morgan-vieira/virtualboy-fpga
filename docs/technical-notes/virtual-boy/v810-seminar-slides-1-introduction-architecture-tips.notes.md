@@ -3,10 +3,10 @@
 ## Source
 
 - File: `v810-seminar-slides-1-introduction-architecture-tips.md`
-- Type: slides (presentation deck, transcribed to Markdown; figures and diagrams are referenced as image files and their content is not in the text)
+- Type: slides. It is a presentation deck transcribed to Markdown. Figures and diagrams are referenced as image files and their content is not in the text
 - Extent: 38 slides
 - Version or date stated in document: "February 21, 1995" on the title slide. Footer codes of the form `V-1123-0295-WWnn` appear on several slides. [slide 1, slides 2, 3, 9, 21, 26, 32]
-- Author or publisher stated in document: NEC; "NEC Electronics Inc."; "NEC Corporation". [slide 1, slide 38]
+- Author or publisher stated in document: NEC, "NEC Electronics Inc.", "NEC Corporation". [slide 1, slide 38]
 - Slide numbers used as anchors in these notes are 1-based positions in the deck. They agree with the deck's own footer codes wherever a footer survives: `WW02` on slide 2, `WW03` on slide 3, `WW09` on slide 9, `WW21` on slide 21, `WW26` on slide 26, `WW32` on slide 32.
 - The transcription's first slide also carries the text "PLANET VIRTUAL BOY" and the URL `HTTP://WWW.VR32.DE`, which is not part of the NEC titling. [slide 1]
 
@@ -14,31 +14,40 @@
 
 The deck introduces the V810 processor, its architecture, and programming tips. The stated agenda is three parts: "V810 Introduction", "V810 Architecture", "Programming Tips & Optimization". [slide 2] Divider slides mark the sections in practice as "V810 Architecture" [slide 9], "Interrupt/Exception Flow" [slide 26] and "Important H/W Issues" [slide 32].
 
-Content covered: CISC versus RISC, load/store architecture, code size, pipelining, cache, interrupt response time, the architectural outline, registers, data types, alignment, the instruction set, execution clock counts, addressing modes, flag effects, sign/zero extension, function calls, bit string operations, floating point, the interrupt and exception model, hardware interlock, and cache implementation and usage.
+Content covered: CISC versus RISC, load/store architecture, code size, pipelining, cache, interrupt response time, the architectural outline, registers, data types, alignment, the instruction set, execution clock counts, addressing modes, flag effects, sign and zero extension, function calls, bit string operations, floating point, the interrupt and exception model, hardware interlock, and cache implementation and usage.
 
 The deck does not give instruction encodings, does not enumerate the individual program or system registers in text (those slides are diagrams only), does not give bus timing or electrical characteristics, and does not contain code listings beyond a handful of two-to-four line examples.
 
 ## Key concepts
 
-- **CISC** — "Complex Instruction Set Computer". [slide 3]
-- **RISC** — "Reduced Instruction Set Computer". The deck labels the V810 a RISC machine ("RISC (V810 etc.)"). [slides 3, 4]
-- **Load/Store Architecture** — the property that arithmetic operates on registers, with separate load and store instructions for memory. [slide 4]
-- **Pipeline stages** — IF : Instruction Fetch; ID : Instruction Decode; EX : Execution; MA : Memory Access; WB : Write Back. [slide 6]
-- **Interlock** — "Hazard detection & interlock by H/W", described as covering load/store and flag hazards. [slide 33]
-- **CHCW** — the "cache control word" register. [slide 37]
-- **V800** — the name the interlock slide uses for the hardware being contrasted against "General RISC". [slide 33]
+- **CISC.** "Complex Instruction Set Computer". [slide 3]
+- **RISC.** "Reduced Instruction Set Computer". The deck labels the V810 a RISC machine ("RISC (V810 etc.)"). [slides 3, 4]
+- **Load/Store Architecture.** The property that arithmetic operates on registers, with separate load and store instructions for memory. [slide 4]
+- **Pipeline stages.** Five stages [slide 6]:
+
+  | Stage | Meaning as printed |
+  | ----- | ------------------ |
+  | IF    | Instruction Fetch  |
+  | ID    | Instruction Decode |
+  | EX    | Execution          |
+  | MA    | Memory Access      |
+  | WB    | Write Back         |
+
+- **Interlock.** "Hazard detection & interlock by H/W", described as covering load/store and flag hazards. [slide 33]
+- **CHCW.** The "cache control word" register. [slide 37]
+- **V800.** The name the interlock slide uses for the hardware being contrasted against "General RISC". [slide 33]
 
 ## Content
 
 ### Introduction (slides 1–8)
 
 - Title slide: "V810 Seminar", February 21, 1995, NEC, NEC Electronics Inc., NEC Corporation. [slide 1]
-- Agenda: V810 Introduction; V810 Architecture; Programming Tips & Optimization. [slide 2]
-- "CISC vs. RISC" gives only the two expansions and a figure; no comparison text survives in the transcription. [slide 3]
+- Agenda: V810 Introduction, V810 Architecture, Programming Tips & Optimization. [slide 2]
+- "CISC vs. RISC" gives only the two expansions and a figure. No comparison text survives in the transcription. [slide 3]
 - Load/Store Architecture contrasts a CISC memory-to-memory add with the equivalent RISC sequence. [slide 4]
   - CISC: `add _mem1, _mem2`
   - RISC (V810 etc.): `load _mem1_disp[rBase], rX` / `load _mem2_disp[rBase], rY` / `add rX, rY` / `store rY, _mem2_disp[rBase]`
-- "Code Size Efficiency" is a figure only; the transcription carries no text for it. [slide 5]
+- "Code Size Efficiency" is a figure only. The transcription carries no text for it. [slide 5]
 - Pipeline slide contrasts "Non-pipeline" and "Pipeline" timing diagrams across instruction1 through instruction5, labelled "parallel operation of 5-instruction". [slide 6]
 - Cache Memory is characterised as "High-performance ; 1 clock access" and "Parallel Operation ; instruction/data flow". [slide 7]
 - Fast Interrupt Response states "14Clocks (when INT handler is in cache)". [slide 8]
@@ -63,7 +72,14 @@ Nine bullets, verbatim. [slide 10]
 
 ### Data Type (slide 12)
 
-- Integer/Unsigned Integer sizes with bit ranges: Byte (B) 7..0; "Halfword (H" 15..0; "Word (W" 31..0; each labelled MSB and LSB. [slide 12]
+Integer and Unsigned Integer sizes with bit ranges, each labelled MSB and LSB [slide 12]:
+
+| Type as printed | Bit range |
+| --------------- | --------- |
+| Byte (B)        | 7..0      |
+| "Halfword (H"   | 15..0     |
+| "Word (W"       | 31..0     |
+
 - Floating Point number: bit range shown as "31 22" with fields S, exponent, mantissa. [slide 12]
 - Bit String: fields "Bit Length" and "Bit Offset". [slide 12]
 
@@ -79,7 +95,7 @@ Nine bullets, verbatim. [slide 10]
 
 ### Instruction Set (slide 15)
 
-Verbatim category/function table. [slide 15]
+Verbatim category and function table. [slide 15]
 
 | Category             | Function                                                                  |
 | -------------------- | ------------------------------------------------------------------------- |
@@ -95,11 +111,11 @@ Verbatim category/function table. [slide 15]
 
 ### Instruction Format (slide 17)
 
-- The slide is a figure only; no format text survives in the transcription. [slide 17]
+- The slide is a figure only. No format text survives in the transcription. [slide 17]
 
 ### Offset Addressing Mode (slide 18)
 
-- Load / Store form given as `Id 16bit[base],reg` (transcribed with a capital "I"; the deck elsewhere writes the load mnemonic as `ld`). [slide 18]
+- Load / Store form given as `Id 16bit[base],reg`, transcribed with a capital "I". The deck elsewhere writes the load mnemonic as `ld`. [slide 18]
 
 ### 32-bit Immediate Load (slide 19)
 
@@ -111,8 +127,8 @@ Verbatim category/function table. [slide 15]
 
 ### Load / In (slide 22)
 
-- Load performs sign extension; the example mnemonic is transcribed as `id.b` (capital "I"; the load byte mnemonic). [slide 22]
-- In performs zero extension; the example mnemonic is `in.b`. [slide 22]
+- Load performs sign extension. The example mnemonic is transcribed as `id.b`, with a capital "I", for the load byte mnemonic. [slide 22]
+- In performs zero extension. The example mnemonic is `in.b`. [slide 22]
 
 ### Function Call (slide 23)
 
@@ -136,26 +152,45 @@ Verbatim category/function table. [slide 15]
 
 - Interrupt: "Maskable interrupt (16 levels)". [slide 27]
 - Interrupt: "Non-maskable interrupt" appears struck through and annotated "NOT IMPROVED". [slide 27]
-- Exception list, verbatim: Double exception; Trap instruction; Address trap; Reserved op code; Zero division; Floating operation exception (6 types); Reset. [slide 27]
+- Exception list, verbatim [slide 27]:
+  - Double exception
+  - Trap instruction
+  - Address trap
+  - Reserved op code
+  - Zero division
+  - Floating operation exception (6 types)
+  - Reset
 
 ### Interrupt and exception flow slides (slides 28–31)
 
-- "Maskable Interrupt": text is only "Maskable interrupt (INT) occurs"; the flow itself is a diagram. [slide 28]
-- "Non-Maskable Interrupt": text is only "Non-maskable interrupt (NMI) occurs"; the flow itself is a diagram. [slide 29]
+- "Maskable Interrupt": the text is only "Maskable interrupt (INT) occurs". The flow itself is a diagram. [slide 28]
+- "Non-Maskable Interrupt": the text is only "Non-maskable interrupt (NMI) occurs". The flow itself is a diagram. [slide 29]
 - "Exception Processing": diagram only, no text. [slide 30]
 - "Return from Exception/Interrupt": diagram only, no text. [slide 31]
 
 ### Interlock (slides 33–35)
 
-The interlock material occupies three slides; the transcription groups all of it under the single heading "Interlock" on slide 33.
+The interlock material occupies three slides. The transcription groups all of it under the single heading "Interlock" on slide 33.
 
 - Interlock support covers load/store/flag interlock. [slide 33]
 - "Hazard detection & interlock by H/W." [slide 33]
 - "Transparent to assembler programming & debugging." [slide 33]
 - "Small code size by reducing excessive instruction." [slide 33]
 - "Better performance by inserting effective instruction." [slide 33]
-- Case 1, "Changing base register just before load/store": General RISC has the assembler insert a software wait — `add r3,r6` / `nop` / `Id.w disp[r6],r10`. V800 has hardware detect the hazard and stall the pipeline — `add r3,r6` / `Id.w disp[r6],r10`. [slides 33–35]
-- Case 2, "Conditional branch just after flag modification": General RISC — `cmp r6,r10` / `nop` / `bz`. V800 — `cmp r6,r10` / `bz`. [slides 33–35]
+
+Case 1, "Changing base register just before load/store" [slides 33–35]:
+
+| Machine      | Sequence                                  | Mechanism                                           |
+| ------------ | ----------------------------------------- | --------------------------------------------------- |
+| General RISC | `add r3,r6` / `nop` / `Id.w disp[r6],r10` | the assembler inserts a software wait               |
+| V800         | `add r3,r6` / `Id.w disp[r6],r10`         | hardware detects the hazard and stalls the pipeline |
+
+Case 2, "Conditional branch just after flag modification" [slides 33–35]:
+
+| Machine      | Sequence                    |
+| ------------ | --------------------------- |
+| General RISC | `cmp r6,r10` / `nop` / `bz` |
+| V800         | `cmp r6,r10` / `bz`         |
 
 ### Cache Implementation (slide 36)
 
@@ -175,7 +210,10 @@ The interlock material occupies three slides; the transcription groups all of it
 - Key for performance (ex. INT handler) -> good. [slide 37]
 - Rarely executing -> poor. [slide 37]
 - Executing only once (ex. boot routine) -> very poor. [slide 37]
-- Cache "Can control by CHCW(cache control word) register", with three listed controls: Enable/Disable; Clear all/part; Dump/Restore to/from memory. [slide 37]
+- Cache "Can control by CHCW(cache control word) register", with three listed controls [slide 37]:
+  - Enable/Disable
+  - Clear all/part
+  - Dump/Restore to/from memory
 
 ### Closing (slide 38)
 
@@ -220,43 +258,72 @@ Footnotes, verbatim. [slide 16]
 
 Columns are CY, OV, S, Z. Legend: "— : Not affected", "★: Affected", "0 : Cleared to 0". [slide 21]
 
-| Instructions                                     | CY  | OV  | S   | Z   |
-| ------------------------------------------------ | --- | --- | --- | --- |
-| `mov`, `movea`, `movhi`, `ld`, `st`, `in`, `out` | —   | —   | —   | —   |
-| `add`, `addi`, `sub`, `cmp`                      | ★   | ★   | ★   | ★   |
-| `mul`, `div`, `mulu`, `divu`                     | —   | ★   | ★   | ★   |
-| `and`, `or`, `xor`, `not`, `andi`, `ori`, `xori` | —   | 0   | ★   | ★   |
-| `shl`, `shr`, `sar`                              | ★   | 0   | ★   | ★   |
-| `jmp`, `jr`, `jal`, `Bcond`                      | —   | —   | —   | —   |
+| Instructions                                     | CY | OV | S | Z |
+| ------------------------------------------------ | -- | -- | - | - |
+| `mov`, `movea`, `movhi`, `ld`, `st`, `in`, `out` | —  | —  | — | — |
+| `add`, `addi`, `sub`, `cmp`                      | ★  | ★  | ★ | ★ |
+| `mul`, `div`, `mulu`, `divu`                     | —  | ★  | ★ | ★ |
+| `and`, `or`, `xor`, `not`, `andi`, `ori`, `xori` | —  | 0  | ★ | ★ |
+| `shl`, `shr`, `sar`                              | ★  | 0  | ★ | ★ |
+| `jmp`, `jr`, `jal`, `Bcond`                      | —  | —  | — | — |
 
 ### Mnemonics named anywhere in the deck
 
-`mov`, `movea`, `movhi`, `ld`, `ld.w`, `ld.b` (transcribed `id.b`), `st`, `in`, `in.b`, `out`, `add`, `addi`, `sub`, `cmp`, `mul`, `mulu`, `div`, `divu`, `and`, `or`, `xor`, `not`, `andi`, `ori`, `xori`, `shl`, `shr`, `sar`, `sha`, `jmp`, `jr`, `jal`, `Bcc`/`Bcond`, `bz`, `nop`, `search`, `addf.s`, `subf.s`, `mulf.s`, `divf.s`. [slides 4, 16, 18, 19, 20, 21, 22, 23, 33]
+`mov`, `movea`, `movhi`, `ld`, `ld.w`, `ld.b` (transcribed `id.b`), `st`, `in`, `in.b`, `out`, `add`, `addi`, `sub`, `cmp`, `mul`, `mulu`, `div`, `divu`, `and`, `or`, `xor`, `not`, `andi`, `ori`, `xori`, `shl`, `shr`, `sar`, `sha`, `jmp`, `jr`, `jal`, `Bcc` and `Bcond`, `bz`, `nop`, `search`, `addf.s`, `subf.s`, `mulf.s`, `divf.s`. [slides 4, 16, 18, 19, 20, 21, 22, 23, 33]
 
 ## Constraints and requirements
 
 - Data must align to their length. [slide 13]
 - Instructions require half-word (16-bit) alignment. [slide 14]
 - Byte order is Little Endian for both data and instructions. [slides 13, 14]
-- The clock figures on the Execution Clock slide hold only under the stated conditions: same instructions executed repeatedly; branch figures assume no hazard and a cache hit; bitstring figures are for word data; the marked load/store and bitstring figures assume a 16-bit external data bus. [slide 16]
+- The clock figures on the Execution Clock slide hold only under the stated conditions [slide 16]:
+  - the same instructions are executed repeatedly
+  - branch figures assume no hazard and a cache hit
+  - bitstring figures are for word data
+  - the marked load/store and bitstring figures assume a 16-bit external data bus
 - The 14-clock interrupt response figure holds only "when INT handler is in cache". [slide 8]
 - The 0.9 M FLOPS figure is quoted at 25MHz. [slide 25]
 - The deck states that hardware interlock makes hazard handling "Transparent to assembler programming & debugging", in contrast to a "General RISC" where the assembler inserts a software wait. [slide 33]
-- The deck ranks cache suitability by locality: loops with many iterations "very good"; performance-critical code such as an INT handler "good"; rarely executing code "poor"; code executing only once such as a boot routine "very poor". [slide 37]
+- The deck ranks cache suitability by locality [slide 37]:
+  - loops with many iterations, "very good"
+  - performance-critical code such as an INT handler, "good"
+  - rarely executing code, "poor"
+  - code executing only once such as a boot routine, "very poor"
 
 ## Stated gaps and ambiguities
 
-- A large share of the deck's substance is in figures that the transcription preserves only as image references, so their content is absent from the text. Slides that are figure-only or nearly so: slide 3 (CISC vs. RISC comparison), slide 5 (Code Size Efficiency), slide 6 (pipeline timing), slide 7 (cache block diagram), slide 8 (interrupt response timing), slide 11 (both the Program Registers and System Registers lists), slide 12 (data type layouts), slides 13 and 14 (alignment diagrams), slide 17 (Instruction Format), slide 18 (offset addressing diagram), slide 19 (immediate load diagram), slide 20 (function call range diagram), slide 22 (extension diagrams), slide 23 (function call diagram), slide 24 (bitstring Move and Logical diagrams), slides 28–31 (all four interrupt/exception flow diagrams), slide 36 (cache diagrams).
+- A large share of the deck's substance is in figures that the transcription preserves only as image references, so their content is absent from the text. The slides that are figure-only or nearly so are:
+
+  | Slide  | Content lost                                          |
+  | ------ | ----------------------------------------------------- |
+  | 3      | CISC vs. RISC comparison                              |
+  | 5      | Code Size Efficiency                                  |
+  | 6      | pipeline timing                                       |
+  | 7      | cache block diagram                                   |
+  | 8      | interrupt response timing                             |
+  | 11     | both the Program Registers and System Registers lists |
+  | 12     | data type layouts                                     |
+  | 13, 14 | alignment diagrams                                    |
+  | 17     | Instruction Format                                    |
+  | 18     | offset addressing diagram                             |
+  | 19     | immediate load diagram                                |
+  | 20     | function call range diagram                           |
+  | 22     | extension diagrams                                    |
+  | 23     | function call diagram                                 |
+  | 24     | bitstring Move and Logical diagrams                   |
+  | 28–31  | all four interrupt and exception flow diagrams        |
+  | 36     | cache diagrams                                        |
+
 - The Register Set slide names "Program Registers" and "System Registers" but the transcription contains no register names, numbers, or bit assignments for either. [slide 11]
 - Slide 27 shows "Non-maskable interrupt" struck through and annotated "NOT IMPROVED". The deck does not explain the annotation, and slide 29 nonetheless presents a "Non-maskable interrupt (NMI) occurs" flow. [slides 27, 29]
 - Slide 25 gives floating point execution clocks as "26-44" for Add, Sub, Mul, Div, Compare, while slide 16 lists `addf.s` at 24. The deck does not reconcile the two ranges, and gives no clock figure for a floating compare. [slides 16, 25]
 - The interlock slides name the hardware "V800" while the rest of the deck says "V810". The deck does not state the relationship between the two names. [slide 33]
-- Load mnemonics are transcribed inconsistently, appearing as `Id`/`id` (capital "I") on slides 18, 22 and 33 and as `ld` in the tables on slides 16 and 21. [slides 16, 18, 21, 22, 33]
-- Slide 12 truncates the parenthesised type abbreviations: "Halfword (H" and "Word (W" have no closing parenthesis, and the floating point bit range reads "31 22" without the intermediate field boundaries.
+- Load mnemonics are transcribed inconsistently, appearing as `Id` and `id` with a capital "I" on slides 18, 22 and 33, and as `ld` in the tables on slides 16 and 21. [slides 16, 18, 21, 22, 33]
+- Slide 12 truncates the parenthesised type abbreviations. "Halfword (H" and "Word (W" have no closing parenthesis, and the floating point bit range reads "31 22" without the intermediate field boundaries.
 - The Arithmetic / Logical row on slide 15 contains a doubled comma, "add, sub, mul,, div". [slide 15]
 - Slide 16's bitstring rows place "move," and "logical" against a single clock figure of 12, so it is unclear whether 12 applies to both or only to move. [slide 16]
 - Slide 24 lists three bitstring operations but only the Search line has explanatory text. [slide 24]
 - The deck states "16-levels of high-speed interrupt responses" and "Maskable interrupt (16 levels)" but never lists the levels, their priorities, or their vector addresses. [slides 10, 27]
 - The exception list includes "Floating operation exception (6 types)" without naming the six types. [slide 27]
 - No slide states the address of any interrupt or exception vector. [whole deck]
-- The transcription carries no slide numbers of its own; footer codes survive on only six slides (2, 3, 9, 21, 26, 32).
+- The transcription carries no slide numbers of its own. Footer codes survive on only six slides, 2, 3, 9, 21, 26 and 32.

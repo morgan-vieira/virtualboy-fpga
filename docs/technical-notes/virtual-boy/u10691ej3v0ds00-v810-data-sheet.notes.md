@@ -4,10 +4,12 @@
 
 - File: U10691EJ3V0DS00.md
 - Type: data sheet (device data sheet with pin, register, instruction, and electrical/package specifications)
-- Extent: contents list runs to page 62 (section 12), followed by CMOS handling notes, regional contact information, and legal notices; approximately 18,000 words
+- Extent: contents list runs to page 62 (section 12), followed by CMOS handling notes, regional contact information, and legal notices. Approximately 18,000 words
 - Version or date stated in document: not stated in the body text
-- Author or publisher stated in document: NEC Corporation; legal notice and trademark statement at the end attribute the document to NEC Corporation [end matter]
-- Related documents the document names: "V805(TM), V810 User's Manual Hardware : U10661E" and "V810 Family User's Manual Architecture : U10082E" [front page]; "Semiconductor Device Mounting Technology Manual" (C10535E) [§12]; "Electrical Characteristics for Microcomputer (IEI-601)" [end matter, "Reference"]
+- Author or publisher stated in document: NEC Corporation. Legal notice and trademark statement at the end attribute the document to NEC Corporation [end matter]
+- Related documents the document names: "V805(TM), V810 User's Manual Hardware : U10661E" and "V810 Family User's Manual Architecture : U10082E" [front page]. "Semiconductor Device Mounting Technology Manual" (C10535E) [§12]. "Electrical Characteristics for Microcomputer (IEI-601)" [end matter, "Reference"]
+
+A dash inside a table below reproduces the dash the data sheet prints in that cell, meaning it gives no figure or symbol there.
 
 ## Scope
 
@@ -17,14 +19,14 @@ The document explicitly defers detailed functional description elsewhere: it sta
 
 ## Key concepts
 
-- **µPD70732** — the part number of the microprocessor the data sheet describes; the document states it is also known as V810 [front page].
-- **V810 family(TM)** — the NEC microprocessor family of which the µPD70732 is described as the first member [front page].
-- **Dynamic bus sizing** — a function of 32-bit bus mode that uses the data bus in 16-bit bus width to access 16-bit peripherals, enabled by setting the SZRQ signal active [§5].
-- **16-bit bus fixed mode** — a bus interface mode fixing the bus at 16 bits, switchable only at reset using the SIZ16B signal [§5].
-- **Bit string** — a data type whose bit length is variable from 0 to 2^32 – 1, specified by three attributes: first-word address A, in-word bit offset B, and bit length M [§3.1.4].
-- **Halfword** — 2-byte (16-bit) data [§3.1.1(2), §4]. **Word / short real** — 4-byte (32-bit) data [§3.1.1(3), §4].
-- **Duplexed exception** — an exception condition for which the exception code of the first exception is stored in the lower 16 bits of ECR and the second in the higher 16 bits [Table 6-1 Note 4].
-- **IC1 / IC2 / IC3** — internally connected pins; IC means "Internally Connected" [Pin Configuration remarks; §1.1].
+- **µPD70732.** The part number of the microprocessor the data sheet describes. The document states it is also known as V810 [front page].
+- **V810 family(TM).** The NEC microprocessor family of which the µPD70732 is described as the first member [front page].
+- **Dynamic bus sizing.** A function of 32-bit bus mode that uses the data bus in 16-bit bus width to access 16-bit peripherals, enabled by setting the SZRQ signal active [§5].
+- **16-bit bus fixed mode.** A bus interface mode fixing the bus at 16 bits, switchable only at reset using the SIZ16B signal [§5].
+- **Bit string.** A data type whose bit length is variable from 0 to 2^32 – 1, specified by three attributes: first-word address A, in-word bit offset B, and bit length M [§3.1.4].
+- **Halfword.** 2-byte (16-bit) data [§3.1.1(2), §4]. **Word, or short real.** 4-byte (32-bit) data [§3.1.1(3), §4].
+- **Duplexed exception.** An exception condition for which the exception code of the first exception is stored in the lower 16 bits of ECR and the second in the higher 16 bits [Table 6-1 Note 4].
+- **IC1 / IC2 / IC3.** Internally connected pins. IC means "Internally Connected" [Pin Configuration remarks; §1.1].
 
 ## Content
 
@@ -32,64 +34,64 @@ The document explicitly defers detailed functional description elsewhere: it sta
 
 - The document states the V810 employs a RISC architecture for embedded control applications [front page].
 - The document lists intended applications as facsimile, digital PPC, word processor, image processor, and real time control device [front page].
-- Stated features: high-performance 32-bit architecture for embedded control application; 32-bit separate address/data bus; 1-Kbyte cache memory; pipeline structure of 1 clock pitch; 16-bit fixed instructions (with some exceptions); 32 32-bit general-purpose registers; 4-Gbyte linear address space [Features].
-- Stated features continued: register/flag hazard interlocked by hardware; dynamic bus sizing function (16 bits); 16-bit bus fixing function; 16-bit bus system can be configured; floating-point operation instructions based upon IEEE754 data format; bit string instructions; 16 levels of high-speed interrupt responses; clock can be stopped by internal static operation [Features].
+- Stated features: high-performance 32-bit architecture for embedded control application. 32-bit separate address/data bus. 1-Kbyte cache memory. Pipeline structure of 1 clock pitch. 16-bit fixed instructions (with some exceptions). 32 32-bit general-purpose registers. 4-Gbyte linear address space [Features].
+- Stated features continued: register/flag hazard interlocked by hardware. Dynamic bus sizing function (16 bits). 16-bit bus fixing function. 16-bit bus system can be configured. Floating-point operation instructions based upon IEEE754 data format. Bit string instructions. 16 levels of high-speed interrupt responses. Clock can be stopped by internal static operation [Features].
 - Stated maximum operating frequency: 16/20/25 MHz [Features].
-- Stated low-voltage operation: VDD = 2.7 to 3.6 V (Max. 16 MHz); VDD = 2.2 to 3.6 V (Max. 10 MHz) [Features].
+- Stated low-voltage operation: VDD = 2.7 to 3.6 V (Max. 16 MHz). VDD = 2.2 to 3.6 V (Max. 10 MHz) [Features].
 - Stated small package availability: 14 x 14 mm fine-pitch TQFP [Features].
 
 ### 1. PIN FUNCTIONS (page 8)
 
-- §1.1 gives the pin function list; §1.2 gives pin I/O circuit types and recommended connection of unused pins [CONTENTS, pages 8 and 10].
+- §1.1 gives the pin function list. §1.2 gives pin I/O circuit types and recommended connection of unused pins [CONTENTS, pages 8 and 10].
 - The pin function table gives, per signal, the I/O direction, function, status during operation, bus hold status, and bus idle status at reset [§1.1].
-- A31 to A1 (Address Bus) are 3-state outputs; status during operation Hi-Z, bus hold at reset Hi-Z, bus idle at reset H (marked "Note") [§1.1].
-- D31 to D0 (Data Bus) are 3-state I/O, bidirectional data bus; Hi-Z / Hi-Z / Hi-Z [§1.1].
-- BE3 to BE0 (Byte Enable) are 3-state outputs indicating valid data bus when data is accessed; Hi-Z / Hi-Z / H [§1.1].
-- ST1, ST0 (Status) are 3-state outputs indicating type of bus cycle; Hi-Z / Hi-Z / H [§1.1].
-- DA (Data Access) is a 3-state output, strobe signal for bus cycle; Hi-Z / Hi-Z / H [§1.1].
-- MRQ (Memory Request) is a 3-state output indicating memory access; Hi-Z / Hi-Z / H [§1.1].
-- R/W (Read/Write) is a 3-state output distinguishing read access from write access; Hi-Z / Hi-Z / H [§1.1].
-- BCYST (Bus Cycle Start) is a 3-state output indicating start of bus cycle; Hi-Z / Hi-Z / H [§1.1].
+- A31 to A1 (Address Bus) are 3-state outputs. Status during operation Hi-Z, bus hold at reset Hi-Z, bus idle at reset H (marked "Note") [§1.1].
+- D31 to D0 (Data Bus) are 3-state I/O, bidirectional data bus. Hi-Z / Hi-Z / Hi-Z [§1.1].
+- BE3 to BE0 (Byte Enable) are 3-state outputs indicating valid data bus when data is accessed. Hi-Z / Hi-Z / H [§1.1].
+- ST1, ST0 (Status) are 3-state outputs indicating type of bus cycle. Hi-Z / Hi-Z / H [§1.1].
+- DA (Data Access) is a 3-state output, strobe signal for bus cycle. Hi-Z / Hi-Z / H [§1.1].
+- MRQ (Memory Request) is a 3-state output indicating memory access. Hi-Z / Hi-Z / H [§1.1].
+- R/W (Read/Write) is a 3-state output distinguishing read access from write access. Hi-Z / Hi-Z / H [§1.1].
+- BCYST (Bus Cycle Start) is a 3-state output indicating start of bus cycle. Hi-Z / Hi-Z / H [§1.1].
 - READY (Ready) is an input that extends the bus cycle [§1.1].
 - HLDRQ (Hold Request) is an input that requests bus mastership [§1.1].
-- HLDAK (Hold Acknowledge) is an output that acknowledges HLDRQ; L / L / H [§1.1].
+- HLDAK (Hold Acknowledge) is an output that acknowledges HLDRQ. L / L / H [§1.1].
 - SZRQ (Bus Sizing Request) is an input that requests bus sizing [§1.1].
 - SIZ16B (Bus Size 16 Bit) is an input that fixes external data bus width to 16 bits [§1.1].
-- BLOCK (Bus Lock) is an output that requests to inhibit use of bus; L / L / L [§1.1].
+- BLOCK (Bus Lock) is an output that requests to inhibit use of bus. L / L / L [§1.1].
 - ICHEEN (Instruction Cache Enable) is an input that operates the instruction cache [§1.1].
 - INT (Maskable Interrupt) is an input for interrupt request [§1.1].
 - INTV3 to INTV0 (Interrupt Level) are inputs conveying interrupt level [§1.1].
 - NMI (Non-Maskable Interrupt) is an input for non-maskable interrupt request [§1.1].
 - CLK is the CPU clock input [§1.1].
 - RESET is an input that resets internal status [§1.1].
-- ADRSERR (Address Error) is an output indicating that data alignment is illegal; not affected during operation, H at bus hold, H at bus idle [§1.1].
-- VDD is positive power supply; GND is ground potential (0 V) [§1.1].
-- IC1 is internally connected and the document instructs to leave the pin open; IC2 is internally connected and the document instructs to ground the pin; IC3 is internally connected and the document instructs to connect the pin to power supply [§1.1; Pin Configuration cautions].
+- ADRSERR (Address Error) is an output indicating that data alignment is illegal. Not affected during operation, H at bus hold, H at bus idle [§1.1].
+- VDD is positive power supply. GND is ground potential (0 V) [§1.1].
+- IC1 is internally connected and the document instructs to leave the pin open. IC2 is internally connected and the document instructs to ground the pin. IC3 is internally connected and the document instructs to connect the pin to power supply [§1.1; Pin Configuration cautions].
 
 ### 1.2 Pin I/O circuit types and unused-pin connection (Table 1-1, page 10)
 
-- D31 to D0: I/O circuit type 5; recommended connection when unused: Open [Table 1-1].
-- A31 to A1: I/O circuit type 4; recommended connection: Open [Table 1-1].
-- READY: I/O circuit type 1; connect to GND via resistor [Table 1-1].
+- D31 to D0: I/O circuit type 5. Recommended connection when unused: Open [Table 1-1].
+- A31 to A1: I/O circuit type 4. Recommended connection: Open [Table 1-1].
+- READY: I/O circuit type 1. Connect to GND via resistor [Table 1-1].
 - HLDRQ: connect to VDD via resistor [Table 1-1].
-- HLDAK: I/O circuit type 4; Open [Table 1-1].
+- HLDAK: I/O circuit type 4. Open [Table 1-1].
 - SZRQ: connect to VDD via resistor [Table 1-1].
 - SIZ16B: connect to GND via resistor [Table 1-1].
-- BLOCK: I/O circuit type 4; Open [Table 1-1].
+- BLOCK: I/O circuit type 4. Open [Table 1-1].
 - ICHEEN: connect to VDD via resistor [Table 1-1].
 - INT: connect to GND via resistor [Table 1-1].
 - INTV3 to INTV0: connect to VDD via resistor [Table 1-1].
 - CLK: recommended connection column is "—" [Table 1-1].
-- ADRSERR: I/O circuit type 4; Open [Table 1-1].
-- IC2: connect to GND; IC3: connect to VDD [Table 1-1].
-- Figure 1-1 shows the I/O circuit of each type; the figure is present as an image reference only, so the circuit content is not available as text [§1.2, Figure 1-1].
+- ADRSERR: I/O circuit type 4. Open [Table 1-1].
+- IC2: connect to GND. IC3: connect to VDD [Table 1-1].
+- Figure 1-1 shows the I/O circuit of each type. The figure is present as an image reference only, so the circuit content is not available as text [§1.2, Figure 1-1].
 
 ### 2. REGISTER SET (page 12)
 
-- Registers are classified into two types: general-purpose program register set and dedicated system register set; all registers are 32 bits wide [§2].
+- Registers are classified into two types: general-purpose program register set and dedicated system register set. All registers are 32 bits wide [§2].
 - The program register set is composed of general-purpose registers and a program counter [§2.1].
-- Thirty-two general-purpose registers r0 to r31 are available; all can be used as data registers or address registers [§2.1(1)].
-- r0 and r26 through r30 are implicitly used by some instructions; r1 through r5 and r31 are implicitly used by the assembler and C compiler; the document states special care such as saving and restoring contents is necessary when using these registers [§2.1(1)].
+- Thirty-two general-purpose registers r0 to r31 are available. All can be used as data registers or address registers [§2.1(1)].
+- r0 and r26 through r30 are implicitly used by some instructions. r1 through r5 and r31 are implicitly used by the assembler and C compiler. The document states special care such as saving and restoring contents is necessary when using these registers [§2.1(1)].
 - r0 is the zero register and always holds zeros [Table 2-1].
 - r1 is reserved for the assembler and used as a working register to generate 32-bit immediate data [Table 2-1].
 - r2 is the handler stack pointer, used as the stack pointer for the handler [Table 2-1].
@@ -97,11 +99,11 @@ The document explicitly defers detailed functional description elsewhere: it sta
 - r4 is the global pointer, used to access a global variable in the data area [Table 2-1].
 - r5 is the text pointer, pointing to the start address of the text area [Table 2-1].
 - r6 to r25 store address or data variables [Table 2-1].
-- r26 is string destination bit offset; r27 is string source bit offset; r28 is string length register; r29 is string destination address register; r30 is string address register; all used in bit-string instruction execution [Table 2-1].
+- r26 is string destination bit offset. r27 is string source bit offset. r28 is string length register. r29 is string destination address register. r30 is string address register. All used in bit-string instruction execution [Table 2-1].
 - r31 is the link pointer and stores the return address at execution of a JAL instruction [Table 2-1].
-- The program counter (PC) indicates the address of the instruction currently executed; bit 0 of the PC is fixed to 0 and execution cannot branch to an odd address [§2.1(2)].
+- The program counter (PC) indicates the address of the instruction currently executed. Bit 0 of the PC is fixed to 0 and execution cannot branch to an odd address [§2.1(2)].
 - PC contents are initialized to FFFFFFF0H at reset [§2.1(2)].
-- System register numbers: 0 = EIPC, 1 = EIPSW (status saving registers for exception/interrupt); 2 = FEPC, 3 = FEPSW (status saving registers for NMI/duplexed exception); 4 = ECR (exception cause register); 5 = PSW (program status word); 6 = PIR (processor ID register); 7 = TKCW (task control word); 8 to 23 Reserved; 24 = CHCW (cache control word); 25 = ADTRE (address trap register); 26 to 31 Reserved [Table 2-2].
+- System register numbers: 0 = EIPC, 1 = EIPSW (status saving registers for exception/interrupt). 2 = FEPC, 3 = FEPSW (status saving registers for NMI/duplexed exception). 4 = ECR (exception cause register). 5 = PSW (program status word). 6 = PIR (processor ID register). 7 = TKCW (task control word). 8 to 23 Reserved. 24 = CHCW (cache control word). 25 = ADTRE (address trap register). 26 to 31 Reserved [Table 2-2].
 - EIPC and EIPSW save the PC and PSW respectively when an exception or interrupt occurs [Table 2-2].
 - FEPC and FEPSW save the PC and PSW respectively when an NMI or duplexed exception occurs [Table 2-2].
 - PIR identifies the CPU type number [Table 2-2].
@@ -112,28 +114,28 @@ The document explicitly defers detailed functional description elsewhere: it sta
 
 ### 3. DATA TYPES (page 15)
 
-- Supported data types: integer (8, 16, 32 bits); unsigned integer (8, 16, 32 bits); bit string; single-precision floating-point data (32 bits) [§3.1].
+- Supported data types: integer (8, 16, 32 bits). Unsigned integer (8, 16, 32 bits). Bit string. Single-precision floating-point data (32 bits) [§3.1].
 - The V810 uses little-endian data addressing [§3.1.1].
-- A byte is consecutive 8-bit data aligned to a byte boundary, bits numbered 0 (LSB) to 7 (MSB); accessed by specifying address A [§3.1.1(1)].
-- A halfword is consecutive 16-bit (2-byte) data aligned to a halfword boundary, bits numbered 0 (LSB) to 15 (MSB); accessed by specifying address A only, lowest bit must be 0 [§3.1.1(2)].
-- A word, also called short real, is consecutive 32-bit (4-byte) data aligned to a word boundary, bits numbered 0 (LSB) to 31 (MSB); accessed by specifying address A only, lower two bits must be 0 [§3.1.1(3)].
-- All integers are expressed in two's-complement binary notation and are 8, 16, or 32 bits; bit 0 is least significant and the highest bit expresses the sign [§3.1.2].
-- Integer ranges: Byte 8 bits –128 to +127; Halfword 16 bits –32768 to +32767; Word 32 bits –2147483648 to +2147483647 [§3.1.2 table].
-- Unsigned integer ranges: Byte 8 bits 0 to 255; Halfword 16 bits 0 to 65535; Word 32 bits 0 to 4294967295 [§3.1.3 table].
-- Bit-string attributes: A = address of the string data's first word (lower two bits must be 0); B = in-word bit offset in the string data (0 to 31); M = bit length of the string data [§3.1.4].
-- Bit-string manipulation direction may be upward (lower to higher addresses) or downward (higher to lower); for upward the first-word address is A and in-word bit offset is B, for downward the first-word address is A + 4 and the in-word bit offset is shown as D; bit length is M in both directions [§3.1.4 table].
+- A byte is consecutive 8-bit data aligned to a byte boundary, bits numbered 0 (LSB) to 7 (MSB). Accessed by specifying address A [§3.1.1(1)].
+- A halfword is consecutive 16-bit (2-byte) data aligned to a halfword boundary, bits numbered 0 (LSB) to 15 (MSB). Accessed by specifying address A only, lowest bit must be 0 [§3.1.1(2)].
+- A word, also called short real, is consecutive 32-bit (4-byte) data aligned to a word boundary, bits numbered 0 (LSB) to 31 (MSB). Accessed by specifying address A only, lower two bits must be 0 [§3.1.1(3)].
+- All integers are expressed in two's-complement binary notation and are 8, 16, or 32 bits. Bit 0 is least significant and the highest bit expresses the sign [§3.1.2].
+- Integer ranges: Byte 8 bits –128 to +127. Halfword 16 bits –32768 to +32767. Word 32 bits –2147483648 to +2147483647 [§3.1.2 table].
+- Unsigned integer ranges: Byte 8 bits 0 to 255. Halfword 16 bits 0 to 65535. Word 32 bits 0 to 4294967295 [§3.1.3 table].
+- Bit-string attributes: A = address of the string data's first word (lower two bits must be 0). B = in-word bit offset in the string data (0 to 31). M = bit length of the string data [§3.1.4].
+- Bit-string manipulation direction may be upward (lower to higher addresses) or downward (higher to lower). For upward the first-word address is A and in-word bit offset is B, for downward the first-word address is A + 4 and the in-word bit offset is shown as D. Bit length is M in both directions [§3.1.4 table].
 - Single-precision floating-point data is 32 bits long and its bit allocation complies with the IEEE single format: 1-bit mantissa sign bit, 8-bit exponent, 23-bit mantissa [§3.1.5].
 - The exponent is offset-expressed from the bias value – 127, and the mantissa is binary-expressed with the integer part omitted [§3.1.5].
 - Floating-point bit layout shown: bit 31 = s (sign), bits 30 to 23 = exp (8), bits 22 to 0 = mantissa (23) [§3.2 accompanying bit-field table].
 - Word data must be aligned to a word boundary (lowest two address bits fixed to 0) and halfword data to a halfword boundary (lowest address bit fixed to 0) [§3.2].
-- If data is not aligned as specified, the document states the lowest one bit (in the case of word) or two bits (in the case of halfword) of its address will forcibly be masked with 0s when the data is accessed [§3.2]. (See "Stated gaps and ambiguities" — the word/halfword pairing in this sentence is the reverse of the alignment rule stated in the same section.)
+- If data is not aligned as specified, the document states the lowest one bit (in the case of word) or two bits (in the case of halfword) of its address will forcibly be masked with 0s when the data is accessed [§3.2]. (See "Stated gaps and ambiguities". The word and halfword pairing in this sentence is the reverse of the alignment rule stated in the same section.)
 
 ### 4. ADDRESS SPACE (page 18)
 
 - The V810 supports 4 Gbytes of linear memory space and I/O space [§4].
-- The CPU outputs 32-bit addresses to memory and I/Os; addresses run from 0 to 2^32 – 1 [§4].
-- Bit number 0 of each byte is the LSB and bit number 7 is the MSB; unless otherwise specified, the byte at the lower address of multi-byte data is the LSB and the byte at the higher address is the MSB (little endian) [§4].
-- Figure 4-1 is the memory map and Figure 4-2 is the I/O map [§4]. Both appear as image references only; the only map content available as text is "FFFFFFFFH", "General use", and "00000000H" for the I/O map [Figure 4-2].
+- The CPU outputs 32-bit addresses to memory and I/Os. Addresses run from 0 to 2^32 – 1 [§4].
+- Bit number 0 of each byte is the LSB and bit number 7 is the MSB. Unless otherwise specified, the byte at the lower address of multi-byte data is the LSB and the byte at the higher address is the MSB (little endian) [§4].
+- Figure 4-1 is the memory map and Figure 4-2 is the I/O map [§4]. Both appear as image references only. The only map content available as text is "FFFFFFFFH", "General use", and "00000000H" for the I/O map [Figure 4-2].
 - Figure 4-1 carries a note directing the reader to Table 6-1 Exception Codes for details [Figure 4-1 Note].
 
 ### 5. BUS INTERFACE FUNCTION (page 21)
@@ -141,21 +143,21 @@ The document explicitly defers detailed functional description elsewhere: it sta
 - The V810 is equipped with a 32-bit data bus [§5].
 - Two bus interface modes exist: 32-bit bus mode which uses the data bus in 32 bits, and 16-bit bus fixed mode which fixes the bus in 16 bits [§5].
 - Modes can be switched only at reset using the SIZ16B signal [§5].
-- 32-bit bus mode has a dynamic bus sizing function used by setting the SZRQ signal active; access to word data (32-bit data) in dynamic bus sizing is executed by loading/storing 16-bit data twice [§5].
+- 32-bit bus mode has a dynamic bus sizing function used by setting the SZRQ signal active. Access to word data (32-bit data) in dynamic bus sizing is executed by loading/storing 16-bit data twice [§5].
 - In 16-bit bus fixed mode, access to word data (32-bit data) is executed by activating a bus cycle twice, and the control signal and the A1 signal output values according to the 16-bit system [§5].
-- Table 5-1 (32-bit bus mode) byte accesses, columns BE3/BE2/BE1/BE0, A1, bus cycle sequence: address bits (1,0) = (0,0) → 1 1 1 0, A1 = 0, 1 cycle; (0,1) → 1 1 0 1, A1 = 0, 1 cycle; (1,0) → 1 0 1 1, A1 = 0, 1 cycle; (1,1) → 0 1 1 1, A1 = 0, 1 cycle [Table 5-1].
-- Table 5-1 halfword accesses: address bits (1,0) = (0,0) → BE 1 1 0 0, A1 = 0, 1 cycle; (1,0) → BE 0 0 1 1, A1 = 0, 1 cycle [Table 5-1].
-- Table 5-1 word access: address bits (0,0) → BE 0 0 0 0, A1 = 0, 1 cycle; second row → BE 0 0 1 1, A1 = 1, sequence 2, marked Note "Bus cycle added by dynamic bus sizing" [Table 5-1].
-- Table 5-2 (16-bit bus fixed mode) byte accesses hold BE3 and BE2 at Hi-Z throughout: (0,0) → BE1/BE0 = 1 0, A1 = 0, 1 cycle; (0,1) → 0 1, A1 = 0, 1 cycle; (1,0) → 1 0, A1 = 1, 1 cycle; (1,1) → 0 1, A1 = 1, 1 cycle [Table 5-2].
-- Table 5-2 halfword accesses: (0,0) → BE1/BE0 = 0 0, A1 = 0, 1 cycle; (1,0) → 0 0, A1 = 1, 1 cycle [Table 5-2].
-- Table 5-2 word access: (0,0) → BE1/BE0 = 0 0, A1 = 0, 1 cycle; second row → 0 0, A1 = 1, sequence 2, marked Note "Added bus cycle" [Table 5-2].
+- Table 5-1 (32-bit bus mode) byte accesses, columns BE3/BE2/BE1/BE0, A1, bus cycle sequence: address bits (1,0) = (0,0) → 1 1 1 0, A1 = 0, 1 cycle. (0,1) → 1 1 0 1, A1 = 0, 1 cycle. (1,0) → 1 0 1 1, A1 = 0, 1 cycle. (1,1) → 0 1 1 1, A1 = 0, 1 cycle [Table 5-1].
+- Table 5-1 halfword accesses: address bits (1,0) = (0,0) → BE 1 1 0 0, A1 = 0, 1 cycle. (1,0) → BE 0 0 1 1, A1 = 0, 1 cycle [Table 5-1].
+- Table 5-1 word access: address bits (0,0) → BE 0 0 0 0, A1 = 0, 1 cycle. Second row → BE 0 0 1 1, A1 = 1, sequence 2, marked Note "Bus cycle added by dynamic bus sizing" [Table 5-1].
+- Table 5-2 (16-bit bus fixed mode) byte accesses hold BE3 and BE2 at Hi-Z throughout: (0,0) → BE1/BE0 = 1 0, A1 = 0, 1 cycle. (0,1) → 0 1, A1 = 0, 1 cycle. (1,0) → 1 0, A1 = 1, 1 cycle. (1,1) → 0 1, A1 = 1, 1 cycle [Table 5-2].
+- Table 5-2 halfword accesses: (0,0) → BE1/BE0 = 0 0, A1 = 0, 1 cycle. (1,0) → 0 0, A1 = 1, 1 cycle [Table 5-2].
+- Table 5-2 word access: (0,0) → BE1/BE0 = 0 0, A1 = 0, 1 cycle. Second row → 0 0, A1 = 1, sequence 2, marked Note "Added bus cycle" [Table 5-2].
 
 ### 6. INTERRUPT AND EXCEPTION (page 22)
 
-- Interrupts are events that take place independently of program execution and are classified into maskable interrupts and a non-maskable interrupt; an exception is an event that takes place depending upon program execution [§6].
+- Interrupts are events that take place independently of program execution and are classified into maskable interrupts and a non-maskable interrupt. An exception is an event that takes place depending upon program execution [§6].
 - The document states there is little difference between interrupt and exception in terms of flow, but the interrupt takes precedence over the exception [§6].
 - If an exception, maskable interrupt, or NMI occurs, control is transferred to a handler whose address is determined by the source [§6].
-- The exception source can be checked by examining an exception code stored in the ECR (Exception Code Register); each handler analyzes the ECR contents and performs appropriate servicing [§6].
+- The exception source can be checked by examining an exception code stored in the ECR (Exception Code Register). Each handler analyzes the ECR contents and performs appropriate servicing [§6].
 - Reset: classification Interrupt, exception code F F F 0, handler address F F F F F F F 0, restore PC per Note 2 (EIPC and FEPC are undefined) [Table 6-1].
 - NMI: Interrupt, code F F D 0, handler address F F F F F F D 0, restore PC = next PC (Note 3) [Table 6-1].
 - Duplexed exception: Exception, code per Note 4, handler address F F F F F F D 0, restore PC = current PC [Table 6-1].
@@ -178,51 +180,51 @@ The document explicitly defers detailed functional description elsewhere: it sta
 
 ### 7. CACHE (page 23)
 
-- Section 7 consists of Figure 7-1, showing the instruction cache configuration provided to the V810 [§7, Figure 7-1]. Figure 7-1 appears as image references only; no cache parameters are given as text in section 7.
+- Section 7 consists of Figure 7-1, showing the instruction cache configuration provided to the V810 [§7, Figure 7-1]. Figure 7-1 appears as image references only. No cache parameters are given as text in section 7.
 - The 1-Kbyte cache memory figure is stated on the front page feature list rather than in section 7 [front page, Features].
 
 ### 8. RESET (page 24)
 
 - A low-level input detection on the RESET pin always triggers a system reset [§8].
-- All hardware-controlling registers are initialized as shown in Table 8-1; after initialization completes and the RESET pin returns to the high level, the device is released from the resetting state and starts implementation of a program [§8].
+- All hardware-controlling registers are initialized as shown in Table 8-1. After initialization completes and the RESET pin returns to the high level, the device is released from the resetting state and starts implementation of a program [§8].
 - The document states that, if necessary, some registers should be set to user-desired values in the first stage of the program [§8].
 - Register state after reset: PC (program counter) = FFFFFFF0H [Table 8-1].
 - EIPC (status saving register for interrupt) = Undefined (printed "Undefind") [Table 8-1].
 - FEPC (status saving register for NMI) = Undefined (printed "Undefind") [Table 8-1].
-- Interrupt cause register FECC = 0000H; EICC = FFF0H [Table 8-1].
+- Interrupt cause register FECC = 0000H. EICC = FFF0H [Table 8-1].
 - PSW (program status word) = 00008000H [Table 8-1].
-- General-purpose register r0 = fixed to 00000000H; r1 to r31 = Undefined (printed "Undefind") [Table 8-1].
+- General-purpose register r0 = fixed to 00000000H. r1 to r31 = Undefined (printed "Undefind") [Table 8-1].
 
 ### 9. INSTRUCTION SET (page 25)
 
 - V810 instructions are formatted in either 16 bits or 32 bits [§9.1].
 - Examples of 16-bit format instructions given: binomial operation, control, and conditional branch [§9.1].
 - Examples of 32-bit format instructions given: load/store, I/O manipulate, 16-bit immediate, jump & link, and extended operations [§9.1].
-- Some instructions have an unused field; the document states not to write a program that uses this field because it is reserved for future use, and that the unused field must be set to zeros [§9.1].
-- Instruction storage in memory: the lower half of an instruction (the half including bit 0) is stored at the lower address; the higher half (the half including bit 15 or 31) is stored at the higher address [§9.1].
-- Format I (reg-reg): one 6-bit opcode field and two 5-bit fields specifying general-purpose registers as operands; 16-bit instructions use this format [§9.1(1)].
-- Format II (imm-reg): one 6-bit opcode field, one 5-bit immediate field, and one field specifying a general-purpose register operand; 16-bit instructions [§9.1(2)].
-- Format III (conditional branch): one 3-bit opcode field, one 4-bit condition code field, and one 9-bit branch displacement field with its LSB masked to 0; 16-bit instructions [§9.1(3)].
-- Format IV (intermediate jump): one 6-bit opcode field and one 26-bit displacement field with its LSB masked to 0; 32-bit instructions [§9.1(4)].
-- Format V (3-operand): one 6-bit opcode field, two fields specifying general-purpose registers, and one 16-bit immediate field; 32-bit instructions [§9.1(5)].
-- Format VI (load/store): one 6-bit opcode field, two fields specifying a general-purpose register, and one 16-bit displacement field; 32-bit instructions [§9.1(6)].
-- Format VII (extension): one 6-bit opcode field, two 5-bit general-purpose register fields, and one 6-bit sub-operation code field; the remaining 10 bits are reserved for future use and must be set to zeros; 32-bit instructions [§9.1(7)].
-- Operand notation used in the mnemonic list: reg1 = general-purpose register used as a source register; reg2 = general-purpose register used mainly as a destination register and occasionally as a source register; imm5 = 5-bit immediate; imm16 = 16-bit immediate; disp9 = 9-bit displacement; disp16 = 16-bit displacement; disp26 = 26-bit displacement; regID = system register number; vector adr = trap handler address that corresponds to a trap vector [§9.2 legend].
+- Some instructions have an unused field. The document states not to write a program that uses this field because it is reserved for future use, and that the unused field must be set to zeros [§9.1].
+- Instruction storage in memory: the lower half of an instruction (the half including bit 0) is stored at the lower address. The higher half (the half including bit 15 or 31) is stored at the higher address [§9.1].
+- Format I (reg-reg): one 6-bit opcode field and two 5-bit fields specifying general-purpose registers as operands. 16-bit instructions use this format [§9.1(1)].
+- Format II (imm-reg): one 6-bit opcode field, one 5-bit immediate field, and one field specifying a general-purpose register operand. 16-bit instructions [§9.1(2)].
+- Format III (conditional branch): one 3-bit opcode field, one 4-bit condition code field, and one 9-bit branch displacement field with its LSB masked to 0. 16-bit instructions [§9.1(3)].
+- Format IV (intermediate jump): one 6-bit opcode field and one 26-bit displacement field with its LSB masked to 0. 32-bit instructions [§9.1(4)].
+- Format V (3-operand): one 6-bit opcode field, two fields specifying general-purpose registers, and one 16-bit immediate field. 32-bit instructions [§9.1(5)].
+- Format VI (load/store): one 6-bit opcode field, two fields specifying a general-purpose register, and one 16-bit displacement field. 32-bit instructions [§9.1(6)].
+- Format VII (extension): one 6-bit opcode field, two 5-bit general-purpose register fields, and one 6-bit sub-operation code field. The remaining 10 bits are reserved for future use and must be set to zeros. 32-bit instructions [§9.1(7)].
+- Operand notation used in the mnemonic list: reg1 = general-purpose register used as a source register. reg2 = general-purpose register used mainly as a destination register and occasionally as a source register. imm5 = 5-bit immediate. imm16 = 16-bit immediate. disp9 = 9-bit displacement. disp16 = 16-bit displacement. disp26 = 26-bit displacement. regID = system register number. Vector adr = trap handler address that corresponds to a trap vector [§9.2 legend].
 - Table 9-1 lists instruction mnemonics in alphabetical order across nine parts (1/9 through 9/9), with columns Instruction / Operand(s) / Format / CY / OV / S / Z / Instruction Function [Table 9-1].
-- Flag column symbols appearing in Table 9-1 are `*`, `0`, and `–`; the document's legend for these symbols is present only as an image reference, so the symbol definitions are not available as text [Table 9-1, Legend].
+- Flag column symbols appearing in Table 9-1 are `*`, `0`, and `–`. The document's legend for these symbols is present only as an image reference, so the symbol definitions are not available as text [Table 9-1, Legend].
 
 ### 10. ELECTRICAL SPECIFICATIONS (page 37)
 
 - Section 10 is divided into 10.1 (VDD = +5 V ± 10%, page 38), 10.2 (VDD = 2.7 to 3.6 V, page 47), and 10.3 (VDD = 2.2 to 3.6 V, page 51) [CONTENTS].
 - The "Supported Electrical Specifications" matrix cross-references operating supply voltage, operating ambient temperature TA, and the three part variants µPD70732-16, µPD70732-20, µPD70732-25 in 120-pin plastic QFP, 120-pin plastic TQFP, and 176-pin ceramic PGA [§10, Supported Electrical Specifications].
 - VDD = +5 V ± 10%, TA = –10 to +70°C: specifications exist for QFP at (16 MHz), (20 MHz), (25 MHz), for TQFP at (25 MHz), and for 176-pin ceramic PGA at (25 MHz) [§10 matrix].
-- VDD = +5 V ± 10%, TA = –40 to +85°C: specifications exist for the 25 MHz QFP part at (20 MHz) and for TQFP at (20 MHz); other columns are "—" [§10 matrix].
-- VDD = 2.7 to 3.6 V, TA = –40 to +85°C: specifications exist for the 25 MHz QFP at (16 MHz) and TQFP at (16 MHz); other columns "—" [§10 matrix].
-- VDD = 2.2 to 3.6 V, TA = –40 to +85°C: specifications exist for the 25 MHz QFP at (10 MHz) and TQFP at (10 MHz); other columns "—" [§10 matrix].
+- VDD = +5 V ± 10%, TA = –40 to +85°C: specifications exist for the 25 MHz QFP part at (20 MHz) and for TQFP at (20 MHz). Other columns are "—" [§10 matrix].
+- VDD = 2.7 to 3.6 V, TA = –40 to +85°C: specifications exist for the 25 MHz QFP at (16 MHz) and TQFP at (16 MHz). Other columns "—" [§10 matrix].
+- VDD = 2.2 to 3.6 V, TA = –40 to +85°C: specifications exist for the 25 MHz QFP at (10 MHz) and TQFP at (10 MHz). Other columns "—" [§10 matrix].
 - Matrix remarks state that a mark means "with electrical specifications", "—" means "without electrical specifications", and parentheses indicate maximum operating frequency [§10 Remarks 1 and 2].
-- Timing figures are given at the end of section 10 as Clock Timing, Reset Timing, Memory/I/O Access Timing, Dynamic Bus Sizing Timing, Interrupt Timing, and Bus Hold Timing; all appear as image references only [§10 timing figure headings].
+- Timing figures are given at the end of section 10 as Clock Timing, Reset Timing, Memory/I/O Access Timing, Dynamic Bus Sizing Timing, Interrupt Timing, and Bus Hold Timing. All appear as image references only [§10 timing figure headings].
 - The Memory/I/O Access Timing figure carries a Note listing A31 to A1, BE3 to BE0, R/W, MRQ, ST1, ST0, BLOCK, ADRSERR [Memory, I/O Access Timing Note].
-- The Bus Hold Timing figure carries Note 1 listing A31 to A1, BE3 to BE0, R/W, MRQ, ST1, ST0, and Note 2 stating the level immediately before the high-impedance state has been stored internally; a Remark states a dashed line indicates high impedance [Bus Hold Timing Notes and Remark].
+- The Bus Hold Timing figure carries Note 1 listing A31 to A1, BE3 to BE0, R/W, MRQ, ST1, ST0, and Note 2 stating the level immediately before the high-impedance state has been stored internally. A Remark states a dashed line indicates high impedance [Bus Hold Timing Notes and Remark].
 
 ### 11. PACKAGE DRAWINGS (page 59)
 
@@ -235,15 +237,15 @@ The document explicitly defers detailed functional description elsewhere: it sta
 - The document states the µPD70732 should be soldered and mounted under the conditions recommended in its tables [§12].
 - The document refers readers to the information document "Semiconductor Device Mounting Technology Manual" (C10535E) for details of recommended soldering conditions [§12].
 - The document states that for soldering methods and conditions other than those recommended, an NEC sales representative should be contacted [§12].
-- Table 12-1 covers surface mounting type soldering conditions; Table 12-2 covers insertion type soldering conditions [§12].
+- Table 12-1 covers surface mounting type soldering conditions. Table 12-2 covers insertion type soldering conditions [§12].
 
 ### End matter
 
-- Three CMOS handling notes are given: precaution against ESD for semiconductors; handling of unused input pins for CMOS; status before initialization of MOS devices [NOTES FOR CMOS DEVICES 1–3].
+- Three CMOS handling notes are given: precaution against ESD for semiconductors. Handling of unused input pins for CMOS. Status before initialization of MOS devices [NOTES FOR CMOS DEVICES 1–3].
 - The unused-input-pin note states that input levels of CMOS devices must be fixed high or low using pull-up or pull-down circuitry, and that each unused pin should be connected to VDD or GND with a resistor if it is considered to have a possibility of being an output pin [NOTES FOR CMOS DEVICES 2].
 - The initialization note states power-on does not guarantee out-pin levels, I/O settings, or contents of registers, and that reset operation must be executed immediately after power-on for devices having reset function [NOTES FOR CMOS DEVICES 3].
 - Regional contact listings are given for NEC Electronics offices in the U.S. (Mountain View, California), Germany (Duesseldorf), UK (Milton Keynes), Italy (Milano), Hong Kong, Korea (Seoul Branch), Singapore, Taiwan (Taipei), Brazil (Sao Paulo-SP), Benelux (Eindhoven), France, Spain (Madrid), and Scandinavia (Taeby, Sweden) [Regional Information].
-- NEC device quality grades are defined as "Standard", "Special", and "Specific", with recommended application categories for each; the quality grade of NEC devices is "Standard" unless otherwise specified [end matter].
+- NEC device quality grades are defined as "Standard", "Special", and "Specific", with recommended application categories for each. The quality grade of NEC devices is "Standard" unless otherwise specified [end matter].
 - The document states anti-radioactive design is not implemented in this product [end matter].
 - The document states related documents indicated in the publication may include preliminary versions, and that preliminary versions are not marked as such [end matter].
 - V805, V810, and V810 Family are stated to be trademarks of NEC Corporation [end matter].
@@ -264,11 +266,11 @@ The document explicitly defers detailed functional description elsewhere: it sta
 
 ### Pin configuration cautions
 
-- For the 120-pin plastic QFP (28 x 28 mm) (Top View), µPD70732GD-xx-LBB: leave the IC1 pin open; connect the IC2 pin to GND [Pin Configuration, QFP cautions].
-- For the 120-pin plastic TQFP (Fine pitch) (14 x 14 mm) (Top View), µPD70732GC-25-9EV: VDD is power supply pin and all VDD pins should be connected to a +5 V power supply (the same power supply); GND is ground pin and all GND pins should be connected to the same GND; leave the IC1 pin open; connect the IC2 pin to GND [Pin Configuration, TQFP cautions].
-- For the 176-pin ceramic PGA (Seam weld), µPD70732R-25: leave the IC1 pin open; connect the IC2 pin to GND; connect the IC3 pin to power supply [Pin Configuration, PGA cautions].
+- For the 120-pin plastic QFP (28 x 28 mm) (Top View), µPD70732GD-xx-LBB: leave the IC1 pin open. Connect the IC2 pin to GND [Pin Configuration, QFP cautions].
+- For the 120-pin plastic TQFP (Fine pitch) (14 x 14 mm) (Top View), µPD70732GC-25-9EV: VDD is power supply pin and all VDD pins should be connected to a +5 V power supply (the same power supply). GND is ground pin and all GND pins should be connected to the same GND. Leave the IC1 pin open. Connect the IC2 pin to GND [Pin Configuration, TQFP cautions].
+- For the 176-pin ceramic PGA (Seam weld), µPD70732R-25: leave the IC1 pin open. Connect the IC2 pin to GND. Connect the IC3 pin to power supply [Pin Configuration, PGA cautions].
 - The document remarks that for the 176-pin ceramic PGA the insertion guide pin is not included in the number of pins [Pin Configuration, PGA remark].
-- The QFP and TQFP pin-position drawings appear as image references only; per-pin numbering for those two packages is not available as text [Pin Configuration].
+- The QFP and TQFP pin-position drawings appear as image references only. Per-pin numbering for those two packages is not available as text [Pin Configuration].
 
 ### 176-pin ceramic PGA pin assignment (µPD70732R-25)
 
@@ -306,101 +308,101 @@ Row Q: Q1 IC2, Q2 A13, Q3 A14, Q4 A11, Q5 GND, Q6 A7, Q7 IC2, Q8 A4, Q9 IC2, Q10
 
 Flag columns are given in the order CY, OV, S, Z as printed in Table 9-1.
 
-| Instruction | Operand(s)          | Format | CY  | OV  | S   | Z   | Function (as printed)                                       |
-| ----------- | ------------------- | ------ | --- | --- | --- | --- | ----------------------------------------------------------- |
-| ADD         | reg1, reg2          | I      | *   | *   | *   | *   | Addition                                                    |
-| ADD         | imm5, reg2          | II     | *   | *   | *   | *   | Addition                                                    |
-| ADDF.S      | reg1, reg2          | VII    | *   | 0   | *   | *   | Floating-point addition                                     |
-| ADDI        | imm16, reg1, reg2   | V      | *   | *   | *   | *   | Addition                                                    |
-| AND         | reg1, reg2          | I      | –   | 0   | *   | *   | AND                                                         |
-| ANDBSU      | –                   | II     | –   | –   | –   | –   | Transfer after ANDing bit strings                           |
-| ANDI        | imm16, reg1, reg2   | V      | –   | 0   | 0   | *   | AND                                                         |
-| ANDNBSU     | –                   | II     | –   | –   | –   | –   | Transfer after NOTting a bit string then ANDing it          |
-| BC          | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Carry)                               |
-| BE          | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Equal)                               |
-| BGE         | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Greater than or Equal)               |
-| BGT         | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Greater than)                        |
-| BH          | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Higher)                              |
-| BL          | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Lower)                               |
-| BLE         | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Less than or Equal)                  |
-| BLT         | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Less than)                           |
-| BN          | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Negative)                            |
-| BNC         | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Not Carry)                           |
-| BNE         | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Not Equal)                           |
-| BNH         | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Not Higher)                          |
-| BNL         | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Not Lower)                           |
-| BNV         | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Not Overflow)                        |
-| BNZ         | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Not Zero)                            |
-| BP          | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Positive)                            |
-| BR          | disp9               | III    | –   | –   | –   | –   | Unconditional branch                                        |
-| BV          | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Overflow)                            |
-| BZ          | disp9               | III    | –   | –   | –   | –   | Conditional branch (if Zero)                                |
-| CAXI        | disp16 [reg1], reg2 | VI     | *   | *   | *   | *   | Inter-processor synchronization in a multi-processor        |
-| CMP         | reg1, reg2          | I      | *   | *   | *   | *   | Comparison                                                  |
-| CMP         | imm5, reg2          | II     | *   | *   | *   | *   | Comparison                                                  |
-| CMPF.S      | reg1, reg2          | VII    | *   | 0   | *   | *   | Floating-point comparison                                   |
-| CVT.SW      | reg1, reg2          | VII    | –   | 0   | *   | *   | Data conversion from floating-point to integer              |
-| CVT.WS      | reg1, reg2          | VII    | *   | 0   | *   | *   | Data conversion from integer to floating-point              |
-| DIV         | reg1, reg2          | I      | –   | *   | *   | *   | Signed division                                             |
-| DIVF.S      | reg1, reg2          | VII    | *   | 0   | *   | *   | Floating-point division                                     |
-| DIVU        | reg1, reg2          | I      | –   | 0   | *   | *   | Unsigned division                                           |
-| HALT        | –                   | II     | –   | –   | –   | –   | Processor stop                                              |
-| IN.B        | disp16 [reg1], reg2 | VI     | –   | –   | –   | –   | Port input                                                  |
-| IN.H        | disp16 [reg1], reg2 | VI     | –   | –   | –   | –   | Port input                                                  |
-| IN.W        | disp16 [reg1], reg2 | VI     | –   | –   | –   | –   | Port input                                                  |
-| JAL         | disp26              | IV     | –   | –   | –   | –   | Jump and link                                               |
-| JMP         | [reg1]              | I      | –   | –   | –   | –   | Register-indirect unconditional branch                      |
-| JR          | disp26              | IV     | –   | –   | –   | –   | Unconditional branch                                        |
-| LD.B        | disp16 [reg1], reg2 | VI     | –   | –   | –   | –   | Byte load                                                   |
-| LD.H        | disp16 [reg1], reg2 | VI     | –   | –   | –   | –   | Halfword load                                               |
-| LD.W        | disp16 [reg1], reg2 | VI     | –   | –   | –   | –   | Word load                                                   |
-| LDSR        | reg2, regID         | II     | *   | *   | *   | *   | Loading system register                                     |
-| MOV         | reg1, reg2          | I      | –   | –   | –   | –   | Transferring data                                           |
-| MOV         | imm5, reg2          | II     | –   | –   | –   | –   | Transferring data                                           |
-| MOVBSU      | –                   | II     | –   | –   | –   | –   | Transferring bit strings                                    |
-| MOVEA       | imm16, reg1, reg2   | V      | –   | –   | –   | –   | Addition                                                    |
-| MOVHI       | imm16, reg1, reg2   | V      | –   | –   | –   | –   | Addition                                                    |
-| MUL         | reg1, reg2          | I      | –   | *   | *   | *   | Signed multiplication                                       |
-| MULF.S      | reg1, reg2          | VII    | *   | 0   | *   | *   | Floating-point multiplication                               |
-| MULU        | reg1, reg2          | I      | –   | *   | *   | *   | Unsigned multiplication                                     |
-| NOP         | –                   | III    | –   | –   | –   | –   | No operation                                                |
-| NOT         | reg1, reg2          | I      | –   | 0   | *   | *   | Logical NOT                                                 |
-| NOTBSU      | –                   | II     | –   | –   | –   | –   | Transfer after NOTting a bit string                         |
-| OR          | reg1, reg2          | I      | –   | 0   | *   | *   | OR                                                          |
-| ORBSU       | –                   | II     | –   | –   | –   | –   | Transfer after ORing bit strings                            |
-| ORI         | imm16, reg1, reg2   | V      | –   | 0   | *   | *   | OR                                                          |
-| ORNBSU      | –                   | II     | –   | –   | –   | –   | Transfer after NOTting a bit string and ORing it            |
-| OUT.B       | reg2, disp16 [reg1] | VI     | –   | –   | –   | –   | Port output                                                 |
-| OUT.H       | reg2, disp16 [reg1] | VI     | –   | –   | –   | –   | Port output                                                 |
-| OUT.W       | reg2, disp16 [reg1] | VI     | –   | –   | –   | –   | Port output                                                 |
-| RETI        | –                   | II     | *   | *   | *   | *   | Return from a trap or interrupt routine                     |
-| SAR         | reg1, reg2          | I      | *   | 0   | *   | *   | Arithmetic right shift                                      |
-| SAR         | imm5, reg2          | II     | *   | 0   | *   | *   | Arithmetic right shift                                      |
-| SCH0BSU     | –                   | II     | –   | –   | –   | *   | Searching 0s in a bit string                                |
-| SCH0BSD     | –                   | II     | –   | –   | –   | *   | Searches "0" bits in the source bit string, and loads r30 … |
-| SCH1BSU     | –                   | II     | –   | –   | –   | –   | Searching 1s in a bit string                                |
-| SCH1BSD     | –                   | II     | –   | –   | –   | –   | Searches 1s in the source bit string, and loads r30 and …   |
-| SETF        | imm5, reg2          | II     | –   | –   | –   | –   | Flag condition setting                                      |
-| SHL         | reg1, reg2          | I      | *   | 0   | *   | *   | Logical left shift                                          |
-| SHL         | imm5, reg2          | II     | *   | 0   | *   | *   | Logical left shift                                          |
-| SHR         | reg1, reg2          | I      | *   | 0   | *   | *   | Logical right shift                                         |
-| SHR         | imm5, reg2          | II     | *   | 0   | *   | *   | Logical right shift                                         |
-| ST.B        | reg2, disp16 [reg1] | VI     | –   | –   | –   | –   | Byte store                                                  |
-| ST.H        | reg2, disp16 [reg1] | VI     | –   | –   | –   | –   | Halfword store                                              |
-| ST.W        | reg2, disp16 [reg1] | VI     | –   | –   | –   | –   | Word store                                                  |
-| STSR        | regID, reg2         | II     | –   | –   | –   | –   | Storing system register contents                            |
-| SUB         | reg1, reg2          | I      | *   | *   | *   | *   | Subtraction                                                 |
-| SUBF.S      | reg1, reg2          | VII    | *   | 0   | *   | *   | Floating-point subtraction                                  |
-| TRAP        | vector              | II     | –   | –   | –   | –   | Software trap                                               |
-| TRNC.SW     | reg1, reg2          | VII    | –   | 0   | *   | *   | Conversion from floating-point data to integer              |
-| XOR         | reg1, reg2          | I      | –   | 0   | *   | *   | Exclusive OR                                                |
-| XORBSU      | –                   | II     | –   | –   | –   | –   | Transfer of exclusive ORed bit string                       |
-| XORI        | imm16, reg1, reg2   | V      | –   | 0   | *   | *   | Exclusive OR                                                |
-| XORNBSU     | –                   | II     | –   | –   | –   | –   | Transfer after exclusive-ORing a NOTted bit string          |
+| Instruction | Operand(s)          | Format | CY | OV | S | Z | Function (as printed)                                       |
+| ----------- | ------------------- | ------ | -- | -- | - | - | ----------------------------------------------------------- |
+| ADD         | reg1, reg2          | I      | *  | *  | * | * | Addition                                                    |
+| ADD         | imm5, reg2          | II     | *  | *  | * | * | Addition                                                    |
+| ADDF.S      | reg1, reg2          | VII    | *  | 0  | * | * | Floating-point addition                                     |
+| ADDI        | imm16, reg1, reg2   | V      | *  | *  | * | * | Addition                                                    |
+| AND         | reg1, reg2          | I      | –  | 0  | * | * | AND                                                         |
+| ANDBSU      | –                   | II     | –  | –  | – | – | Transfer after ANDing bit strings                           |
+| ANDI        | imm16, reg1, reg2   | V      | –  | 0  | 0 | * | AND                                                         |
+| ANDNBSU     | –                   | II     | –  | –  | – | – | Transfer after NOTting a bit string then ANDing it          |
+| BC          | disp9               | III    | –  | –  | – | – | Conditional branch (if Carry)                               |
+| BE          | disp9               | III    | –  | –  | – | – | Conditional branch (if Equal)                               |
+| BGE         | disp9               | III    | –  | –  | – | – | Conditional branch (if Greater than or Equal)               |
+| BGT         | disp9               | III    | –  | –  | – | – | Conditional branch (if Greater than)                        |
+| BH          | disp9               | III    | –  | –  | – | – | Conditional branch (if Higher)                              |
+| BL          | disp9               | III    | –  | –  | – | – | Conditional branch (if Lower)                               |
+| BLE         | disp9               | III    | –  | –  | – | – | Conditional branch (if Less than or Equal)                  |
+| BLT         | disp9               | III    | –  | –  | – | – | Conditional branch (if Less than)                           |
+| BN          | disp9               | III    | –  | –  | – | – | Conditional branch (if Negative)                            |
+| BNC         | disp9               | III    | –  | –  | – | – | Conditional branch (if Not Carry)                           |
+| BNE         | disp9               | III    | –  | –  | – | – | Conditional branch (if Not Equal)                           |
+| BNH         | disp9               | III    | –  | –  | – | – | Conditional branch (if Not Higher)                          |
+| BNL         | disp9               | III    | –  | –  | – | – | Conditional branch (if Not Lower)                           |
+| BNV         | disp9               | III    | –  | –  | – | – | Conditional branch (if Not Overflow)                        |
+| BNZ         | disp9               | III    | –  | –  | – | – | Conditional branch (if Not Zero)                            |
+| BP          | disp9               | III    | –  | –  | – | – | Conditional branch (if Positive)                            |
+| BR          | disp9               | III    | –  | –  | – | – | Unconditional branch                                        |
+| BV          | disp9               | III    | –  | –  | – | – | Conditional branch (if Overflow)                            |
+| BZ          | disp9               | III    | –  | –  | – | – | Conditional branch (if Zero)                                |
+| CAXI        | disp16 [reg1], reg2 | VI     | *  | *  | * | * | Inter-processor synchronization in a multi-processor        |
+| CMP         | reg1, reg2          | I      | *  | *  | * | * | Comparison                                                  |
+| CMP         | imm5, reg2          | II     | *  | *  | * | * | Comparison                                                  |
+| CMPF.S      | reg1, reg2          | VII    | *  | 0  | * | * | Floating-point comparison                                   |
+| CVT.SW      | reg1, reg2          | VII    | –  | 0  | * | * | Data conversion from floating-point to integer              |
+| CVT.WS      | reg1, reg2          | VII    | *  | 0  | * | * | Data conversion from integer to floating-point              |
+| DIV         | reg1, reg2          | I      | –  | *  | * | * | Signed division                                             |
+| DIVF.S      | reg1, reg2          | VII    | *  | 0  | * | * | Floating-point division                                     |
+| DIVU        | reg1, reg2          | I      | –  | 0  | * | * | Unsigned division                                           |
+| HALT        | –                   | II     | –  | –  | – | – | Processor stop                                              |
+| IN.B        | disp16 [reg1], reg2 | VI     | –  | –  | – | – | Port input                                                  |
+| IN.H        | disp16 [reg1], reg2 | VI     | –  | –  | – | – | Port input                                                  |
+| IN.W        | disp16 [reg1], reg2 | VI     | –  | –  | – | – | Port input                                                  |
+| JAL         | disp26              | IV     | –  | –  | – | – | Jump and link                                               |
+| JMP         | [reg1]              | I      | –  | –  | – | – | Register-indirect unconditional branch                      |
+| JR          | disp26              | IV     | –  | –  | – | – | Unconditional branch                                        |
+| LD.B        | disp16 [reg1], reg2 | VI     | –  | –  | – | – | Byte load                                                   |
+| LD.H        | disp16 [reg1], reg2 | VI     | –  | –  | – | – | Halfword load                                               |
+| LD.W        | disp16 [reg1], reg2 | VI     | –  | –  | – | – | Word load                                                   |
+| LDSR        | reg2, regID         | II     | *  | *  | * | * | Loading system register                                     |
+| MOV         | reg1, reg2          | I      | –  | –  | – | – | Transferring data                                           |
+| MOV         | imm5, reg2          | II     | –  | –  | – | – | Transferring data                                           |
+| MOVBSU      | –                   | II     | –  | –  | – | – | Transferring bit strings                                    |
+| MOVEA       | imm16, reg1, reg2   | V      | –  | –  | – | – | Addition                                                    |
+| MOVHI       | imm16, reg1, reg2   | V      | –  | –  | – | – | Addition                                                    |
+| MUL         | reg1, reg2          | I      | –  | *  | * | * | Signed multiplication                                       |
+| MULF.S      | reg1, reg2          | VII    | *  | 0  | * | * | Floating-point multiplication                               |
+| MULU        | reg1, reg2          | I      | –  | *  | * | * | Unsigned multiplication                                     |
+| NOP         | –                   | III    | –  | –  | – | – | No operation                                                |
+| NOT         | reg1, reg2          | I      | –  | 0  | * | * | Logical NOT                                                 |
+| NOTBSU      | –                   | II     | –  | –  | – | – | Transfer after NOTting a bit string                         |
+| OR          | reg1, reg2          | I      | –  | 0  | * | * | OR                                                          |
+| ORBSU       | –                   | II     | –  | –  | – | – | Transfer after ORing bit strings                            |
+| ORI         | imm16, reg1, reg2   | V      | –  | 0  | * | * | OR                                                          |
+| ORNBSU      | –                   | II     | –  | –  | – | – | Transfer after NOTting a bit string and ORing it            |
+| OUT.B       | reg2, disp16 [reg1] | VI     | –  | –  | – | – | Port output                                                 |
+| OUT.H       | reg2, disp16 [reg1] | VI     | –  | –  | – | – | Port output                                                 |
+| OUT.W       | reg2, disp16 [reg1] | VI     | –  | –  | – | – | Port output                                                 |
+| RETI        | –                   | II     | *  | *  | * | * | Return from a trap or interrupt routine                     |
+| SAR         | reg1, reg2          | I      | *  | 0  | * | * | Arithmetic right shift                                      |
+| SAR         | imm5, reg2          | II     | *  | 0  | * | * | Arithmetic right shift                                      |
+| SCH0BSU     | –                   | II     | –  | –  | – | * | Searching 0s in a bit string                                |
+| SCH0BSD     | –                   | II     | –  | –  | – | * | Searches "0" bits in the source bit string, and loads r30 … |
+| SCH1BSU     | –                   | II     | –  | –  | – | – | Searching 1s in a bit string                                |
+| SCH1BSD     | –                   | II     | –  | –  | – | – | Searches 1s in the source bit string, and loads r30 and …   |
+| SETF        | imm5, reg2          | II     | –  | –  | – | – | Flag condition setting                                      |
+| SHL         | reg1, reg2          | I      | *  | 0  | * | * | Logical left shift                                          |
+| SHL         | imm5, reg2          | II     | *  | 0  | * | * | Logical left shift                                          |
+| SHR         | reg1, reg2          | I      | *  | 0  | * | * | Logical right shift                                         |
+| SHR         | imm5, reg2          | II     | *  | 0  | * | * | Logical right shift                                         |
+| ST.B        | reg2, disp16 [reg1] | VI     | –  | –  | – | – | Byte store                                                  |
+| ST.H        | reg2, disp16 [reg1] | VI     | –  | –  | – | – | Halfword store                                              |
+| ST.W        | reg2, disp16 [reg1] | VI     | –  | –  | – | – | Word store                                                  |
+| STSR        | regID, reg2         | II     | –  | –  | – | – | Storing system register contents                            |
+| SUB         | reg1, reg2          | I      | *  | *  | * | * | Subtraction                                                 |
+| SUBF.S      | reg1, reg2          | VII    | *  | 0  | * | * | Floating-point subtraction                                  |
+| TRAP        | vector              | II     | –  | –  | – | – | Software trap                                               |
+| TRNC.SW     | reg1, reg2          | VII    | –  | 0  | * | * | Conversion from floating-point data to integer              |
+| XOR         | reg1, reg2          | I      | –  | 0  | * | * | Exclusive OR                                                |
+| XORBSU      | –                   | II     | –  | –  | – | – | Transfer of exclusive ORed bit string                       |
+| XORI        | imm16, reg1, reg2   | V      | –  | 0  | * | * | Exclusive OR                                                |
+| XORNBSU     | –                   | II     | –  | –  | – | – | Transfer after exclusive-ORing a NOTted bit string          |
 
 [Table 9-1 (1/9) through (9/9)]
 
-- The TRAP entry lists four numbered sub-steps of its operation, of which the text carries: (1) saving the restore PC and PSW into the FEPC …; (2) setting an exception code into the ECR's FECC …; (3) setting the PSW's ID flag and clearing the PSW's …; (4) setting the PSW's NP flag if the PSW's EP flag … [Table 9-1 (9/9)].
+- The TRAP entry lists four numbered sub-steps of its operation, of which the text carries: (1) saving the restore PC and PSW into the FEPC …. (2) setting an exception code into the ECR's FECC …. (3) setting the PSW's ID flag and clearing the PSW's …. (4) setting the PSW's NP flag if the PSW's EP flag … [Table 9-1 (9/9)].
 
 ### 10.1 Specifications when VDD = +5 V ± 10%, (1) TA = –10 to +70°C
 
@@ -438,7 +440,7 @@ DC Characteristics (TA = –10 to +70°C, VDD = +5V ± 10%):
 
 Note 1: VIL = 0 V, VIH = VDD applied. Note 2: In general benchmark test (Output pins are open.) [§10.1(1) DC Characteristics].
 
-Capacitance (TA = 25°C, VDD = +5 V ± 10%): Input capacitance CI, fC = 1 MHz, MAX. 15 pF; I/O capacitance CIO, MAX. 15 pF [§10.1(1) Capacitance].
+Capacitance (TA = 25°C, VDD = +5 V ± 10%): Input capacitance CI, fC = 1 MHz, MAX. 15 pF. I/O capacitance CIO, MAX. 15 pF [§10.1(1) Capacitance].
 
 AC Characteristics, Clock Input (TA = –10 to +70°C, VDD = +5V ± 10%), values are MIN. unless the table gives a MAX.:
 
@@ -467,7 +469,7 @@ AC Characteristics, Reset:
 
 [§10.1(1) AC Characteristics, Reset]
 
-AC Characteristics, Memory/I/O Access (MIN./MAX. pairs per part):
+AC Characteristics, Memory/I/O Access. Each cell is a MIN./MAX. pair. A dash in place of a figure reproduces the dash the data sheet prints where it gives no MAX.:
 
 | Parameter                                      | Symbol | µPD70732-16 | µPD70732-20 | µPD70732-25 | Unit |
 | ---------------------------------------------- | ------ | ----------- | ----------- | ----------- | ---- |
@@ -488,9 +490,9 @@ AC Characteristics, Memory/I/O Access (MIN./MAX. pairs per part):
 
 [§10.1(1) AC Characteristics, Memory, I/O Access]
 
-AC Characteristics, Dynamic Bus Sizing: SZRQ setup time (to CLK) tSSZK MIN. 6 / 5 / 4 ns for -16 / -20 / -25; SZRQ hold time (from CLK) tHKSZ MIN. 5 / 5 / 4 ns [§10.1(1) Dynamic Bus Sizing].
+AC Characteristics, Dynamic Bus Sizing: SZRQ setup time (to CLK) tSSZK MIN. 6 / 5 / 4 ns for -16 / -20 / -25. SZRQ hold time (from CLK) tHKSZ MIN. 5 / 5 / 4 ns [§10.1(1) Dynamic Bus Sizing].
 
-AC Characteristics, Interrupt: NMI setup time (to CLK) tSNK MIN. 6 / 5 / 4 ns; NMI hold time (from CLK) tHKN MIN. 5 / 5 / 4 ns; INT, etc. setup time (to CLK) tSIK MIN. 6 / 5 / 4 ns; INT, etc. hold time (from CLK) tHKI MIN. 5 / 5 / 4 ns, for -16 / -20 / -25 [§10.1(1) Interrupt].
+AC Characteristics, Interrupt: NMI setup time (to CLK) tSNK MIN. 6 / 5 / 4 ns. NMI hold time (from CLK) tHKN MIN. 5 / 5 / 4 ns. INT, etc. setup time (to CLK) tSIK MIN. 6 / 5 / 4 ns. INT, etc. hold time (from CLK) tHKI MIN. 5 / 5 / 4 ns, for -16 / -20 / -25 [§10.1(1) Interrupt].
 
 AC Characteristics, Bus Hold (MIN./MAX. per part, -16 / -20 / -25):
 
@@ -511,59 +513,101 @@ AC Characteristics, Bus Hold (MIN./MAX. per part, -16 / -20 / -25):
 
 [§10.1(1) Bus Hold]
 
-- §10.1(1) also carries headings for AC Test Input Waveform (Except CLK), AC Test Input Waveform (CLK), AC Test Output Test Points, and Load Conditions; all four are image references only [§10.1(1)].
+- §10.1(1) also carries headings for AC Test Input Waveform (Except CLK), AC Test Input Waveform (CLK), AC Test Output Test Points, and Load Conditions. All four are image references only [§10.1(1)].
 
 ### 10.1 Specifications when VDD = +5 V ± 10%, (2) TA = –40 to +85°C
 
-- Absolute Maximum Ratings (TA = 25°C) are identical to §10.1(1) except operating ambient temperature TA = –40 to +85°C; supply voltage VDD –0.5 to +7.0 V; VI, VK, VO each –0.5 to VDD + 0.3 V at VDD = +5 V ± 10%; storage temperature Tstg –65 to +150°C [§10.1(2) Absolute Maximum Ratings].
-- DC Characteristics (TA = –40 to +85°C, VDD = +5V ± 10%): VKH MIN. 4.0 / MAX. VDD + 0.3 V; VKL MIN. –0.5 / MAX. +0.6 V; VIH MIN. 2.2 / MAX. VDD + 0.3 V; VIL MIN. –0.5 / MAX. +0.8 V; VOH MIN. 2.4 V at IOH = –400 µA; VOL MAX. 0.45 V at IOL = 3.2 mA; ILIH MAX. 10 µA at VIN = VDD; ILIL MAX. –10 µA at VIN = 0 V; ILOH MAX. 10 µA at VO = VDD; ILOL MAX. –10 µA at VO = 0 V [§10.1(2) DC Characteristics].
-- Supply current IDD at f = 20 MHz: TYP. 80 (Note 2), MAX. 200 mA; stopping clock (Note 1): TYP. 5 µA [§10.1(2) DC Characteristics].
+- Absolute Maximum Ratings (TA = 25°C) are identical to §10.1(1) except operating ambient temperature TA = –40 to +85°C. Supply voltage VDD –0.5 to +7.0 V. VI, VK, VO each –0.5 to VDD + 0.3 V at VDD = +5 V ± 10%. Storage temperature Tstg –65 to +150°C [§10.1(2) Absolute Maximum Ratings].
+- DC Characteristics (TA = –40 to +85°C, VDD = +5V ± 10%). [§10.1(2) DC Characteristics].
+
+  | Parameter | Value                       |
+  | --------- | --------------------------- |
+  | VKH       | MIN. 4.0 / MAX. VDD + 0.3 V |
+  | VKL       | MIN. –0.5 / MAX. +0.6 V     |
+  | VIH       | MIN. 2.2 / MAX. VDD + 0.3 V |
+  | VIL       | MIN. –0.5 / MAX. +0.8 V     |
+  | VOH       | MIN. 2.4 V at IOH = –400 µA |
+  | VOL       | MAX. 0.45 V at IOL = 3.2 mA |
+  | ILIH      | MAX. 10 µA at VIN = VDD     |
+  | ILIL      | MAX. –10 µA at VIN = 0 V    |
+  | ILOH      | MAX. 10 µA at VO = VDD      |
+  | ILOL      | MAX. –10 µA at VO = 0 V     |
+
+- Supply current IDD at f = 20 MHz: TYP. 80 (Note 2), MAX. 200 mA. Stopping clock (Note 1): TYP. 5 µA [§10.1(2) DC Characteristics].
 - The document remarks that operating supply current is approximately proportional to operating clock frequency [§10.1(2) Remark].
-- Capacitance (TA = 25°C, VDD = +5 V ± 10%): CI MAX. 15 pF at fC = 1 MHz; CIO MAX. 15 pF [§10.1(2) Capacitance].
+- Capacitance (TA = 25°C, VDD = +5 V ± 10%): CI MAX. 15 pF at fC = 1 MHz. CIO MAX. 15 pF [§10.1(2) Capacitance].
 - AC Characteristics for §10.1(2) are given for µPD70732-25 only [§10.1(2) AC Characteristics].
-- Clock Input: tCYK MIN. 50 ns; tKKH MIN. 21 ns; tKKL MIN. 21 ns; tKR MAX. 4 ns; tKF MAX. 4 ns [§10.1(2) Clock Input].
-- Reset: tHVR MIN. 1000 + 20 tCYKR ns; tCYKR MIN. 50 / MAX. 1000 ns; tKKHR MIN. 21 ns; tKKLR MIN. 21 ns; tSRKF MIN. 10 ns; tSRKR MIN. 10 ns; tHKR MIN. 10 ns; tWRL MIN. 20 tCYKR ns [§10.1(2) Reset].
-- Memory/I/O Access: tDKA 1 / 15 ns; tHKA 1 / 15 ns; tDKBC 1 / 15 ns; tHKBC 1 / 15 ns; tDKDA 1 / 15 ns; tHKDA 1 / 15 ns; tSRYK MIN. 5 ns; tHKRY MIN. 5 ns; tSDK MIN. 5 ns; tHKD MIN. 5 ns; tDKDT 1 / 15 ns; tHKDT 1 / 15 ns; tLZKDT 5 / 20 ns; tHZKDT 5 / 20 ns (MIN. / MAX.) [§10.1(2) Memory, I/O Access].
-- Dynamic Bus Sizing: tSSZK MIN. 5 ns; tHKSZ MIN. 5 ns [§10.1(2) Dynamic Bus Sizing].
-- Interrupt: tSNK MIN. 5 ns; tHKN MIN. 5 ns; tSIK MIN. 5 ns; tHKI MIN. 5 ns [§10.1(2) Interrupt].
-- Bus Hold: tSHQK MIN. 5 ns; tHKHQ MIN. 5 ns; tDKHA 1 / 15 ns; tHKHA 1 / 15 ns; tHZKA 2 / 20 ns; tLZKA 2 / 20 ns; tHZKD 5 / 20 ns; tLZKD 5 / 20 ns; tHZKBC 2 / 20 ns; tLZKBC 2 / 20 ns; tHZKDA 2 / 20 ns; tLZKDA 2 / 20 ns (MIN. / MAX.) [§10.1(2) Bus Hold].
+- Clock Input: tCYK MIN. 50 ns. tKKH MIN. 21 ns. tKKL MIN. 21 ns. tKR MAX. 4 ns. tKF MAX. 4 ns [§10.1(2) Clock Input].
+- Reset: tHVR MIN. 1000 + 20 tCYKR ns. tCYKR MIN. 50 / MAX. 1000 ns. tKKHR MIN. 21 ns. tKKLR MIN. 21 ns. tSRKF MIN. 10 ns. tSRKR MIN. 10 ns. tHKR MIN. 10 ns. tWRL MIN. 20 tCYKR ns [§10.1(2) Reset].
+- Memory/I/O Access: tDKA 1 / 15 ns. tHKA 1 / 15 ns. tDKBC 1 / 15 ns. tHKBC 1 / 15 ns. tDKDA 1 / 15 ns. tHKDA 1 / 15 ns. tSRYK MIN. 5 ns. tHKRY MIN. 5 ns. tSDK MIN. 5 ns. tHKD MIN. 5 ns. tDKDT 1 / 15 ns. tHKDT 1 / 15 ns. tLZKDT 5 / 20 ns. tHZKDT 5 / 20 ns (MIN. / MAX.) [§10.1(2) Memory, I/O Access].
+- Dynamic Bus Sizing: tSSZK MIN. 5 ns. tHKSZ MIN. 5 ns [§10.1(2) Dynamic Bus Sizing].
+- Interrupt: tSNK MIN. 5 ns. tHKN MIN. 5 ns. tSIK MIN. 5 ns. tHKI MIN. 5 ns [§10.1(2) Interrupt].
+- Bus Hold: tSHQK MIN. 5 ns. tHKHQ MIN. 5 ns. tDKHA 1 / 15 ns. tHKHA 1 / 15 ns. tHZKA 2 / 20 ns. tLZKA 2 / 20 ns. tHZKD 5 / 20 ns. tLZKD 5 / 20 ns. tHZKBC 2 / 20 ns. tLZKBC 2 / 20 ns. tHZKDA 2 / 20 ns. tLZKDA 2 / 20 ns (MIN. / MAX.) [§10.1(2) Bus Hold].
 
 ### 10.2 Specifications when VDD = 2.7 to 3.6 V (page 47)
 
-- Absolute Maximum Ratings (TA = 25°C): VDD –0.5 to +7.0 V; VI –0.5 to VDD + 0.3 V at VDD = 2.7 to 3.6 V; VK –0.5 to VDD + 0.3 V; VO –0.5 to VDD + 0.3 V; operating ambient temperature TA –40 to +85°C; storage temperature Tstg –65 to +150°C [§10.2 Absolute Maximum Ratings].
-- DC Characteristics (TA = –40 to +85°C, VDD = 2.7 to 3.6 V): VKH MIN. 0.8 VDD / MAX. VDD + 0.3 V; VKL MIN. –0.5 / MAX. +0.2 VDD V; VIH MIN. 2.0 / MAX. VDD + 0.3 V; VIL MIN. –0.5 / MAX. +0.6 V [§10.2 DC Characteristics].
-- Output voltage, high VOH: MIN. 0.85 VDD at IOH = –2.0 mA; MIN. VDD – 0.2 at IOH = –100 µA [§10.2 DC Characteristics].
+- Absolute Maximum Ratings (TA = 25°C). [§10.2 Absolute Maximum Ratings].
+
+  | Parameter                        | Rating                                    |
+  | -------------------------------- | ----------------------------------------- |
+  | VDD                              | –0.5 to +7.0 V                            |
+  | VI                               | –0.5 to VDD + 0.3 V at VDD = 2.7 to 3.6 V |
+  | VK                               | –0.5 to VDD + 0.3 V                       |
+  | VO                               | –0.5 to VDD + 0.3 V                       |
+  | Operating ambient temperature TA | –40 to +85°C                              |
+  | Storage temperature Tstg         | –65 to +150°C                             |
+
+- DC Characteristics (TA = –40 to +85°C, VDD = 2.7 to 3.6 V). [§10.2 DC Characteristics].
+
+  | Parameter | Value                           |
+  | --------- | ------------------------------- |
+  | VKH       | MIN. 0.8 VDD / MAX. VDD + 0.3 V |
+  | VKL       | MIN. –0.5 / MAX. +0.2 VDD V     |
+  | VIH       | MIN. 2.0 / MAX. VDD + 0.3 V     |
+  | VIL       | MIN. –0.5 / MAX. +0.6 V         |
+
+- Output voltage, high VOH: MIN. 0.85 VDD at IOH = –2.0 mA. MIN. VDD – 0.2 at IOH = –100 µA [§10.2 DC Characteristics].
 - Output voltage, low VOL MAX. 0.4 V at IOL = 3.2 mA [§10.2 DC Characteristics].
-- Leak currents: ILIH MAX. 5 µA at VIN = VDD; ILIL MAX. –5 µA at VIN = 0 V; ILOH MAX. 5 µA at VO = VDD; ILOL MAX. –5 µA at VO = 0 V [§10.2 DC Characteristics].
-- Supply current IDD at f = 16 MHz: TYP. 38 (Note 2), MAX. 100 mA; stopping clock (Note 1): TYP. 3, MAX. 30 µA [§10.2 DC Characteristics].
-- Notes: Note 1 VIL = 0 V, VIH = VDD applied; Note 2 in general benchmark test (output pins are open). The document remarks operating supply current is approximately proportional to operating clock frequency [§10.2 Notes and Remark].
-- Capacitance (TA = 25°C, VDD = 2.7 to 3.6 V): CI MAX. 15 pF at fC = 1 MHz; CIO MAX. 15 pF [§10.2 Capacitance].
+- Leak currents: ILIH MAX. 5 µA at VIN = VDD. ILIL MAX. –5 µA at VIN = 0 V. ILOH MAX. 5 µA at VO = VDD. ILOL MAX. –5 µA at VO = 0 V [§10.2 DC Characteristics].
+- Supply current IDD at f = 16 MHz: TYP. 38 (Note 2), MAX. 100 mA. Stopping clock (Note 1): TYP. 3, MAX. 30 µA [§10.2 DC Characteristics].
+- Notes: Note 1 VIL = 0 V, VIH = VDD applied. Note 2 in general benchmark test (output pins are open). The document remarks operating supply current is approximately proportional to operating clock frequency [§10.2 Notes and Remark].
+- Capacitance (TA = 25°C, VDD = 2.7 to 3.6 V): CI MAX. 15 pF at fC = 1 MHz. CIO MAX. 15 pF [§10.2 Capacitance].
 - AC Characteristics in §10.2 are given for µPD70732-25 only [§10.2 AC Characteristics].
-- Clock Input: tCYK MIN. 62.5 ns; tKKH MIN. 26 ns; tKKL MIN. 26 ns; tKR MAX. 5 ns; tKF MAX. 5 ns [§10.2 Clock Input].
-- Reset: tHVR MIN. 1000 + 20tCYKR ns; tCYKR MIN. 62.5 / MAX. 1000 ns; tKKHR MIN. 26 ns; tKKLR MIN. 26 ns; tSRKF MIN. 10 ns; tSRKR MIN. 10 ns; tHKR MIN. 10 ns; tWRL MIN. 20tCYKR ns [§10.2 Reset].
-- Memory/I/O Access (MIN. / MAX.): tDKA 1 / 25 ns; tHKA 1 / 25 ns; tDKBC 1 / 25 ns; tHKBC 1 / 25 ns; tDKDA 1 / 25 ns; tHKDA 1 / 25 ns; tSRYK MIN. 8 ns; tHKRY MIN. 5 ns; tSDK MIN. 8 ns; tHKD MIN. 5 ns; tDKDT 1 / 35 ns; tHKDT 1 / 35 ns; tLZKDT 3 / 40 ns; tHZKDT 3 / 40 ns [§10.2 Memory, I/O Access].
-- Dynamic Bus Sizing: tSSZK MIN. 8 ns; tHKSZ MIN. 5 ns [§10.2 Dynamic Bus Sizing].
-- Interrupt: tSNK MIN. 8 ns; tHKN MIN. 5 ns; tSIK MIN. 8 ns; tHKI MIN. 5 ns [§10.2 Interrupt].
-- Bus Hold: tSHQK MIN. 8 ns; tHKHQ MIN. 5 ns; tDKHA 1 / 25 ns; tHKHA 1 / 25 ns; tHZKA 3 / 30 ns; tLZKA 3 / 30 ns; tHZKD 3 / 40 ns; tLZKD 3 / 40 ns; tHZKBC 3 / 30 ns; tLZKBC 3 / 30 ns; tHZKDA 3 / 30 ns; tLZKDA 3 / 30 ns (MIN. / MAX.) [§10.2 Bus Hold].
+- Clock Input: tCYK MIN. 62.5 ns. tKKH MIN. 26 ns. tKKL MIN. 26 ns. tKR MAX. 5 ns. tKF MAX. 5 ns [§10.2 Clock Input].
+- Reset: tHVR MIN. 1000 + 20tCYKR ns. tCYKR MIN. 62.5 / MAX. 1000 ns. tKKHR MIN. 26 ns. tKKLR MIN. 26 ns. tSRKF MIN. 10 ns. tSRKR MIN. 10 ns. tHKR MIN. 10 ns. tWRL MIN. 20tCYKR ns [§10.2 Reset].
+- Memory/I/O Access (MIN. / MAX.): tDKA 1 / 25 ns. tHKA 1 / 25 ns. tDKBC 1 / 25 ns. tHKBC 1 / 25 ns. tDKDA 1 / 25 ns. tHKDA 1 / 25 ns. tSRYK MIN. 8 ns. tHKRY MIN. 5 ns. tSDK MIN. 8 ns. tHKD MIN. 5 ns. tDKDT 1 / 35 ns. tHKDT 1 / 35 ns. tLZKDT 3 / 40 ns. tHZKDT 3 / 40 ns [§10.2 Memory, I/O Access].
+- Dynamic Bus Sizing: tSSZK MIN. 8 ns. tHKSZ MIN. 5 ns [§10.2 Dynamic Bus Sizing].
+- Interrupt: tSNK MIN. 8 ns. tHKN MIN. 5 ns. tSIK MIN. 8 ns. tHKI MIN. 5 ns [§10.2 Interrupt].
+- Bus Hold: tSHQK MIN. 8 ns. tHKHQ MIN. 5 ns. tDKHA 1 / 25 ns. tHKHA 1 / 25 ns. tHZKA 3 / 30 ns. tLZKA 3 / 30 ns. tHZKD 3 / 40 ns. tLZKD 3 / 40 ns. tHZKBC 3 / 30 ns. tLZKBC 3 / 30 ns. tHZKDA 3 / 30 ns. tLZKDA 3 / 30 ns (MIN. / MAX.) [§10.2 Bus Hold].
 
 ### 10.3 Specifications when VDD = 2.2 to 3.6 V (page 51)
 
-- Absolute Maximum Ratings (TA = 25°C): VDD –0.5 to +7.0 V; VI –0.5 to VDD + 0.3 V at VDD = 2.2 to 3.6 V; VK –0.5 to VDD + 0.3 V; VO –0.5 to VDD + 0.3 V; operating ambient temperature TA –40 to +85°C; storage temperature Tstg –65 to +150°C [§10.3 Absolute Maximum Ratings].
-- DC Characteristics (TA = –40 to +85°C, VDD = 2.2 to 3.6 V): VKH MIN. 0.8 VDD / MAX. VDD + 0.3 V; VKL MIN. –0.5 / MAX. +0.2 VDD V [§10.3 DC Characteristics].
-- Input voltage high VIH has two rows distinguished by a VDD test condition: MIN. 2.0 / MAX. VDD + 0.3 V for one condition, and MIN. 0.8 VDD / MAX. VDD + 0.3 V for the other; the two test-condition cells are printed as "VDD • 2.5 V" and "VDD - 2.5 V" [§10.3 DC Characteristics].
+- Absolute Maximum Ratings (TA = 25°C). [§10.3 Absolute Maximum Ratings].
+
+  | Parameter                        | Rating                                    |
+  | -------------------------------- | ----------------------------------------- |
+  | VDD                              | –0.5 to +7.0 V                            |
+  | VI                               | –0.5 to VDD + 0.3 V at VDD = 2.2 to 3.6 V |
+  | VK                               | –0.5 to VDD + 0.3 V                       |
+  | VO                               | –0.5 to VDD + 0.3 V                       |
+  | Operating ambient temperature TA | –40 to +85°C                              |
+  | Storage temperature Tstg         | –65 to +150°C                             |
+
+- DC Characteristics (TA = –40 to +85°C, VDD = 2.2 to 3.6 V): VKH MIN. 0.8 VDD / MAX. VDD + 0.3 V. VKL MIN. –0.5 / MAX. +0.2 VDD V [§10.3 DC Characteristics].
+- Input voltage high VIH has two rows distinguished by a VDD test condition: MIN. 2.0 / MAX. VDD + 0.3 V for one condition, and MIN. 0.8 VDD / MAX. VDD + 0.3 V for the other. The two test-condition cells are printed as "VDD • 2.5 V" and "VDD - 2.5 V" [§10.3 DC Characteristics].
 - Input voltage low VIL MIN. –0.5 / MAX. +0.2 VDD V [§10.3 DC Characteristics].
-- Output voltage high VOH: MIN. 0.85 VDD at IOH = –2.0 mA; MIN. VDD – 0.2 at IOH = –100 µA [§10.3 DC Characteristics].
+- Output voltage high VOH: MIN. 0.85 VDD at IOH = –2.0 mA. MIN. VDD – 0.2 at IOH = –100 µA [§10.3 DC Characteristics].
 - Output voltage low VOL MAX. 0.4 V at IOL = 3.2 mA [§10.3 DC Characteristics].
-- Leak currents: ILIH MAX. 5 µA at VIN = VDD; ILIL MAX. –5 µA at VIN = 0 V; ILOH MAX. 5 µA at VO = VDD; ILOL MAX. –5 µA at VO = 0 V [§10.3 DC Characteristics].
-- Supply current IDD at f = 10 MHz: TYP. 24 (Note 2), MAX. 70 mA; stopping clock (Note 1): TYP. 3, MAX. 30 µA [§10.3 DC Characteristics].
-- Capacitance (TA = 25°C, VDD = 2.2 to 3.6 V): CI MAX. 15 pF at fC = 1 MHz; CIO MAX. 15 pF [§10.3 Capacitance].
+- Leak currents: ILIH MAX. 5 µA at VIN = VDD. ILIL MAX. –5 µA at VIN = 0 V. ILOH MAX. 5 µA at VO = VDD. ILOL MAX. –5 µA at VO = 0 V [§10.3 DC Characteristics].
+- Supply current IDD at f = 10 MHz: TYP. 24 (Note 2), MAX. 70 mA. Stopping clock (Note 1): TYP. 3, MAX. 30 µA [§10.3 DC Characteristics].
+- Capacitance (TA = 25°C, VDD = 2.2 to 3.6 V): CI MAX. 15 pF at fC = 1 MHz. CIO MAX. 15 pF [§10.3 Capacitance].
 - AC Characteristics in §10.3 are given for µPD70732-25 only [§10.3 AC Characteristics].
-- Clock Input: tCYK MIN. 100 ns; tKKH MIN. 40 ns; tKKL MIN. 40 ns; tKR MAX. 10 ns; tKF MAX. 10 ns [§10.3 Clock Input].
-- Reset: tHVR MIN. 1000 + 20tCYKR ns; tCYKR MIN. 100 / MAX. 1000 ns; tKKHR MIN. 40 ns; tKKLR MIN. 40 ns; tSRKF MIN. 10 ns; tSRKR MIN. 10 ns; tHKR MIN. 15 ns; tWRL MIN. 20tCYKR ns [§10.3 Reset].
-- Memory/I/O Access (MIN. / MAX.): tDKA 1 / 35 ns; tHKA 1 / 35 ns; tDKBC 1 / 35 ns; tHKBC 1 / 35 ns; tDKDA 1 / 35 ns; tHKDA 1 / 35 ns; tSRYK MIN. 15 ns; tHKRY MIN. 5 ns; tSDK MIN. 15 ns; tHKD MIN. 5 ns; tDKDT 1 / 50 ns; tHKDT 1 / 50 ns; tLZKDT 3 / 50 ns; tHZKDT 3 / 50 ns [§10.3 Memory, I/O Access].
-- Dynamic Bus Sizing: tSSZK MIN. 15 ns; tHKSZ MIN. 5 ns [§10.3 Dynamic Bus Sizing].
-- Interrupt: tSNK MIN. 15 ns; tHKN MIN. 5 ns; tSIK MIN. 15 ns; tHKI MIN. 5 ns [§10.3 Interrupt].
-- Bus Hold: tSHQK MIN. 15 ns; tHKHQ MIN. 5 ns; tDKHA 1 / 35 ns; tHKHA 1 / 35 ns; tHZKA 3 / 35 ns; tLZKA 3 / 35 ns; tHZKD 3 / 50 ns; tLZKD 3 / 50 ns; tHZKBC 3 / 35 ns; tLZKBC 3 / 35 ns; tHZKDA 3 / 35 ns; tLZKDA 3 / 35 ns (MIN. / MAX.) [§10.3 Bus Hold].
+- Clock Input: tCYK MIN. 100 ns. tKKH MIN. 40 ns. tKKL MIN. 40 ns. tKR MAX. 10 ns. tKF MAX. 10 ns [§10.3 Clock Input].
+- Reset: tHVR MIN. 1000 + 20tCYKR ns. tCYKR MIN. 100 / MAX. 1000 ns. tKKHR MIN. 40 ns. tKKLR MIN. 40 ns. tSRKF MIN. 10 ns. tSRKR MIN. 10 ns. tHKR MIN. 15 ns. tWRL MIN. 20tCYKR ns [§10.3 Reset].
+- Memory/I/O Access (MIN. / MAX.): tDKA 1 / 35 ns. tHKA 1 / 35 ns. tDKBC 1 / 35 ns. tHKBC 1 / 35 ns. tDKDA 1 / 35 ns. tHKDA 1 / 35 ns. tSRYK MIN. 15 ns. tHKRY MIN. 5 ns. tSDK MIN. 15 ns. tHKD MIN. 5 ns. tDKDT 1 / 50 ns. tHKDT 1 / 50 ns. tLZKDT 3 / 50 ns. tHZKDT 3 / 50 ns [§10.3 Memory, I/O Access].
+- Dynamic Bus Sizing: tSSZK MIN. 15 ns. tHKSZ MIN. 5 ns [§10.3 Dynamic Bus Sizing].
+- Interrupt: tSNK MIN. 15 ns. tHKN MIN. 5 ns. tSIK MIN. 15 ns. tHKI MIN. 5 ns [§10.3 Interrupt].
+- Bus Hold: tSHQK MIN. 15 ns. tHKHQ MIN. 5 ns. tDKHA 1 / 35 ns. tHKHA 1 / 35 ns. tHZKA 3 / 35 ns. tLZKA 3 / 35 ns. tHZKD 3 / 50 ns. tLZKD 3 / 50 ns. tHZKBC 3 / 35 ns. tLZKBC 3 / 35 ns. tHZKDA 3 / 35 ns. tLZKDA 3 / 35 ns (MIN. / MAX.) [§10.3 Bus Hold].
 
 ### Package dimensions
 
@@ -614,7 +658,7 @@ The QFP drawing carries the note that each lead centerline is located within 0.1
 
 The TQFP drawing carries the note that each lead centerline is located within 0.09 mm (0.004 inch) of its true position (T.P.) at maximum material condition [§11, 120-pin plastic TQFP].
 
-176-pin ceramic PGA (Seamweld): A 38.1±0.4 mm (1.500 +0.016 / –0.015 in); D 38.1±0.4 mm (1.500 +0.016 / –0.015 in); F 2.54 (T.P.) mm; E 1.27 mm (0.050 in); G/H/I/J group printed as 2.8±0.3, 0.5 MIN., 4.57 MAX. mm with inch value 0.110; K 1.2±0.2 φ mm (0.047 in); L 0.46±0.05 φ mm (0.018 in); M 0.5 mm (0.020 in). The drawing note states each lead centerline is located within φ0.5 mm (φ0.020 inch) of its true position (T.P.) at maximum material condition [§11, 176-pin ceramic PGA].
+176-pin ceramic PGA (Seamweld): A 38.1±0.4 mm (1.500 +0.016 / –0.015 in). D 38.1±0.4 mm (1.500 +0.016 / –0.015 in). F 2.54 (T.P.) mm. E 1.27 mm (0.050 in). G/H/I/J group printed as 2.8±0.3, 0.5 MIN., 4.57 MAX. mm with inch value 0.110. K 1.2±0.2 φ mm (0.047 in). L 0.46±0.05 φ mm (0.018 in). M 0.5 mm (0.020 in). The drawing note states each lead centerline is located within φ0.5 mm (φ0.020 inch) of its true position (T.P.) at maximum material condition [§11, 176-pin ceramic PGA].
 
 ### Soldering conditions
 
@@ -639,7 +683,12 @@ Table 12-1, surface mounting, (2) µPD70732GC-25-9EV, 120-pin plastic TQFP (Fine
 
 [Table 12-1(2)]
 
-Table 12-2, insertion type, µPD70732R-25, 176-pin ceramic PGA (Seam weld): wave soldering at solder bath temperature 260°C Max., duration 10 sec. Max.; partial heating at pin temperature 300°C Max., duration 3 sec. Max. (per one pin) [Table 12-2].
+Table 12-2, insertion type, µPD70732R-25, 176-pin ceramic PGA (Seam weld) [Table 12-2]:
+
+| Soldering method | Soldering conditions                                           |
+| ---------------- | -------------------------------------------------------------- |
+| Wave soldering   | solder bath temperature 260°C Max., duration 10 sec. Max.      |
+| Partial heating  | pin temperature 300°C Max., duration 3 sec. Max. (per one pin) |
 
 ## Constraints and requirements
 
@@ -652,7 +701,7 @@ Table 12-2, insertion type, µPD70732R-25, 176-pin ceramic PGA (Seam weld): wave
 - Format VII's remaining 10 bits are reserved for future use and must be set to zeros [§9.1(7)].
 - System registers 8 to 23 and 26 to 31 are Reserved [Table 2-2].
 - The document instructs that special care such as saving and restoring register contents is necessary when using r0, r1 to r5, r26 to r30, and r31 [§2.1(1)].
-- Absolute maximum ratings caution 1 states not to directly interconnect IC product output (or input/output) pins, or directly connect VDD or VCC to GND; open-drain and open-collector pins can be interconnected, and direct connection is also possible for an external circuit using timing design that avoids output collision with a pin that becomes high-impedance [§10.1(1), §10.1(2), §10.2, §10.3 Cautions 1].
+- Absolute maximum ratings caution 1 states not to directly interconnect IC product output (or input/output) pins, or directly connect VDD or VCC to GND. Open-drain and open-collector pins can be interconnected, and direct connection is also possible for an external circuit using timing design that avoids output collision with a pin that becomes high-impedance [§10.1(1), §10.1(2), §10.2, §10.3 Cautions 1].
 - Absolute maximum ratings caution 2 states product quality may suffer if the absolute maximum rating is exceeded for even a single parameter or even momentarily, that the product must be used under conditions ensuring the ratings are not exceeded, and that ratings and test conditions in the DC and AC characteristics are the normal operation and quality assurance ranges [§10.1(1), §10.1(2), §10.2, §10.3 Cautions 2].
 - The soldering tables carry a caution that use of more than one soldering method should be avoided, except for partial heating [Table 12-1(1), Table 12-1(2)].
 - The insertion-type soldering table carries a caution to apply wave soldering only to the pins and to be careful not to bring solder into direct contact with the package [Table 12-2].
@@ -663,26 +712,26 @@ Table 12-2, insertion type, µPD70732R-25, 176-pin ceramic PGA (Seam weld): wave
 ## Stated gaps and ambiguities
 
 - §3.2 states the alignment rule as "word data must be aligned to a word boundary (lowest two bits of the address fixed to 0s), and halfword data to a halfword boundary (lowest bit of the address fixed to 0)", then states that unaligned data has "the lowest one bit (in the case of word) or two bits (in the case of halfword)" forcibly masked with 0s. The masking sentence pairs word with one bit and halfword with two bits, the reverse of the boundary rule in the same section. The document does not reconcile the two statements [§3.2].
-- Table 8-1 names the interrupt cause register fields FECC and EICC in the reset-state table, but Table 2-2 names system register 4 only as ECR (exception cause register); the document does not state the relationship between FECC/EICC and ECR in the material given [Table 8-1, Table 2-2].
-- Table 6-1 assigns exception code F F 7 0 to FIV but handler address F F F F F F 6 0, unlike the other entries where the code digits and the handler address digits correspond; the document does not comment on this [Table 6-1].
+- Table 8-1 names the interrupt cause register fields FECC and EICC in the reset-state table, but Table 2-2 names system register 4 only as ECR (exception cause register). The document does not state the relationship between FECC/EICC and ECR in the material given [Table 8-1, Table 2-2].
+- Table 6-1 assigns exception code F F 7 0 to FIV but handler address F F F F F F 6 0, unlike the other entries where the code digits and the handler address digits correspond. The document does not comment on this [Table 6-1].
 - Table 6-1 lists FUD and FPR with codes and handler addresses, while Note 5 states these two exceptions do not occur in the V810 [Table 6-1, Note 5].
-- Section 7 (CACHE) contains only Figure 7-1 as an image; cache size (1 Kbyte) is stated only in the front-page feature list, and no cache line size, associativity, or CHCW field layout is given in the text [§7, front page].
-- Figure 4-1 (memory map) and Figure 4-2 (I/O map) are images; the address boundaries of the memory map are not available as text, and the I/O map text carries only FFFFFFFFH, "General use", and 00000000H [§4].
-- The pin configuration drawings for the 120-pin QFP and 120-pin TQFP are images; per-pin numbering for those two packages is not available as text, unlike the 176-pin PGA whose pin list is tabulated [Pin Configuration].
-- Figure 1-1 (Pin I/O Circuit) is an image; the circuit content of types 1, 4, and 5 is not described in text [§1.2].
-- Instruction-format bit-field diagrams for Formats I–VII are images; only the prose field descriptions are available as text [§9.1].
-- The Legend for Table 9-1's flag symbols `*`, `0`, and `–` is an image; the document's definition of those symbols is not available as text [§9.2 Legend].
+- Section 7 (CACHE) contains only Figure 7-1 as an image. Cache size (1 Kbyte) is stated only in the front-page feature list, and no cache line size, associativity, or CHCW field layout is given in the text [§7, front page].
+- Figure 4-1 (memory map) and Figure 4-2 (I/O map) are images. The address boundaries of the memory map are not available as text, and the I/O map text carries only FFFFFFFFH, "General use", and 00000000H [§4].
+- The pin configuration drawings for the 120-pin QFP and 120-pin TQFP are images. Per-pin numbering for those two packages is not available as text, unlike the 176-pin PGA whose pin list is tabulated [Pin Configuration].
+- Figure 1-1 (Pin I/O Circuit) is an image. The circuit content of types 1, 4, and 5 is not described in text [§1.2].
+- Instruction-format bit-field diagrams for Formats I–VII are images. Only the prose field descriptions are available as text [§9.1].
+- The Legend for Table 9-1's flag symbols `*`, `0`, and `–` is an image. The document's definition of those symbols is not available as text [§9.2 Legend].
 - The "Instruction Function" column of Table 9-1 is truncated for many entries, so the full operation descriptions for instructions such as SAR, SHR, SCH0BSD, SCH1BSD, and TRAP are incomplete [Table 9-1].
-- Table 9-1 gives the Z flag as `*` for SCH0BSU and SCH0BSD but as `–` for SCH1BSU and SCH1BSD; the document does not comment on the difference [Table 9-1 (7/9)].
-- Table 1-1 leaves the "I/O Circuit Type" cell blank for several pins (HLDRQ, SIZ16B, INT, INTV3 to INTV0, CLK, IC1) and the "Recommended Connection Method" cell blank for A31 to A1 and IC1; the document does not state whether blanks continue the value from the row above [Table 1-1].
+- Table 9-1 gives the Z flag as `*` for SCH0BSU and SCH0BSD but as `–` for SCH1BSU and SCH1BSD. The document does not comment on the difference [Table 9-1 (7/9)].
+- Table 1-1 leaves the "I/O Circuit Type" cell blank for several pins (HLDRQ, SIZ16B, INT, INTV3 to INTV0, CLK, IC1) and the "Recommended Connection Method" cell blank for A31 to A1 and IC1. The document does not state whether blanks continue the value from the row above [Table 1-1].
 - §1.1 marks the "bus idle status at reset" of A31 to A1 with "H Note", but the text of that note is not present [§1.1].
-- The AC Test Input Waveform, AC Test Output Test Points, and Load Conditions figures in §10.1(1), §10.1(2), §10.2, and §10.3 are images; the test voltage thresholds and load capacitance values are not available as text [§10.1–§10.3].
-- The Clock, Reset, Memory/I/O Access, Dynamic Bus Sizing, Interrupt, and Bus Hold timing waveform diagrams are images; the waveform relationships behind the tabulated symbols are not available as text [§10 timing figures].
-- §10.3's VIH test-condition cells are printed as "VDD • 2.5 V" and "VDD - 2.5 V"; the comparison operators are not legible, so which VDD range selects the 2.0 V threshold versus the 0.8 VDD threshold is unclear [§10.3 DC Characteristics].
-- §10.1(1) DC Characteristics gives a TYP. value of 5 µA for supply current with the clock stopped but no MAX., while §10.2 and §10.3 give TYP. 3 µA and MAX. 30 µA; the document does not comment on the difference [§10.1(1), §10.2, §10.3].
+- The AC Test Input Waveform, AC Test Output Test Points, and Load Conditions figures in §10.1(1), §10.1(2), §10.2, and §10.3 are images. The test voltage thresholds and load capacitance values are not available as text [§10.1–§10.3].
+- The Clock, Reset, Memory/I/O Access, Dynamic Bus Sizing, Interrupt, and Bus Hold timing waveform diagrams are images. The waveform relationships behind the tabulated symbols are not available as text [§10 timing figures].
+- §10.3's VIH test-condition cells are printed as "VDD • 2.5 V" and "VDD - 2.5 V". The comparison operators are not legible, so which VDD range selects the 2.0 V threshold versus the 0.8 VDD threshold is unclear [§10.3 DC Characteristics].
+- §10.1(1) DC Characteristics gives a TYP. value of 5 µA for supply current with the clock stopped but no MAX., while §10.2 and §10.3 give TYP. 3 µA and MAX. 30 µA. The document does not comment on the difference [§10.1(1), §10.2, §10.3].
 - The Reset AC tables print "Undefind" for EIPC, FEPC, and r1 to r31 in Table 8-1 (apparent spelling of "Undefined" as it appears in the document) [Table 8-1].
 - The front-page feature list runs several features together in single lines (for example "Register/flag hazard interlocked by hardware Dynamic bus sizing function (16 bits) 16-bit bus fixing function"), so the boundaries between individual feature bullets are not clearly delimited [front page, Features].
 - The 176-pin ceramic PGA dimension table groups items G, H, I, J into one row with values 2.8±0.3, 0.5 MIN., and 4.57 MAX. millimetres and a single inch value 0.110, so the mapping of each item letter to its value is not determinable from the table [§11, 176-pin ceramic PGA].
-- The 120-pin QFP dimension table includes item R (5°±5°) which the TQFP table omits, and the TQFP table omits item R entirely; the document does not comment [§11].
+- The 120-pin QFP dimension table includes item R (5°±5°) which the TQFP table omits, and the TQFP table omits item R entirely. The document does not comment [§11].
 - The document states that related documents indicated in the publication may include preliminary versions and that preliminary versions are not marked as such [end matter].
-- Section 10's supported-specifications matrix uses a mark/dash convention whose mark glyph is not present in the table cells for the "with electrical specifications" rows; the parenthesised frequencies are present but the presence marks are not [§10 Supported Electrical Specifications, Remarks 1].
+- Section 10's supported-specifications matrix uses a mark/dash convention whose mark glyph is not present in the table cells for the "with electrical specifications" rows. The parenthesised frequencies are present but the presence marks are not [§10 Supported Electrical Specifications, Remarks 1].

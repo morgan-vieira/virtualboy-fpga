@@ -3,24 +3,24 @@
 ## Source
 
 - File: `v810-architecture-summary.md`
-- Type: reference summary (single-sheet architecture overview, presented as headed lists and small tables)
-- Extent: 2 pages; 16 headed sections; roughly 450 words
+- Type: reference summary. It is a single-sheet architecture overview, presented as headed lists and small tables
+- Extent: 2 pages, 16 headed sections, roughly 450 words
 - Version or date stated in document: not stated
 - Author or publisher stated in document: not stated
-- Title: the Markdown body carries no title line. The accompanying extraction metadata records a page-1 title of "V810 Architecture: Summary".
+- Title: the Markdown body carries no title line. The accompanying extraction metadata records a page-1 title of "V810 Architecture: Summary"
 
 ## Scope
 
 The document is a condensed architecture overview of a processor it calls the V810. It covers, in order: the register set, data types, alignment, the instruction-set categories, instruction execution clock cycles, instruction format, addressing modes, flag behaviour, load-versus-in extension, function call (`jal`), bit string operations, floating point operations, interrupts and exceptions, hardware interlock issues, and the cache.
 
-The document does not describe pin-out, bus timing, package, electrical characteristics, instruction encodings, or the system register file. It gives no register-by-register or instruction-by-instruction reference; every statement is a one-line summary.
+The document does not describe pin-out, bus timing, package, electrical characteristics, instruction encodings, or the system register file. It gives no register-by-register or instruction-by-instruction reference. Every statement is a one-line summary.
 
 ## Key concepts
 
-- **Bit String** — a data type the document defines as "any length bit string from or to anywhere in memory". [Data types:]
-- **Interlock** — hardware hazard detection that prevents instruction faults; the document contrasts it with "some pipeline architectures" that "allow successive instruction faults to exist". [Important Hardware Issues]
-- **CHCW** — "the cache control word (CHCW) register", described as controlling the use of cache. [Cache:]
-- **jal** — the function-call operation; the document annotates the section heading "(synthesized through discrete instructions in V810)". [Function Call (jal):]
+- **Bit String.** A data type the document defines as "any length bit string from or to anywhere in memory". [Data types:]
+- **Interlock.** Hardware hazard detection that prevents instruction faults. The document contrasts it with "some pipeline architectures" that "allow successive instruction faults to exist". [Important Hardware Issues]
+- **CHCW.** "The cache control word (CHCW) register", described as controlling the use of cache. [Cache:]
+- **jal.** The function-call operation. The document annotates the section heading "(synthesized through discrete instructions in V810)". [Function Call (jal):]
 
 ## Content
 
@@ -43,7 +43,7 @@ The document does not describe pin-out, bus timing, package, electrical characte
 - Byte order is Little Endian, stated as "All bytes, half words and words must line up to bit 0". [Alignment:]
 - Data aligns to byte, half word and word boundaries. [Alignment:]
 - Instructions align to halfword and word boundaries. [Alignment:]
-- "Truncation is performed if boundaries are mislighted" (transcribed spelling; the document does not define "mislighted" or describe what is truncated). [Alignment:]
+- "Truncation is performed if boundaries are mislighted", the transcribed spelling. The document does not define "mislighted" and does not describe what is truncated. [Alignment:]
 
 ### Instruction set categories
 
@@ -65,7 +65,7 @@ The document gives a two-column table of category and function. [Instruction Set
 ### Instruction format
 
 - The instruction word's internal format is aligned on halfword boundaries. [Instruction Format:]
-- "Instructions are may be half word (16 bits) or word (32 bits)" (transcribed wording). [Instruction Format:]
+- "Instructions are may be half word (16 bits) or word (32 bits)", the transcribed wording. [Instruction Format:]
 
 ### Addressing modes
 
@@ -77,7 +77,7 @@ The document gives a two-column table of category and function. [Instruction Set
 
 The three flag statements appear as an unheaded paragraph following the addressing-mode list.
 
-- "Move, load, store in, out, jump and branch instructions do not affect flags" (verbatim, including the missing comma after "store"). [Addressing modes:, following paragraph]
+- "Move, load, store in, out, jump and branch instructions do not affect flags", verbatim, including the missing comma after "store". [Addressing modes:, following paragraph]
 - All other operations affect flags appropriately to their operation. [Addressing modes:, following paragraph]
 - Floating point flags are set to signal an invalid result or error condition. [Addressing modes:, following paragraph]
 
@@ -107,23 +107,23 @@ The document gives an ordered sequence. [Function Call (jal):]
 
 - The heading names the operations covered: add, subtract, multiply and divide. [Floating point operations:]
 - Throughput is stated as ".9 million floating point operations per second at 25 MHz". [Floating point operations:]
-- Conversion instructions exist from 32 bit float to/from 32 bit integer. [Floating point operations:]
+- Conversion instructions exist from 32 bit float to and from 32 bit integer. [Floating point operations:]
 - Floating point data is handled in normal 32 bit general registers. [Floating point operations:]
 
 ### Interrupts and exceptions
 
-- "Virtual Game Boy has 5 levels of hardware maskable interrupts" (verbatim; this is the only place the document names a system rather than the processor). [Interrupts and Exceptions:]
+- "Virtual Game Boy has 5 levels of hardware maskable interrupts", verbatim. This sentence is the only place the document names a system rather than the processor. [Interrupts and Exceptions:]
 - Software exceptions are produced by TRAP codes and illegal operations. [Interrupts and Exceptions:]
 - Interrupts and exceptions branch to fixed addresses to specified routines. [Interrupts and Exceptions:]
 - Return from Interrupt or exception (RETI) restores PC and branches to it. [Interrupts and Exceptions:]
 - Lower level interrupts may be interrupted by higher level interrupts. [Interrupts and Exceptions:]
 - Higher level interrupts complete before responding to lower ones. [Interrupts and Exceptions:]
-- Interrupts will "(nest) properly" (the document's own parenthesis). [Interrupts and Exceptions:]
+- Interrupts will "(nest) properly", the document's own parenthesis. [Interrupts and Exceptions:]
 
 ### Important hardware issues
 
 - Some pipeline architectures allow successive instruction faults to exist. [Important Hardware Issues]
-- "In the V81 Hardware interlock prevents faults and reduces instructions" (transcribed as "V81"). [Important Hardware Issues]
+- "In the V81 Hardware interlock prevents faults and reduces instructions", transcribed as "V81". [Important Hardware Issues]
 - Load/Store interlock stops base register change before a load/store hazard. [Important Hardware Issues]
 - Flag interlock prevents a conditional branch after a flag modification hazard. [Important Hardware Issues]
 - Extra clock cycles are automatically inserted to "flush the pipe" if needed. [Important Hardware Issues]
@@ -132,7 +132,7 @@ The document gives an ordered sequence. [Function Call (jal):]
 
 - Access costs: ROM = 3 clock cycles, RAM = 2 clock cycles, Cache = 1 clock cycle. [Cache:]
 - Cache size is 1 k bytes, direct mapping, with an 8 byte block and 4 byte sub-block. [Cache:]
-- Cache can be enabled/disabled, cleared, and saved to or from memory. [Cache:]
+- Cache can be enabled or disabled, cleared, and saved to or from memory. [Cache:]
 - The cache control word (CHCW) register controls the use of cache. [Cache:]
 
 ## Specifications and procedures
@@ -157,33 +157,35 @@ Verbatim table. [Instruction Execution Clock Cycles:]
 
 ### Numeric values stated
 
-- Floating point format: 23 bit mantissa, signed 9 bit exponent. [Data types:]
-- Load/Store offset range: + or - 32kb from base register. [Addressing modes:]
-- Immediate Load width: 16 bit value into upper or lower halfword. [Addressing modes:]
-- Function Call range: + or - 32mb from PC. [Addressing modes:]
-- Cache: 1 k bytes, 8 byte block, 4 byte sub-block, direct mapping. [Cache:]
-- Maskable interrupt levels: 5. [Interrupts and Exceptions:]
-- Floating point throughput: .9 million operations per second at 25 MHz. [Floating point operations:]
+| Item                      | Value as stated                                           | Anchor                       |
+| ------------------------- | --------------------------------------------------------- | ---------------------------- |
+| Floating point format     | 23 bit mantissa, signed 9 bit exponent                    | [Data types:]                |
+| Load/Store offset range   | + or - 32kb from base register                            | [Addressing modes:]          |
+| Immediate Load width      | 16 bit value into upper or lower halfword                 | [Addressing modes:]          |
+| Function Call range       | + or - 32mb from PC                                       | [Addressing modes:]          |
+| Cache                     | 1 k bytes, 8 byte block, 4 byte sub-block, direct mapping | [Cache:]                     |
+| Maskable interrupt levels | 5                                                         | [Interrupts and Exceptions:] |
+| Floating point throughput | .9 million operations per second at 25 MHz                | [Floating point operations:] |
 
 ## Constraints and requirements
 
-- All bytes, half words and words must line up to bit 0 (stated as a requirement of Little Endian alignment). [Alignment:]
-- Data must align to byte, half word and word boundaries; instructions must align to halfword and word boundaries. If boundaries are not aligned, truncation is performed. [Alignment:]
-- Efficient use of Cache is mandatory for fast applications (the document's own word, "mandatory"). [Cache:]
+- All bytes, half words and words must line up to bit 0, stated as a requirement of Little Endian alignment. [Alignment:]
+- Data must align to byte, half word and word boundaries. Instructions must align to halfword and word boundaries. If boundaries are not aligned, truncation is performed. [Alignment:]
+- Efficient use of Cache is mandatory for fast applications, using the document's own word, "mandatory". [Cache:]
 - The document states cache is best used for often executed loops and routines. [Cache:]
-- Registers R0 and R26-31 are reserved for explicit hardware operations; R1-R5 are used by assembler and compiler; only R6-25 are available for general program use. [Register set:]
-- Higher level interrupts complete before lower level interrupts are responded to; lower level interrupts may be interrupted by higher level ones. [Interrupts and Exceptions:]
+- Registers R0 and R26-31 are reserved for explicit hardware operations. R1-R5 are used by assembler and compiler. Only R6-25 are available for general program use. [Register set:]
+- Higher level interrupts complete before lower level interrupts are responded to. Lower level interrupts may be interrupted by higher level ones. [Interrupts and Exceptions:]
 
 ## Stated gaps and ambiguities
 
 - The document names the processor exactly twice, as "V810" in the function-call heading ("synthesized through discrete instructions in V810") and as "V81" in the interlock section ("In the V81 Hardware interlock prevents faults"). The document does not reconcile the two spellings. [Function Call (jal):, Important Hardware Issues]
 - The flags paragraph has no heading of its own in the Markdown body, although the extraction metadata records a "Flags:" heading at that position. The three flag statements are therefore anchored only by their position after the addressing-mode list.
 - On page 2 the section headings are run together with the first line of their body text in the transcription, for example `**Load/In:**Load instructions are sign extended…` and `**Important Hardware Issues**Some pipeline architectures…`. No separating punctuation survives.
-- "Truncation is performed if boundaries are mislighted" — the document neither defines "mislighted" nor states what value is truncated or how. [Alignment:]
+- "Truncation is performed if boundaries are mislighted". The document neither defines "mislighted" nor states what value is truncated or how. [Alignment:]
 - "Instructions are may be half word (16 bits) or word (32 bits)" is ungrammatical as transcribed. [Instruction Format:]
-- The document states 5 levels of hardware maskable interrupts but attributes them to "Virtual Game Boy" rather than to the processor, and does not say whether the count is a processor property or a system property. [Interrupts and Exceptions:]
-- The document lists cache access as 1 clock cycle and "Most instructions" as 1 clock cycle, but does not state how the ROM/RAM/Cache access costs combine with the per-instruction clock counts. [Cache:, Instruction Execution Clock Cycles:]
-- Floating point clock cycles are given twice with different framing: the table says "24 to 44" and the floating point section says "Add = 24, subtract = 26, multiply = 27 and divide = 44". Compare is listed as a floating point instruction in the instruction-set table but has no clock figure anywhere. [Instruction Execution Clock Cycles:, Floating point operations:, Instruction Set:]
+- The document states 5 levels of hardware maskable interrupts but attributes them to "Virtual Game Boy" rather than to the processor. It does not say whether the count is a processor property or a system property. [Interrupts and Exceptions:]
+- The document lists cache access as 1 clock cycle and "Most instructions" as 1 clock cycle, but does not state how the ROM, RAM and Cache access costs combine with the per-instruction clock counts. [Cache:, Instruction Execution Clock Cycles:]
+- Floating point clock cycles are given twice with different framing. The table says "24 to 44" and the floating point section says "Add = 24, subtract = 26, multiply = 27 and divide = 44". Compare is listed as a floating point instruction in the instruction-set table but has no clock figure anywhere. [Instruction Execution Clock Cycles:, Floating point operations:, Instruction Set:]
 - The document mentions a "software stack" for return addresses but never says where the stack pointer lives or which register holds it. [Function Call (jal):]
-- No instruction mnemonics are given beyond `jal`, `RETI`, `Nop`, `Halt`, `Trap` and "Compare and exchange"; no encodings, operand orders, or system register numbers appear anywhere in the document.
+- No instruction mnemonics are given beyond `jal`, `RETI`, `Nop`, `Halt`, `Trap` and "Compare and exchange". No encodings, operand orders, or system register numbers appear anywhere in the document.
 - Bit string clock cycles are given as "3 to 12" without saying which operations sit at each end of the range. [Instruction Execution Clock Cycles:]
